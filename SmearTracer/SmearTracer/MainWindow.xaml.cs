@@ -35,8 +35,7 @@ namespace SmearTracer
         {
             //считывание с файла
             OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Filter = "image files (*.bmp)|*.bmp|All files (*.*)|*.*";
-            fileDialog.FilterIndex = 2;
+            fileDialog.Filter = "JPG Files (*.jpg)|*.jpg|bmp files (*.bmp)|*.bmp|JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|All files (*.*)|*.*";
             fileDialog.RestoreDirectory = true;
             BitmapImage image = new BitmapImage();
             if (fileDialog.ShowDialog() == true)
@@ -45,13 +44,13 @@ namespace SmearTracer
                 {
                     image = new BitmapImage(new Uri(fileDialog.FileName));
                     //imageDisplay.Source = image;
-                    KMeans kmeans = new KMeans(5);
+                    KMeans kmeans = new KMeans(4);
                     imageDisplay.Source = kmeans.Compute(image);
                     
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
+                    MessageBox.Show("Error: " + ex.Message);
                 }
             }
         }

@@ -10,7 +10,7 @@ namespace SmearTracer
 {
     public class KMeans
     {
-        public Cluster[] Clusters{ get; set; }
+        public Cluster[] Clusters{ get; }
         public int CountClusters { get; }
         
         public KMeans (int countClusters)
@@ -32,7 +32,7 @@ namespace SmearTracer
             InitialCentroids(data);
 
             double delta;
-            double e = Math.Pow(10, -4);
+            double e = 1;
             int maxIteration = 100;
             int counter = 0;
             do
@@ -48,7 +48,9 @@ namespace SmearTracer
                 counter++;
             }
             while (delta > e && counter < maxIteration);
+
             data = ApplyCentroids(data);
+
             BitmapSource image = DoubleArrayToBitmapImage(source, data);
 
             return image;
@@ -112,43 +114,28 @@ namespace SmearTracer
 
         private void UpdateMeans(double[][] image)
         {
-            double minDistance;
-            int indexOfCluster;
+            int index;
             foreach (Cluster cluster in Clusters)
             {
                 cluster.Data = new List<double[]>();
             }
             for (int i = 0; i < image.GetLength(0); i++)
             {
-                minDistance = Distance(Clusters[0].Centroid, image[i]);
-                indexOfCluster = 0;
-
-                for (int j = 0; j < Clusters.Length; j++)
-                {
-                    if(minDistance > Distance(Clusters[j].Centroid, image[i]))
-                    {
-                        minDistance = Distance(Clusters[j].Centroid, image[i]);
-                        indexOfCluster = j;
-                    }
-                }
-                Clusters[indexOfCluster].Data.Add(image[i]);              
+                index = NearestCentroid(image[i]);
+                Clusters[index].Data.Add(image[i]);              
             }
         } 
 
         private void InitialCentroids(double[][] image)
         {
-            double[][] sortedArray = image.OrderBy(p=>p.Sum()).ToArray();
+            double[][] sortedArray = image;
+            //double[][] sortedArray = image.OrderBy(p=>p.Sum()).ToArray();
             int step = (image.GetLength(0)) / (CountClusters);
 
             for (int i = 0; i < Clusters.Length; i++)
             {
-
-                for (int j = 0; j < Clusters[i].Centroid.Length; j++)
-                {
-                    Clusters[i].Centroid[j] = sortedArray[i * step / 2][j];
-                }
+                Clusters[i].Centroid = sortedArray[i * step / 2];
             }
-
         }
 
         private void UpdateCentroids()
@@ -185,38 +172,42 @@ namespace SmearTracer
 
             for (int i = 0; i < results.GetLength(0); i++)
             {
-                results[i] = NearestCentnroid(data[i]);
+                results[i] = Clusters[NearestCentroid(data[i])].Centroid;
             }
 
             return results;
         }
 
-        private double[] NearestCentnroid(double[] data)
+        private int NearestCentroid(double[] data)
         {
             double distance = Distance(data, Clusters[0].Centroid);
+            double minDistance = distance;
             int index = 0;
             for(int i = 0; i < Clusters.Length; i++)
             {
-                if(distance > Distance(data, Clusters[i].Centroid))
+                distance = Distance(data, Clusters[i].Centroid);
+
+                if (minDistance > distance)
                 {
-                    distance = Distance(data, Clusters[i].Centroid);
+                    minDistance = distance;
                     index = i;
                 }             
             }
-
-            return Clusters[index].Centroid;
+            return index;
         }
 
         private double Distance(double[] x, double[] u)
         {
-            double EuclideanDictance = 0;
+            double dictance = 0;
 
             for(int i = 0; i < x.Length; i++)
             {
-                EuclideanDictance += Math.Pow(x[i] - u[i], 2);
+                //if (dictance < Math.Abs(x[i] - u[i]))
+                //{
+                    dictance += Math.Abs(x[i] - u[i]);
+                //}
             }
-
-            return Math.Sqrt(EuclideanDictance);
+            return dictance;
         }
     }
 }
