@@ -10,8 +10,8 @@ namespace SmearTracer
 {
     public class KMeans
     {
-        public Cluster[] Clusters{ get; }
-        public int CountClusters { get; }
+        public Cluster[] Clusters{ get; set; }
+        public int CountClusters { get; set; }
         
         public KMeans (int countClusters)
         {
@@ -32,7 +32,7 @@ namespace SmearTracer
             InitialCentroids(data);
 
             double delta;
-            double e = 1;
+            double e = 10;
             int maxIteration = 100;
             int counter = 0;
             do
@@ -130,7 +130,7 @@ namespace SmearTracer
         {
             double[][] sortedArray = image;
             //double[][] sortedArray = image.OrderBy(p=>p.Sum()).ToArray();
-            int step = (image.GetLength(0)) / (CountClusters);
+            int step = (image.GetLength(0)) / (CountClusters + 1);
 
             for (int i = 0; i < Clusters.Length; i++)
             {
@@ -162,6 +162,10 @@ namespace SmearTracer
 
                     cluster.LastCentroid = cluster.Centroid;
                     cluster.Centroid = centroid;
+                }
+                else
+                {
+                    Clusters = Clusters.Where(c => c.Data.Count > 0).ToArray();
                 }
             }         
         }

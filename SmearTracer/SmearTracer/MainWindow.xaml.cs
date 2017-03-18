@@ -44,7 +44,7 @@ namespace SmearTracer
                 {
                     image = new BitmapImage(new Uri(fileDialog.FileName));
                     //imageDisplay.Source = image;
-                    KMeans kmeans = new KMeans(4);
+                    KMeans kmeans = new KMeans(20);
                     imageDisplay.Source = kmeans.Compute(image);
                     
                 }
