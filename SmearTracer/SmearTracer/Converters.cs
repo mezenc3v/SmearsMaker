@@ -63,5 +63,19 @@ namespace SmearTracer
 
             return image;
         }
+
+        public List<Pixel> DoubleArrayToDataPixels(double[][] data, int width, int height)
+        {
+            List<Pixel> dataPixelList = new List<Pixel>();
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    int index = i * height + j;
+                    dataPixelList.Add(new Pixel(data[index], i, j));
+                }
+            }
+            return dataPixelList;
+        }
     }
 }

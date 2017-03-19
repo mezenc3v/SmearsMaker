@@ -8,6 +8,11 @@ namespace SmearTracer
 {
     public class Segment
     {
+        public List<Pixel> Pixels { get; set; }
 
+        public Segment()
+        {
+            
+        }
     }
 }

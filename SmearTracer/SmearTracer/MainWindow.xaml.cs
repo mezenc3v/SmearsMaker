@@ -34,9 +34,13 @@ namespace SmearTracer
         private void buttonOpenFile_Click(object sender, RoutedEventArgs e)
         {
             //считывание с файла
-            OpenFileDialog fileDialog = new OpenFileDialog();
-            fileDialog.Filter = "JPG Files (*.jpg)|*.jpg|bmp files (*.bmp)|*.bmp|JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|All files (*.*)|*.*";
-            fileDialog.RestoreDirectory = true;
+            OpenFileDialog fileDialog = new OpenFileDialog
+            {
+                Filter =
+                    "JPG Files (*.jpg)|*.jpg|bmp files (*.bmp)|*.bmp|JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)" +
+                    "|*.png|GIF Files (*.gif)|*.gif|All files (*.*)|*.*",
+                RestoreDirectory = true
+            };
             if (fileDialog.ShowDialog() == true)
             {
                 try
@@ -48,11 +52,28 @@ namespace SmearTracer
 
                     MedianFilter filter = new MedianFilter(1,image.PixelWidth,image.PixelHeight);
 
-                    imageData = filter.Compute(imageData);
+                    double[][] filterImageData = filter.Compute(imageData);
 
                     //imageDisplay.Source = image;
                     KMeans kmeans = new KMeans(10, 0.1);
-                    imageData = kmeans.Compute(imageData, 100);
+
+                    double[][] clusteredDataImage = kmeans.Compute(filterImageData, 100);
+
+                    KohonenNetwork network = new KohonenNetwork(6,6,6);
+
+                    List<Pixel> dataPixels = converter.DoubleArrayToDataPixels(clusteredDataImage, image.PixelWidth,
+                        image.PixelHeight);
+
+                    List<Pixel> cluster = dataPixels.FindAll(d => kmeans.Clusters[2].Data.Contains(d.Data));
+
+                    network.Learning(cluster, 10);
+                    clusteredDataImage = new double[clusteredDataImage.GetLength(0)][];
+                    for (int i = 0; i < clusteredDataImage.GetLength(0); i++)
+                    {
+                        clusteredDataImage[i] = new double[]{0,0,0,255};
+                    }
+                    imageData = network.PaintDataImage(cluster, clusteredDataImage, image.PixelHeight);
+
                     imageDisplay.Source = converter.DoubleArrayToBitmapImage(image, imageData);
 
                 }

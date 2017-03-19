@@ -63,9 +63,12 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters.cs" />
-    <Compile Include="Segment.cs" />
+    <Compile Include="KohonenNetwork.cs" />
+    <Compile Include="Neuron.cs" />
+    <Compile Include="NeuronNetwork.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="KMeans.cs" />
+    <Compile Include="Segment.cs" />
     <Compile Include="Smear.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
