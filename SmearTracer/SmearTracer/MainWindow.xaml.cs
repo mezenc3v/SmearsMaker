@@ -37,16 +37,24 @@ namespace SmearTracer
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "JPG Files (*.jpg)|*.jpg|bmp files (*.bmp)|*.bmp|JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)|*.png|GIF Files (*.gif)|*.gif|All files (*.*)|*.*";
             fileDialog.RestoreDirectory = true;
-            BitmapImage image = new BitmapImage();
             if (fileDialog.ShowDialog() == true)
             {
                 try
                 {
-                    image = new BitmapImage(new Uri(fileDialog.FileName));
+                    Converters converter = new Converters();
+                    BitmapImage image = new BitmapImage(new Uri(fileDialog.FileName));
+
+                    double[][] imageData = converter.BitmapImageToDoubleArray(image);
+
+                    MedianFilter filter = new MedianFilter(1,image.PixelWidth,image.PixelHeight);
+
+                    imageData = filter.Compute(imageData);
+
                     //imageDisplay.Source = image;
-                    KMeans kmeans = new KMeans(20);
-                    imageDisplay.Source = kmeans.Compute(image);
-                    
+                    KMeans kmeans = new KMeans(10, 0.1);
+                    imageData = kmeans.Compute(imageData, 100);
+                    imageDisplay.Source = converter.DoubleArrayToBitmapImage(image, imageData);
+
                 }
                 catch (Exception ex)
                 {

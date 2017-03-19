@@ -10,19 +10,20 @@ namespace SmearTracer
 {
     public class KMeans
     {
-        public Cluster[] Clusters{ get; set; }
-        public int CountClusters { get; set; }
-        
-        public KMeans (int countClusters)
+        public Cluster[] Clusters{ get; private set; }
+        public int CountClusters { get; private set; }
+        private readonly double _precision;
+
+        public KMeans (int countClusters, double precision)
         {
             Clusters = new Cluster[countClusters];
 
             CountClusters = countClusters;
+            _precision = precision;
         }
 
-        public BitmapSource Compute(BitmapSource source)
+        public double[][] Compute(double[][] data, int maxIteration)
         {
-            double[][] data = BitmapImageToDoubleArray(source);
 
             for(int i = 0; i < Clusters.Length; i++)
             {
@@ -32,8 +33,6 @@ namespace SmearTracer
             InitialCentroids(data);
 
             double delta;
-            double e = 10;
-            int maxIteration = 100;
             int counter = 0;
             do
             {
@@ -41,96 +40,37 @@ namespace SmearTracer
                 UpdateMeans(data);
                 UpdateCentroids();
                
-                foreach (Cluster cluster in Clusters)
+                foreach (var cluster in Clusters)
                 {
                     delta += Distance(cluster.Centroid, cluster.LastCentroid);
                 }
                 counter++;
             }
-            while (delta > e && counter < maxIteration);
+            while (delta > _precision && counter < maxIteration);
 
             data = ApplyCentroids(data);
 
-            BitmapSource image = DoubleArrayToBitmapImage(source, data);
-
-            return image;
+            return data;
         }
 
-        private double[][] BitmapImageToDoubleArray(BitmapSource source)
+        private void UpdateMeans(double[][] data)
         {
-            double[][] inputData = new double[source.PixelWidth * source.PixelHeight][];
-            const int pixelFormatSize = 4;
-            int stride = source.PixelWidth * pixelFormatSize;
-            int size = source.PixelHeight * stride;
-            int counter = 0;
-            int indexPixel;
-            byte[] data = new byte[size];
-            source.CopyPixels(data, stride, 0);
-
-            for(int x = 0; x < source.PixelWidth; x++)
-            {
-                for(int y = 0; y < source.PixelHeight; y++)
-                {
-                    indexPixel = y * stride + pixelFormatSize * x;
-                    inputData[counter] = new double[pixelFormatSize];
-                    for(int i = 0; i < pixelFormatSize; i++)
-                    {
-                        inputData[counter][i] = data[indexPixel + i];
-                    }
-                    counter++;
-                }          
-            }
-
-            return inputData;
-        }
-
-        private BitmapSource DoubleArrayToBitmapImage(BitmapSource source, double[][] inputData)
-        { 
-            const int pixelFormatSize = 4;
-            int stride = source.PixelWidth * pixelFormatSize;
-            int size = source.PixelHeight * stride;
-            int counter = 0;
-            int indexPixel;
-            byte[] data = new byte[size];
-
-            for (int x = 0; x < source.PixelWidth; x++)
-            {
-                for (int y = 0; y < source.PixelHeight; y++)
-                {
-                    indexPixel = y * stride + pixelFormatSize * x;
-                    for (int i = 0; i < pixelFormatSize; i++)
-                    {
-                        data[indexPixel + i] = (byte)inputData[counter][i];
-                    }
-                    counter++;
-                }
-            }
-
-            BitmapSource image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX, 
-                source.DpiY, source.Format, source.Palette, data, stride);
-
-            return image;
-        }
-
-        private void UpdateMeans(double[][] image)
-        {
-            int index;
             foreach (Cluster cluster in Clusters)
             {
                 cluster.Data = new List<double[]>();
             }
-            for (int i = 0; i < image.GetLength(0); i++)
+            for (int i = 0; i < data.GetLength(0); i++)
             {
-                index = NearestCentroid(image[i]);
-                Clusters[index].Data.Add(image[i]);              
+                int index = NearestCentroid(data[i]);
+                Clusters[index].Data.Add(data[i]);              
             }
         } 
 
-        private void InitialCentroids(double[][] image)
+        private void InitialCentroids(double[][] data)
         {
-            double[][] sortedArray = image;
-            //double[][] sortedArray = image.OrderBy(p=>p.Sum()).ToArray();
-            int step = (image.GetLength(0)) / (CountClusters + 1);
+            //double[][] sortedArray = data;
+            double[][] sortedArray = data.OrderBy(p=>p.Sum()).ToArray();
+            int step = (data.GetLength(0)) / (CountClusters + 1);
 
             for (int i = 0; i < Clusters.Length; i++)
             {
@@ -140,19 +80,18 @@ namespace SmearTracer
 
         private void UpdateCentroids()
         {
-            double[] centroid;
-
-            foreach (Cluster cluster in Clusters)
+            foreach (var cluster in Clusters)
             {
-                centroid = new double[Clusters[0].Centroid.Length];
+                double[] centroid = new double[Clusters[0].Centroid.Length];
                 if (cluster.Data.Count > 0)
                 {
-                    for (int i = 0; i < cluster.Data.Count; i++)
+                    foreach (double[] data in cluster.Data)
                     {
-                        for (int j = 0; j < cluster.Data[i].Length; j++)
+                        for (int j = 0; j < data.Length; j++)
                         {
-                            centroid[j] += cluster.Data[i][j];
+                            centroid[j] += data[j];
                         }
+
                     }
 
                     for (int i = 0; i < centroid.Length; i++)
@@ -166,6 +105,7 @@ namespace SmearTracer
                 else
                 {
                     Clusters = Clusters.Where(c => c.Data.Count > 0).ToArray();
+                    CountClusters = Clusters.Length;
                 }
             }         
         }
@@ -174,9 +114,36 @@ namespace SmearTracer
         {
             double[][] results = new double[data.GetLength(0)][];
 
+            foreach (var cluster in Clusters)
+            {
+                double[][] dataCluster = cluster.Data.OrderByDescending(c => c.Max()).ToArray();
+                int max = 0;
+                int indexOfMax = 0;
+                int currentMax = 0;
+
+                for (int i = 0; i < cluster.Data.Count - 1; i++)
+                {
+                    if (Math.Abs(Distance(dataCluster[i], dataCluster[i+1])) < _precision)
+                    //if (dataCluster[i] == dataCluster[i + 1])
+                    {
+                        currentMax++;
+                    }
+                    else
+                    {
+                        if (currentMax > max)
+                        {
+                            max = currentMax;
+                            indexOfMax = i;
+                        }
+                        currentMax = 0;
+                    }
+                }
+                cluster.LastCentroid = cluster.Data[indexOfMax];
+            }
             for (int i = 0; i < results.GetLength(0); i++)
             {
-                results[i] = Clusters[NearestCentroid(data[i])].Centroid;
+                int index = NearestCentroid(data[i]);
+                results[i] = Clusters[index].LastCentroid;
             }
 
             return results;
@@ -184,12 +151,11 @@ namespace SmearTracer
 
         private int NearestCentroid(double[] data)
         {
-            double distance = Distance(data, Clusters[0].Centroid);
-            double minDistance = distance;
+            double minDistance = Distance(data, Clusters[0].Centroid);
             int index = 0;
             for(int i = 0; i < Clusters.Length; i++)
             {
-                distance = Distance(data, Clusters[i].Centroid);
+                double distance = Distance(data, Clusters[i].Centroid);
 
                 if (minDistance > distance)
                 {
@@ -200,16 +166,13 @@ namespace SmearTracer
             return index;
         }
 
-        private double Distance(double[] x, double[] u)
+        private static double Distance(double[] leftVector, double[] rightVector)
         {
             double dictance = 0;
 
-            for(int i = 0; i < x.Length; i++)
+            for(int i = 0; i < leftVector.Length; i++)
             {
-                //if (dictance < Math.Abs(x[i] - u[i]))
-                //{
-                    dictance += Math.Abs(x[i] - u[i]);
-                //}
+                dictance += Math.Abs(leftVector[i] - rightVector[i]);
             }
             return dictance;
         }
