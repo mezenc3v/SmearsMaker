@@ -14,16 +14,19 @@ namespace SmearTracer
         public NeuronNetwork(int width, int height, List<Pixel> inputData)
         {            
             NeuronsMap = new List<Neuron[]>();
-            double[][] samples = SamplesForNetwork(inputData, width, height);
-            int counter = 0;
-            for (int k = 0; k < width; k++)
+            if (width * height > 0)
             {
-                Neuron[] arrayNeurons = new Neuron[height];
-                for (int i = 0; i < height; i++)
+                double[][] samples = SamplesForNetwork(inputData, width, height);
+                int counter = 0;
+                for (int k = 0; k < width; k++)
                 {
-                    arrayNeurons[i] = new Neuron(samples[counter++]);
+                    Neuron[] arrayNeurons = new Neuron[height];
+                    for (int i = 0; i < height; i++)
+                    {
+                        arrayNeurons[i] = new Neuron(samples[counter++]);
+                    }
+                    NeuronsMap.Add(arrayNeurons);
                 }
-                NeuronsMap.Add(arrayNeurons);
             }
 
         }
@@ -32,7 +35,7 @@ namespace SmearTracer
         {
             double[][] samplesData = new double[widthMap*heightMap][];
 
-            int step = samplesData.GetLength(0) / widthMap / heightMap;
+            int step = data.Count / widthMap / heightMap;
             for (int i = 0; i < samplesData.Length; i++)
             {
                 samplesData[i] = data[i * step].Coordinates;

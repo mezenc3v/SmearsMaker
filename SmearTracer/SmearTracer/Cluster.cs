@@ -10,13 +10,13 @@ namespace SmearTracer
     {
         public double[] Centroid { get; set; }
         public double[] LastCentroid { get; set; }
-        public List<double[]> Data { get; set; }
+        public List<Pixel> Data { get; set; }
 
         public Cluster(int size)
         {
             Centroid = new double[size];
             LastCentroid = new double[size];
-            Data = new List<double[]>();
+            Data = new List<Pixel>();
         }
 
         

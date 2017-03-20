@@ -22,12 +22,11 @@ namespace SmearTracer
             _precision = precision;
         }
 
-        public double[][] Compute(double[][] data, int maxIteration)
+        public List<Pixel> Compute(List<Pixel> data, int maxIteration)
         {
-
             for(int i = 0; i < Clusters.Length; i++)
             {
-                Clusters[i] = new Cluster(data[0].Length);
+                Clusters[i] = new Cluster(data[0].Data.Length);
             }
 
             InitialCentroids(data);
@@ -53,28 +52,28 @@ namespace SmearTracer
             return data;
         }
 
-        private void UpdateMeans(double[][] data)
+        private void UpdateMeans(List<Pixel> data)
         {
             foreach (Cluster cluster in Clusters)
             {
-                cluster.Data = new List<double[]>();
+                cluster.Data = new List<Pixel>();
             }
-            for (int i = 0; i < data.GetLength(0); i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                int index = NearestCentroid(data[i]);
+                int index = NearestCentroid(data[i].Data);
                 Clusters[index].Data.Add(data[i]);              
             }
         } 
 
-        private void InitialCentroids(double[][] data)
+        private void InitialCentroids(List<Pixel> data)
         {
             //double[][] sortedArray = data;
-            double[][] sortedArray = data.OrderBy(p=>p.Sum()).ToArray();
-            int step = (data.GetLength(0)) / (CountClusters + 1);
+            List<Pixel> sortedArray = data.OrderBy(p=>p.Data.Sum()).ToList();
+            int step = (data.Count) / (CountClusters + 1);
 
             for (int i = 0; i < Clusters.Length; i++)
             {
-                Clusters[i].Centroid = sortedArray[i * step / 2];
+                Clusters[i].Centroid = sortedArray[i * step / 2].Data;
             }
         }
 
@@ -85,11 +84,11 @@ namespace SmearTracer
                 double[] centroid = new double[Clusters[0].Centroid.Length];
                 if (cluster.Data.Count > 0)
                 {
-                    foreach (double[] data in cluster.Data)
+                    foreach (Pixel data in cluster.Data)
                     {
-                        for (int j = 0; j < data.Length; j++)
+                        for (int j = 0; j < data.Data.Length; j++)
                         {
-                            centroid[j] += data[j];
+                            centroid[j] += data.Data[j];
                         }
 
                     }
@@ -110,20 +109,20 @@ namespace SmearTracer
             }         
         }
 
-        private double[][] ApplyCentroids(double[][] data)
+        private List<Pixel> ApplyCentroids(List<Pixel> data)
         {
-            double[][] results = new double[data.GetLength(0)][];
+            List<Pixel> results = new List<Pixel>(data);
 
             foreach (var cluster in Clusters)
             {
-                double[][] dataCluster = cluster.Data.OrderByDescending(c => c.Max()).ToArray();
+                List<Pixel> dataCluster = cluster.Data.OrderByDescending(c => c.Data.Max()).ToList();
                 int max = 0;
                 int indexOfMax = 0;
                 int currentMax = 0;
 
                 for (int i = 0; i < cluster.Data.Count - 1; i++)
                 {
-                    if (Math.Abs(Distance(dataCluster[i], dataCluster[i+1])) < _precision)
+                    if (Math.Abs(Distance(dataCluster[i].Data, dataCluster[i+1].Data)) < _precision)
                     //if (dataCluster[i] == dataCluster[i + 1])
                     {
                         currentMax++;
@@ -138,12 +137,12 @@ namespace SmearTracer
                         currentMax = 0;
                     }
                 }
-                cluster.LastCentroid = cluster.Data[indexOfMax];
+                cluster.LastCentroid = cluster.Data[indexOfMax].Data;
             }
-            for (int i = 0; i < results.GetLength(0); i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                int index = NearestCentroid(data[i]);
-                results[i] = Clusters[index].LastCentroid;
+                int index = NearestCentroid(data[i].Data);
+                results[i].Data = Clusters[index].LastCentroid;
             }
 
             return results;

@@ -11,7 +11,9 @@ namespace SmearTracer
     public class Neuron
     {
         public double[] Weights { get; set; }
-        public Color Color { get; }
+        public double[] AverageData { get; set; }
+        public List<Pixel> Data { get; set; }
+        public double[] Color { get; set; }
         public Neuron()
         {
             
@@ -20,8 +22,9 @@ namespace SmearTracer
         public static byte Generate()
         {//гсч
             RNGCryptoServiceProvider c = new RNGCryptoServiceProvider();
-            byte[] randomNumber = new byte[8];
+            byte[] randomNumber = new byte[1];
             c.GetBytes(randomNumber);
+
             return randomNumber[0];
         }
 
@@ -31,15 +34,11 @@ namespace SmearTracer
             for (int i = 0; i < Weights.Length; i++)
                 Weights[i] = sample[i];
 
-            Random rand = new Random((int)DateTime.Now.Ticks);
-
-            Color = new Color
-            {            
-                A = 255,
-                R = Generate(),
-                G = Generate(),
-                B = Generate()
-            };
+            Data = new List<Pixel>();
+            byte r = Generate();
+            byte g = Generate();
+            byte b = Generate();
+            Color = new double[]{255, r, g, b};
         }
 
         public Neuron(int countInputs)
@@ -47,7 +46,9 @@ namespace SmearTracer
             Random rand = new Random((int)DateTime.Now.Ticks);
             Weights = new double[countInputs];
             for (int i = 0; i < countInputs; i++)
-                Weights[i] = rand.Next();
+                Weights[i] = rand.Next(200);
+
+            Color = new double[] { 255, Generate(), Generate(), Generate() };
         }
     }
 }

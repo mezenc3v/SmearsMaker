@@ -43,9 +43,10 @@ namespace SmearTracer
             };
             if (fileDialog.ShowDialog() == true)
             {
-                try
-                {
+                /*try
+                {*/
                     Converters converter = new Converters();
+
                     BitmapImage image = new BitmapImage(new Uri(fileDialog.FileName));
 
                     double[][] imageData = converter.BitmapImageToDoubleArray(image);
@@ -54,33 +55,34 @@ namespace SmearTracer
 
                     double[][] filterImageData = filter.Compute(imageData);
 
+                    int size = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight) + 5;
                     //imageDisplay.Source = image;
-                    KMeans kmeans = new KMeans(10, 0.1);
+                    KMeans kmeans = new KMeans(size, 0.1);
 
-                    double[][] clusteredDataImage = kmeans.Compute(filterImageData, 100);
-
-                    KohonenNetwork network = new KohonenNetwork(6,6,6);
-
-                    List<Pixel> dataPixels = converter.DoubleArrayToDataPixels(clusteredDataImage, image.PixelWidth,
+                    List<Pixel> filterData = converter.DoubleArrayToDataPixels(filterImageData, image.PixelWidth,
                         image.PixelHeight);
+                    
+                    List<Pixel> clusteredDataImage = kmeans.Compute(filterData, 100);
 
-                    List<Pixel> cluster = dataPixels.FindAll(d => kmeans.Clusters[2].Data.Contains(d.Data));
+                    
+                    //List<NeuronNetwork> networks = new List<NeuronNetwork>();
 
-                    network.Learning(cluster, 10);
-                    clusteredDataImage = new double[clusteredDataImage.GetLength(0)][];
-                    for (int i = 0; i < clusteredDataImage.GetLength(0); i++)
+                    foreach (var cluster in kmeans.Clusters)
                     {
-                        clusteredDataImage[i] = new double[]{0,0,0,255};
-                    }
-                    imageData = network.PaintDataImage(cluster, clusteredDataImage, image.PixelHeight);
+                        int networkSize = cluster.Data.Count / (size * size * size) + 4;
+                        KohonenNetwork network = new KohonenNetwork(networkSize, networkSize, 0);
+                        network.Learning(cluster.Data, 1);                      
+                        imageData = network.PaintDataImage(cluster.Data, imageData, image.PixelHeight);   
+                        //networks.Add(network.Network);
+                    }           
 
                     imageDisplay.Source = converter.DoubleArrayToBitmapImage(image, imageData);
 
-                }
+                /*}
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error: " + ex.Message);
-                }
+                }*/
             }
         }
     }

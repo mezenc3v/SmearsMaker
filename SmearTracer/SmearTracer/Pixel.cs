@@ -23,5 +23,11 @@ namespace SmearTracer
             Data = data;
             Coordinates = new double[]{x,y};
         }
+
+        public Pixel(Pixel pixel)
+        {
+            Data = pixel.Data;
+            Coordinates = pixel.Coordinates;
+        }
     }
 }
