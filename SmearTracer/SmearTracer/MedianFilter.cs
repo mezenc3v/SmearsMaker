@@ -20,7 +20,7 @@ namespace SmearTracer
             _height = height;
         }
 
-        public double[][] Compute(double[][] data)
+        public List<Pixel> Compute(List<Pixel> data)
         {
             for (int coordX = 0; coordX < _width; coordX++)
             {
@@ -35,11 +35,11 @@ namespace SmearTracer
                             int index = coordMaskX * _height + coordMaskY;
                             if (index < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
                             {
-                                mask.Add(data[index]);
+                                mask.Add(data[index].Data);
                             }
                         }
                     }
-                    data[coordX * _height + coordY] = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
+                    data[coordX * _height + coordY].Data = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
                 }
             }
             return data;

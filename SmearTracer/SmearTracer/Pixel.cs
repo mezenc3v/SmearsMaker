@@ -11,7 +11,7 @@ namespace SmearTracer
     public class Pixel
     {
         public double[] Data { get; set; }
-        public double[] Coordinates { get;}
+        public double[] Coordinates { get; set; }
 
         public Pixel()
         {

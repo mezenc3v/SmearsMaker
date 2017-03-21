@@ -31,6 +31,48 @@ namespace SmearTracer
         
         }
 
+        private BitmapSource GetImage(BitmapSource image)
+        {
+            int countSmears = 500;
+            int smearSize = image.PixelWidth * image.PixelHeight / countSmears;
+            int countClusters = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight + smearSize) + 3;
+            double tolerance = 0.1;
+            int maxIter = 100;
+            int rankFilter = 1;
+            int rankNetworkLearning = 0;
+            int iterLearning = 1;
+            int networkSize;
+            Converters converter = new Converters();      
+            MedianFilter filter = new MedianFilter(rankFilter, image.PixelWidth, image.PixelHeight);
+            KMeans kmeans = new KMeans(countClusters, tolerance);
+            List<NeuronNetwork> networks = new List<NeuronNetwork>();
+
+            List<Pixel> imageData = converter.BitmapImageToListPixels(image);
+            List<Pixel> filteredData = filter.Compute(imageData);
+            List<Pixel> clusteredDataImage = kmeans.Compute(filteredData, maxIter);
+            List<Pixel> neuronsData = new List<Pixel>();
+            foreach (var cluster in kmeans.Clusters)
+            {
+                networkSize = (int)Math.Sqrt(cluster.Data.Count / smearSize) + 1;
+                KohonenNetwork network = new KohonenNetwork(networkSize, networkSize, rankNetworkLearning);
+                network.Learning(cluster.Data, iterLearning);
+                networks.Add(network.Network);
+            }
+
+            foreach (var network in networks)
+            {
+                foreach (var arrNeurons in network.NeuronsMap)
+                {
+                    foreach (var neuron in arrNeurons)
+                    {
+                        neuron.Data.ForEach(p => p.Data = neuron.AverageData);
+                        neuronsData.AddRange(neuron.Data);
+                    }
+                }
+            }
+            BitmapSource imageResult = converter.ListPixelsToBitmapImage(image, neuronsData);
+            return imageResult;
+        } 
         private void buttonOpenFile_Click(object sender, RoutedEventArgs e)
         {
             //считывание с файла
@@ -43,46 +85,18 @@ namespace SmearTracer
             };
             if (fileDialog.ShowDialog() == true)
             {
-                /*try
-                {*/
-                    Converters converter = new Converters();
-
-                    BitmapImage image = new BitmapImage(new Uri(fileDialog.FileName));
-
-                    double[][] imageData = converter.BitmapImageToDoubleArray(image);
-
-                    MedianFilter filter = new MedianFilter(1,image.PixelWidth,image.PixelHeight);
-
-                    double[][] filterImageData = filter.Compute(imageData);
-
-                    int size = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight) + 5;
-                    //imageDisplay.Source = image;
-                    KMeans kmeans = new KMeans(size, 0.1);
-
-                    List<Pixel> filterData = converter.DoubleArrayToDataPixels(filterImageData, image.PixelWidth,
-                        image.PixelHeight);
+                BitmapImage image = null;
+                try
+                {
+                    image = new BitmapImage(new Uri(fileDialog.FileName));
                     
-                    List<Pixel> clusteredDataImage = kmeans.Compute(filterData, 100);
-
-                    
-                    //List<NeuronNetwork> networks = new List<NeuronNetwork>();
-
-                    foreach (var cluster in kmeans.Clusters)
-                    {
-                        int networkSize = cluster.Data.Count / (size * size * size) + 4;
-                        KohonenNetwork network = new KohonenNetwork(networkSize, networkSize, 0);
-                        network.Learning(cluster.Data, 1);                      
-                        imageData = network.PaintDataImage(cluster.Data, imageData, image.PixelHeight);   
-                        //networks.Add(network.Network);
-                    }           
-
-                    imageDisplay.Source = converter.DoubleArrayToBitmapImage(image, imageData);
-
-                /*}
+                }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error: " + ex.Message);
-                }*/
+                    MessageBox.Show("Error opening image: " + ex.Message);
+                }
+
+                imageDisplay.Source = GetImage(image);
             }
         }
     }

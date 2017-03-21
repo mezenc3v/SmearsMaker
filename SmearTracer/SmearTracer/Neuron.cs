@@ -38,17 +38,7 @@ namespace SmearTracer
             byte r = Generate();
             byte g = Generate();
             byte b = Generate();
-            Color = new double[]{255, r, g, b};
-        }
-
-        public Neuron(int countInputs)
-        {
-            Random rand = new Random((int)DateTime.Now.Ticks);
-            Weights = new double[countInputs];
-            for (int i = 0; i < countInputs; i++)
-                Weights[i] = rand.Next(200);
-
-            Color = new double[] { 255, Generate(), Generate(), Generate() };
+            Color = new double[]{r, g, b, 255};
         }
     }
 }

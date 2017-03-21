@@ -68,8 +68,6 @@
     <Compile Include="NeuronNetwork.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="KMeans.cs" />
-    <Compile Include="Segment.cs" />
-    <Compile Include="Smear.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

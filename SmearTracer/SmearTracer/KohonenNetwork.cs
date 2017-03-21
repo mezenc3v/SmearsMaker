@@ -22,51 +22,6 @@ namespace SmearTracer
             _learningRadius = radius;
         }
 
-        public double[][] PaintDataImage(List<Pixel> segments, double[][] data, int heightImage)
-        {
-            double[][] paintedDataimage = data;
-            for (int i = 0; i < Network.NeuronsMap.Count; i++)
-            {
-                for (int j = 0; j < Network.NeuronsMap[i].Length; j++)
-                {
-                    Network.NeuronsMap[i][j].Data = Winner(segments, i, j);
-                    if (Network.NeuronsMap[i][j].Data.Count > 0)
-                    {
-                        double[] averageData = new double[segments[0].Data.Length];
-                        foreach (Pixel pixel in Network.NeuronsMap[i][j].Data)
-                        {
-                            int index = (int)(pixel.Coordinates[0] * heightImage + pixel.Coordinates[1]);
-                            pixel.Data = data[index];
-                            for (int l = 0; l < averageData.Length; l++)
-                            {
-                                averageData[l] += data[index][l];
-                            }
-                        }
-                        for (int l = 0; l < averageData.Length; l++)
-                        {
-                            averageData[l] /= Network.NeuronsMap[i][j].Data.Count;
-                        }
-                        Network.NeuronsMap[i][j].AverageData = averageData;
-                    }
-                }
-            }
-
-            foreach (var arrayNeurons in Network.NeuronsMap)
-            {
-                foreach (Neuron neuron in arrayNeurons)
-                {
-                    foreach (var dataNeuron in neuron.Data)
-                    {
-                        int index = (int)(dataNeuron.Coordinates[0] * heightImage + dataNeuron.Coordinates[1]);
-                        data[index] = neuron.Color;
-                        //data[index] = neuron.AverageData;
-                    }
-                }
-            }
-
-            return paintedDataimage;
-        }
-
         private List<Pixel> Winner(List<Pixel> data, int coordX, int coordY)
         {
             List<Pixel> winnerData = new List<Pixel>();
@@ -88,10 +43,39 @@ namespace SmearTracer
             Network = new NeuronNetwork(_width, _height, data);
             //learning network
             for (int j = 0; j < studIteration; j++)
-                for (int x = 0; x < data.Count; x++)
-                {            
-                    LearningNetwork(data[x].Coordinates);
+                foreach (Pixel pixel in data)
+                {
+                    LearningNetwork(pixel.Coordinates);
                 }
+            //applyng data changes
+            for (int i = 0; i < Network.NeuronsMap.Count; i++)
+            {
+                for (int j = 0; j < Network.NeuronsMap[i].Length; j++)
+                {
+                    Network.NeuronsMap[i][j].Data = Winner(data, i, j);
+
+                    if (Network.NeuronsMap[i][j].Data.Count > 0)
+                    {
+                        double[] averageData = new double[data[0].Data.Length];
+
+                        foreach (Pixel pixel in Network.NeuronsMap[i][j].Data)
+                        {
+                            for (int l = 0; l < averageData.Length; l++)
+                            {
+                                averageData[l] += pixel.Data[l];
+                            }
+                        }
+                        for (int l = 0; l < averageData.Length; l++)
+                        {
+                            averageData[l] /= Network.NeuronsMap[i][j].Data.Count;
+                        }
+                        Network.NeuronsMap[i][j].AverageData = averageData;
+                    }
+                }
+            }
+
+            
+
         }
 
         private void LearningNetwork(double[] input)

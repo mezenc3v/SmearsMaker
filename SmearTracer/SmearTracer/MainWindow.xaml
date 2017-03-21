@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SmearTracer"
         mc:Ignorable="d"
-        Title="SmearTracer" Height="355" Width="300" Loaded="mainForm_Loaded">
+        Title="SmearTracer" Height="855" Width="855" Loaded="mainForm_Loaded">
     <Grid x:Name="mainGrid">
         <Button x:Name="buttonOpenFile" Content="open" Margin ="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="buttonOpenFile_Click"/>
-        <Image x:Name="imageDisplay" HorizontalAlignment="Left" Height="280" Margin="5,5,0,0" VerticalAlignment="Top" Width="280"/>
+        <Image x:Name="imageDisplay" HorizontalAlignment="Left" Height="780" Margin="5,5,0,0" VerticalAlignment="Top" Width="780"/>
 
     </Grid>
 </Window>
