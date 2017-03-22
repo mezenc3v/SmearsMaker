@@ -33,14 +33,14 @@ namespace SmearTracer
 
         private BitmapSource GetImage(BitmapSource image)
         {
-            int countSmears = 500;
+            int countSmears = 400;
             int smearSize = image.PixelWidth * image.PixelHeight / countSmears;
-            int countClusters = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight + smearSize) + 3;
-            double tolerance = 0.1;
-            int maxIter = 100;
+            int countClusters = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight) + (int)Math.Sqrt(smearSize) + 1;
+            double tolerance = 0.001;
+            int maxIter = 300;
             int rankFilter = 1;
             int rankNetworkLearning = 0;
-            int iterLearning = 1;
+            int iterLearning = 50;
             int networkSize;
             Converters converter = new Converters();      
             MedianFilter filter = new MedianFilter(rankFilter, image.PixelWidth, image.PixelHeight);
@@ -51,14 +51,13 @@ namespace SmearTracer
             List<Pixel> filteredData = filter.Compute(imageData);
             List<Pixel> clusteredDataImage = kmeans.Compute(filteredData, maxIter);
             List<Pixel> neuronsData = new List<Pixel>();
-            foreach (var cluster in kmeans.Clusters)
-            {
-                networkSize = (int)Math.Sqrt(cluster.Data.Count / smearSize) + 1;
-                KohonenNetwork network = new KohonenNetwork(networkSize, networkSize, rankNetworkLearning);
-                network.Learning(cluster.Data, iterLearning);
-                networks.Add(network.Network);
-            }
-
+            Parallel.ForEach(kmeans.Clusters,
+                (cluster) => {
+                    networkSize = (int)Math.Sqrt(cluster.Data.Count / smearSize) + 5;
+                    KohonenNetwork network = new KohonenNetwork(networkSize, networkSize, rankNetworkLearning);
+                    network.Learning(cluster.Data, iterLearning);
+                    networks.Add(network.Network);
+                });
             foreach (var network in networks)
             {
                 foreach (var arrNeurons in network.NeuronsMap)
@@ -72,8 +71,9 @@ namespace SmearTracer
             }
             BitmapSource imageResult = converter.ListPixelsToBitmapImage(image, neuronsData);
             return imageResult;
-        } 
-        private void buttonOpenFile_Click(object sender, RoutedEventArgs e)
+        }
+        
+    private void buttonOpenFile_Click(object sender, RoutedEventArgs e)
         {
             //считывание с файла
             OpenFileDialog fileDialog = new OpenFileDialog

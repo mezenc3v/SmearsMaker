@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -58,11 +59,14 @@ namespace SmearTracer
             {
                 cluster.Data = new List<Pixel>();
             }
-            for (int i = 0; i < data.Count; i++)
+            Parallel.ForEach(data, d =>
             {
-                int index = NearestCentroid(data[i].Data);
-                Clusters[index].Data.Add(data[i]);              
-            }
+                int index = NearestCentroid(d.Data);
+                lock (data)
+                {
+                    Clusters[index].Data.Add(d);
+                }          
+            });
         } 
 
         private void InitialCentroids(List<Pixel> data)
@@ -150,15 +154,15 @@ namespace SmearTracer
 
         private int NearestCentroid(double[] data)
         {
-            double minDistance = Distance(data, Clusters[0].Centroid);
             int index = 0;
-            for(int i = 0; i < Clusters.Length; i++)
+            double min = Distance(data, Clusters[0].Centroid);
+            for (int i = 0; i < Clusters.Length; i++)
             {
                 double distance = Distance(data, Clusters[i].Centroid);
 
-                if (minDistance > distance)
+                if (min > distance)
                 {
-                    minDistance = distance;
+                    min = distance;
                     index = i;
                 }             
             }

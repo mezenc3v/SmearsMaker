@@ -21,19 +21,21 @@ namespace SmearTracer
             _height = height;
             _learningRadius = radius;
         }
-
         private List<Pixel> Winner(List<Pixel> data, int coordX, int coordY)
         {
             List<Pixel> winnerData = new List<Pixel>();
             Point winnerNeuronPoint = new Point(coordX,coordY);
-
-            foreach (Pixel pixel in data)
+            Parallel.ForEach(data, pixel =>
             {
-                if (winnerNeuronPoint == WinnerNeuron(pixel.Coordinates))
+                lock (data)
                 {
-                    winnerData.Add(pixel);
+                    if (winnerNeuronPoint == WinnerNeuron(pixel.Coordinates))
+                    {
+                        winnerData.Add(pixel);
+                    }
                 }
-            }
+            });
+
             return winnerData;
         }
 
@@ -149,11 +151,11 @@ namespace SmearTracer
             //if (k != 0)
             //{
                 sigma = 1 / (k * 1000 + 7000);
-            /*}
-            else
-            {
-                sigma = 1;
-            }*/
+            //}
+            //else
+            //{
+                //sigma = 1;
+            //}
             return sigma;
         }
     }
