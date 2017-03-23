@@ -1,41 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SmearTracer
 {
     public class NeuronNetwork
     {
-        public List<Neuron[]> NeuronsMap { get; set; }
+        public List<Neuron> NeuronsList { get; set; }
 
-        public NeuronNetwork(int width, int height, List<Pixel> inputData)
-        {            
-            NeuronsMap = new List<Neuron[]>();
-            if (width * height > 0)
-            {
-                double[][] samples = SamplesForNetwork(inputData, width, height);
-                int counter = 0;
-                for (int k = 0; k < width; k++)
-                {
-                    Neuron[] arrayNeurons = new Neuron[height];
-                    for (int i = 0; i < height; i++)
-                    {
-                        arrayNeurons[i] = new Neuron(samples[counter++]);
-                    }
-                    NeuronsMap.Add(arrayNeurons);
-                }
-            }
-
+        public NeuronNetwork()
+        {
+            
         }
 
-        private double[][] SamplesForNetwork(List<Pixel> data, int widthMap, int heightMap)
+        public NeuronNetwork(int length, List<Pixel> inputData)
         {
-            double[][] samplesData = new double[widthMap*heightMap][];
+            NeuronsList = new List<Neuron>();
+            double[][] samples = SamplesForNetwork(inputData, length);
+            int counter = 0;
+            for (int k = 0; k < length; k++)
+            {
+                Neuron neuron = new Neuron(samples[counter++]);
+                NeuronsList.Add(neuron);
+            }
+        }
 
-            int step = data.Count / widthMap / heightMap;
+        private double[][] SamplesForNetwork(List<Pixel> data, int length)
+        {
+            double[][] samplesData = new double[length][];
+            int step = data.Count / length;
+
             for (int i = 0; i < samplesData.Length; i++)
             {
                 samplesData[i] = data[i * step].Coordinates;

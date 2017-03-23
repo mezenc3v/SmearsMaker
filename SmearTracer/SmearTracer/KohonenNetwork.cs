@@ -1,35 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media;
 
 namespace SmearTracer
 {
     public class KohonenNetwork
     {
         public NeuronNetwork Network { get; set; }
-        private readonly int _learningRadius;
-        private readonly int _width;
-        private readonly int _height;
 
-        public KohonenNetwork(int width, int height, int radius)
+        public KohonenNetwork()
         {
-            _width = width;
-            _height = height;
-            _learningRadius = radius;
+            
         }
-        private List<Pixel> Winner(List<Pixel> data, int coordX, int coordY)
+        public KohonenNetwork(List<Neuron> net)
+        {
+            Network = new NeuronNetwork {NeuronsList = net};
+        }
+
+        private List<Pixel> Winner(List<Pixel> data, int winnerNeuronPoint)
         {
             List<Pixel> winnerData = new List<Pixel>();
-            Point winnerNeuronPoint = new Point(coordX,coordY);
             Parallel.ForEach(data, pixel =>
             {
-                lock (data)
+                if (winnerNeuronPoint == WinnerNeuron(pixel.Coordinates))
                 {
-                    if (winnerNeuronPoint == WinnerNeuron(pixel.Coordinates))
+                    lock (data)
                     {
                         winnerData.Add(pixel);
                     }
@@ -39,10 +34,10 @@ namespace SmearTracer
             return winnerData;
         }
 
-        public void Learning(List<Pixel> data,int studIteration)
+        public void Learning(List<Pixel> data, int studIteration, int length)
         {
             //creating network
-            Network = new NeuronNetwork(_width, _height, data);
+            Network = new NeuronNetwork(length, data);
             //learning network
             for (int j = 0; j < studIteration; j++)
                 foreach (Pixel pixel in data)
@@ -50,59 +45,50 @@ namespace SmearTracer
                     LearningNetwork(pixel.Coordinates);
                 }
             //applyng data changes
-            for (int i = 0; i < Network.NeuronsMap.Count; i++)
+            for (int i = 0; i < Network.NeuronsList.Count; i++)
             {
-                for (int j = 0; j < Network.NeuronsMap[i].Length; j++)
+                Network.NeuronsList[i].Data = Winner(data, i);
+
+                if (Network.NeuronsList[i].Data.Count > 0)
                 {
-                    Network.NeuronsMap[i][j].Data = Winner(data, i, j);
+                    double[] averageData = new double[data[0].Data.Length];
 
-                    if (Network.NeuronsMap[i][j].Data.Count > 0)
+                    foreach (Pixel pixel in Network.NeuronsList[i].Data)
                     {
-                        double[] averageData = new double[data[0].Data.Length];
-
-                        foreach (Pixel pixel in Network.NeuronsMap[i][j].Data)
-                        {
-                            for (int l = 0; l < averageData.Length; l++)
-                            {
-                                averageData[l] += pixel.Data[l];
-                            }
-                        }
                         for (int l = 0; l < averageData.Length; l++)
                         {
-                            averageData[l] /= Network.NeuronsMap[i][j].Data.Count;
+                            averageData[l] += pixel.Data[l];
                         }
-                        Network.NeuronsMap[i][j].AverageData = averageData;
                     }
+                    for (int l = 0; l < averageData.Length; l++)
+                    {
+                        averageData[l] /= Network.NeuronsList[i].Data.Count;
+                    }
+                    Network.NeuronsList[i].AverageData = averageData;
                 }
             }
-
-            
-
         }
 
         private void LearningNetwork(double[] input)
         {
-            Point winner = WinnerNeuron(input);
-            for (int x = 0; x < Network.NeuronsMap.Count; x++)
+            int winner = WinnerNeuron(input);
+            for (int x = 0; x < Network.NeuronsList.Count; x++)
             {
-                for (int y = 0; y < Network.NeuronsMap[x].Length; y++)
+                if (Math.Abs(winner - x) == 0)
                 {
-                    if (Math.Abs(winner.X - x) <= _learningRadius && Math.Abs(winner.Y - y) <= _learningRadius)
-                    {
-                        double k = Math.Sqrt(Math.Pow(winner.X - x, 2) + Math.Pow(winner.Y - y, 2));
-                        double gauss = GaussFunction(k);
+                    double k = 1;
+                    double gauss = GaussFunction(k);
 
-                        for (int j = 0; j < input.Length; j++)
-                        {
-                            k = input[j] - Network.NeuronsMap[x][y].Weights[j];
-                            Network.NeuronsMap[x][y].Weights[j] += gauss * k;
-                        }
+                    for (int j = 0; j < input.Length; j++)
+                    {
+                        k = input[j] - Network.NeuronsList[x].Weights[j];
+                        Network.NeuronsList[x].Weights[j] += gauss * k;
                     }
                 }
             }
         }
 
-        private static double Distance(Neuron neuron, double[] input)
+        private double Distance(Neuron neuron, double[] input)
         {
             double sum = 0;
             for (int i = 0; i < input.Length; i++)
@@ -114,29 +100,24 @@ namespace SmearTracer
             return sum;
         }
 
-        private Point WinnerNeuron(double[] input)
+        private int WinnerNeuron(double[] input)
         {
-            int x = 0, y = 0;
+            int x = 0;
 
-            if (Network.NeuronsMap.Count > 0)
+            if (Network.NeuronsList.Count > 0)
             {
-                double minDistance = Distance(Network.NeuronsMap[0][0], input);
-                for (int i = 0; i < Network.NeuronsMap.Count; i++)
-                    for (int j = 0; j < Network.NeuronsMap[i].Length; j++)
+                double minDistance = Distance(Network.NeuronsList[0], input);
+                for (int i = 0; i < Network.NeuronsList.Count; i++)
+                {
+                    double distance = Distance(Network.NeuronsList[i], input);
+                    if (distance < minDistance)
                     {
-                        double distance = Distance(Network.NeuronsMap[i][j], input);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            x = i;
-                            y = j;
-                        }
+                        minDistance = distance;
+                        x = i;
                     }
+                }
             }
-            {
-                
-            }
-            return (new Point(x, y));
+            return x;
         }
 
         private double GaussFunction(double k)
@@ -145,16 +126,16 @@ namespace SmearTracer
             //double sigma = -0.01 * k+ 2;
             //double sigma = Math.Exp(-k/(1000/Math.Log(270)));
             //double sigma = Math.Exp(-k / 5);
-            //double sigma = 5 * Math.Sqrt(Network.NeuronsMap.Count * Network.NeuronsMap[0].Length) / Math.Sqrt(k);
+            //double sigma = 5 * Math.Sqrt(Network.NeuronsList.Count * Network.NeuronsList[0].Length) / Math.Sqrt(k);
             //sigma = Math.Exp(-k * k / (2 * sigma * sigma));
 
             //if (k != 0)
             //{
-                sigma = 1 / (k * 1000 + 7000);
+            sigma = 1 / (k * 1000 + 7000);
             //}
             //else
             //{
-                //sigma = 1;
+            //sigma = 1;
             //}
             return sigma;
         }

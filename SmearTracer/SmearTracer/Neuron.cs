@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 
 namespace SmearTracer
 {
@@ -14,18 +9,20 @@ namespace SmearTracer
         public double[] AverageData { get; set; }
         public List<Pixel> Data { get; set; }
         public double[] Color { get; set; }
-        public Neuron()
-        {
-            
-        }
 
-        public static byte Generate()
-        {//гсч
+        private double[] Generate()
+        {
             RNGCryptoServiceProvider c = new RNGCryptoServiceProvider();
-            byte[] randomNumber = new byte[1];
+            byte[] randomNumber = new byte[3];
             c.GetBytes(randomNumber);
 
-            return randomNumber[0];
+            byte r = randomNumber[0];
+            byte g = randomNumber[1];
+            byte b = randomNumber[2];
+
+            double[] color = { r, g, b, 255 };
+
+            return color;
         }
 
         public Neuron(double[] sample)
@@ -35,10 +32,7 @@ namespace SmearTracer
                 Weights[i] = sample[i];
 
             Data = new List<Pixel>();
-            byte r = Generate();
-            byte g = Generate();
-            byte b = Generate();
-            Color = new double[]{r, g, b, 255};
+            Color = Generate();
         }
     }
 }
