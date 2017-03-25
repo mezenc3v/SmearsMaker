@@ -39,7 +39,7 @@ namespace SmearTracer
 
             foreach (var pixel in listPixel)
             {
-                int indexPixel = (int)(pixel.Coordinates[1] * stride + DataFormatSize * pixel.Coordinates[0]);
+                int indexPixel = pixel.Y * stride + DataFormatSize * pixel.X;
                 for (int i = 0; i < DataFormatSize; i++)
                 {
                     data[indexPixel + i] = (byte)pixel.Data[i];

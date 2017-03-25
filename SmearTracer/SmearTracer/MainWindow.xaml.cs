@@ -18,48 +18,41 @@ namespace SmearTracer
             InitializeComponent();
         }
 
-        private void mainForm_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
-
         private BitmapSource GetImage(BitmapSource image)
         {
-            int countSmears = 400;
+            int countSmears = 300;
             int smearSize = image.PixelWidth * image.PixelHeight / countSmears;
             int countClusters = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight) + (int)Math.Sqrt(smearSize) + 1;
             double tolerance = 0.1;
             int maxIter = 100;
             int rankFilter = 1;
-            int iterLearning = 1;
             int dataFormatSize = image.Format.BitsPerPixel / 8;
             Converters converter = new Converters();
             MedianFilter filter = new MedianFilter(rankFilter, image.PixelWidth, image.PixelHeight);
             KMeans kmeans = new KMeans(countClusters, tolerance, dataFormatSize);
-            List<Neuron> networkList = new List<Neuron>();
             List<Pixel> imageData = converter.BitmapImageToListPixels(image);
             List<Pixel> filteredData = filter.Compute(imageData);
             kmeans.Compute(filteredData, maxIter, smearSize);
-            List<Pixel> neuronsData = new List<Pixel>();
+            List<Pixel> smearsData = new List<Pixel>();
+            List<ListSegments> listSegments = new List<ListSegments>();
             Parallel.ForEach(kmeans.Clusters,
                 cluster =>
                 {
-                    var networkSize = cluster.Data.Count / smearSize + 3;
-                    KohonenNetwork net = new KohonenNetwork();
-                    net.Learning(cluster.Data, iterLearning, networkSize);
-                    foreach (var neuron in net.Network.NeuronsList)
-                    {
-                        networkList.Add(neuron);
-                    }
+                    ListSegments clusterSegments = new ListSegments();
+                    clusterSegments.Compute(cluster.Data);
+                    listSegments.Add(clusterSegments);
                 });
-            KohonenNetwork network = new KohonenNetwork(networkList);
+            ListSegments segments = new ListSegments(listSegments);
 
-            foreach (var neuron in network.Network.NeuronsList)
-            {
-                neuron.Data.ForEach(p => p.Data = neuron.AverageData);
-                neuronsData.AddRange(neuron.Data);
-            }
-            BitmapSource imageResult = converter.ListPixelsToBitmapImage(image, neuronsData);
+                foreach (var segment in segments.Segments)
+                {
+                    //if (segment.Data.Count > 10)
+                    {
+                        segment.Data.ForEach(d=>d.Data = segment.Color);
+                        smearsData.AddRange(segment.Data);
+                    }
+                }
+            BitmapSource imageResult = converter.ListPixelsToBitmapImage(image, smearsData);
             return imageResult;
         }
 
@@ -86,7 +79,7 @@ namespace SmearTracer
                     MessageBox.Show("Error opening image: " + ex.Message);
                 }
 
-                imageDisplay.Source = GetImage(image);
+                ImageDisplay.Source = GetImage(image);
             }
         }
     }

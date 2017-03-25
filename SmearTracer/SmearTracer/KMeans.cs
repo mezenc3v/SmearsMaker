@@ -8,6 +8,7 @@ namespace SmearTracer
     public class KMeans
     {
         public List<Cluster> Clusters { get; set; }
+
         private readonly double _precision;
 
         public KMeans(int countClusters, double precision, int dataFormatSize)
@@ -42,7 +43,7 @@ namespace SmearTracer
             Update(size);
         }
 
-        public void Update(int sizeOfCluster)
+        private void Update(int sizeOfCluster)
         {
             List<Pixel> smallData = new List<Pixel>();
 

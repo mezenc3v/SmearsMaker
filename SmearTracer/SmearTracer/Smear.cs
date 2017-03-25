@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Windows;
 
 namespace SmearTracer
 {
-    public class Neuron
+    public class Smear
     {
-        public double[] Weights { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
         public double[] AverageData { get; set; }
         public List<Pixel> Data { get; set; }
         public double[] Color { get; set; }
@@ -25,12 +27,11 @@ namespace SmearTracer
             return color;
         }
 
-        public Neuron(double[] sample)
+        public Smear(Pixel sample)
         {
-            Weights = new double[sample.Length];
-            for (int i = 0; i < Weights.Length; i++)
-                Weights[i] = sample[i];
-
+            X = sample.X;
+            Y = sample.Y;
+            AverageData = sample.Data;
             Data = new List<Pixel>();
             Color = Generate();
         }
