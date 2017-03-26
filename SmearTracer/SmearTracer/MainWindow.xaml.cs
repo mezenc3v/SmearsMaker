@@ -20,21 +20,23 @@ namespace SmearTracer
 
         private BitmapSource GetImage(BitmapSource image)
         {
-            int countSmears = 300;
+            int countSmears = 400;
             int smearSize = image.PixelWidth * image.PixelHeight / countSmears;
             int countClusters = (int)Math.Sqrt(image.PixelWidth + image.PixelHeight) + (int)Math.Sqrt(smearSize) + 1;
             double tolerance = 0.1;
             int maxIter = 100;
-            int rankFilter = 1;
+            int rankFilter = (int)Math.Sqrt((double)(image.PixelWidth + image.PixelHeight) / 100 / 2);
             int dataFormatSize = image.Format.BitsPerPixel / 8;
             Converters converter = new Converters();
             MedianFilter filter = new MedianFilter(rankFilter, image.PixelWidth, image.PixelHeight);
             KMeans kmeans = new KMeans(countClusters, tolerance, dataFormatSize);
             List<Pixel> imageData = converter.BitmapImageToListPixels(image);
             List<Pixel> filteredData = filter.Compute(imageData);
-            kmeans.Compute(filteredData, maxIter, smearSize);
             List<Pixel> smearsData = new List<Pixel>();
             List<ListSegments> listSegments = new List<ListSegments>();
+
+            kmeans.Compute(filteredData, maxIter, smearSize);
+
             Parallel.ForEach(kmeans.Clusters,
                 cluster =>
                 {
@@ -42,16 +44,18 @@ namespace SmearTracer
                     clusterSegments.Compute(cluster.Data);
                     listSegments.Add(clusterSegments);
                 });
+
             ListSegments segments = new ListSegments(listSegments);
 
-                foreach (var segment in segments.Segments)
+            foreach (var segment in segments.Segments)
+            {
+                //if (segment.Data.Count > 10)
                 {
-                    //if (segment.Data.Count > 10)
-                    {
-                        segment.Data.ForEach(d=>d.Data = segment.Color);
-                        smearsData.AddRange(segment.Data);
-                    }
+                    segment.Data.ForEach(d => d.Data = segment.CentroidPixel.Data);
+                    smearsData.AddRange(segment.Data);
                 }
+            }
+
             BitmapSource imageResult = converter.ListPixelsToBitmapImage(image, smearsData);
             return imageResult;
         }

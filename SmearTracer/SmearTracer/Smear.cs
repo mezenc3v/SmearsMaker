@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Windows;
 
 namespace SmearTracer
 {
@@ -12,7 +11,7 @@ namespace SmearTracer
         public List<Pixel> Data { get; set; }
         public double[] Color { get; set; }
 
-        private double[] Generate()
+        private static double[] Generate()
         {
             RNGCryptoServiceProvider c = new RNGCryptoServiceProvider();
             byte[] randomNumber = new byte[3];

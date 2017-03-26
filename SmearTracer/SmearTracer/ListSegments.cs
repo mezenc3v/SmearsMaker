@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmearTracer
 {
@@ -27,28 +24,34 @@ namespace SmearTracer
 
         public void Compute(List<Pixel> inputData)
         {
-            List<Pixel> data = inputData;
-
-            do
+            var segmentData = inputData.OrderBy(d=>d.X).ToList();
+            while (segmentData.Count > 0)
             {
-                Segment segment = new Segment();
+                var data = segmentData;                       
                 int countPrevious, countNext;
-                segment.Data.Add(data.First());
+                var segment = new Segment();
+                segment.Data.Add(data[0]);
+                data.RemoveAt(0);
                 do
                 {
-                    countPrevious = data.Count;
+                    segmentData = new List<Pixel>();
+                    countPrevious = data.Count;                   
                     foreach (Pixel pixel in data)
                     {
-                        if (segment.SuitableTo(pixel))
+                        if (segment.CompareTo(pixel))
                         {
-                            segment.Data.Add(pixel);
+                            segment.Data.Add(pixel);                     
+                        }
+                        else
+                        {
+                            segmentData.Add(pixel);
                         }
                     }
-                    data.RemoveAll(d => segment.Data.Contains(d));
-                    countNext = data.Count;
+                    data = segmentData;
+                    countNext = segmentData.Count;
                 } while (countPrevious != countNext);
                 Segments.Add(segment);
-            } while (data.Count>0);
+            }
             Update();
         }
 

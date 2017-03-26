@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -136,13 +135,21 @@ namespace SmearTracer
             return index;
         }
 
-        private double Distance(double[] leftVector, double[] rightVector)
+        private static double Distance(double[] leftVector, double[] rightVector)
         {
             double dictance = 0;
 
             for (int i = 0; i < leftVector.Length; i++)
             {
-                dictance += Math.Abs(leftVector[i] - rightVector[i]);
+                double d = leftVector[i] - rightVector[i];
+                if (d < 0)
+                {
+                    dictance -= d;
+                }
+                else
+                {
+                    dictance += d;
+                }
             }
             return dictance;
         }

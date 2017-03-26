@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SmearTracer
 {
@@ -12,23 +8,26 @@ namespace SmearTracer
         public List<Pixel> Data { get; set; }
         public Pixel CentroidPixel { get; set; }
         public double[] Color { get; set; }
+
         public Segment()
         {
             Data = new List<Pixel>();
             Color = Generate();
         }
-        public bool SuitableTo(Pixel data)
+
+        public bool CompareTo(Pixel data)
         {
-            foreach (var pixel in Data)
+            for (int i = Data.Count - 1; i >= 0; i--)
             {
-                if (Math.Abs(data.X - pixel.X) <= 1 && Math.Abs(data.Y - pixel.Y) <= 1)
+                if (data.X - Data[i].X < 2 && data.Y - Data[i].Y < 2)
                 {
                     return true;
                 }
             }
             return false;
         }
-        private double[] Generate()
+
+        private static double[] Generate()
         {
             RNGCryptoServiceProvider c = new RNGCryptoServiceProvider();
             byte[] randomNumber = new byte[3];
