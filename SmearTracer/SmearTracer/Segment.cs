@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Windows;
 
 namespace SmearTracer
 {
@@ -7,19 +9,27 @@ namespace SmearTracer
     {
         public List<Pixel> Data { get; set; }
         public Pixel CentroidPixel { get; set; }
+        public Point MinXPoint { get; set; }
+        public Point MinYPoint { get; set; }
+        public Point MaxXPoint { get; set; }
+        public Point MaxYPoint { get; set; }
         public double[] Color { get; set; }
 
         public Segment()
         {
             Data = new List<Pixel>();
             Color = Generate();
+            MinXPoint = new Point();
+            MaxXPoint = new Point();
+            MinYPoint = new Point();
+            MaxYPoint = new Point();
         }
 
         public bool CompareTo(Pixel data)
         {
             for (int i = Data.Count - 1; i >= 0; i--)
             {
-                if (data.X - Data[i].X < 2 && data.Y - Data[i].Y < 2)
+                if (Math.Abs(data.X - Data[i].X) < 2 && Math.Abs(data.Y - Data[i].Y) < 2)
                 {
                     return true;
                 }
