@@ -1,22 +1,21 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace SmearTracer
 {
-    public class ListSegments
+    public class SegmentsList
     {
         public List<Segment> Segments { get; set; }
 
-        public ListSegments()
+        public SegmentsList()
         {
             Segments = new List<Segment>();
         }
 
-        public ListSegments(List<ListSegments> networks)
+        public SegmentsList(IEnumerable<SegmentsList> networks)
         {
             Segments = new List<Segment>();
             foreach (var segmentNetwork in networks)
@@ -43,7 +42,7 @@ namespace SmearTracer
                 {
                     segmentData = new List<Pixel>();
                     countPrevious = data.Count;                   
-                    foreach (Pixel pixel in data)
+                    foreach (var pixel in data)
                     {
                         if (segment.CompareTo(pixel))
                         {
@@ -122,18 +121,6 @@ namespace SmearTracer
             Segments[index].Data = Segments[index].Data.OrderBy(p => p.X).ThenBy(p => p.Y).ToList();
         }
 
-        private double Distance(double[] colorFirst, double[] colorSecond)
-        {
-            double distance = 0;
-
-            for (int i = 0; i < colorFirst.Length; i++)
-            {
-                distance += Math.Abs(colorFirst[i] - colorSecond[i]);
-            }
-
-            return distance;
-        }
-
         public void Concat(int minCount)
         {
             int countPrevious;
@@ -171,6 +158,104 @@ namespace SmearTracer
             }
 
             return indexes.OrderBy(i => Distance(Segments[i].CentroidPixel.Data, inputSegment.CentroidPixel.Data)).First();
+        }
+
+        public void Split(int size, double tolerance)
+        {
+            var elementarySegments = new List<Segment>();
+            //spliting each complex segment on elementary segments
+            Parallel.ForEach(Segments, segment=>
+            {
+                var countDataSegment = segment.Data.Count / size;
+                if (segment.Data.Count - size > tolerance)
+                {
+                    lock (elementarySegments)
+                    {
+                        elementarySegments.AddRange(SegmentToElementarySegments(countDataSegment, segment));
+                    }
+                }
+                else
+                {
+                    lock (elementarySegments)
+                    {
+                        elementarySegments.Add(segment);
+                    }
+                }
+            });
+            Segments = elementarySegments;
+            //update key points in each segment
+            for (int i = 0; i < Segments.Count; i++)
+            {
+                UpdateSegment(i);
+            }
+        }
+
+        private static IEnumerable<Segment> SegmentToElementarySegments(int length, Segment complexSegment)
+        {
+            var data = complexSegment.Data;
+            var newElementarySegments = new List<Segment>();
+            var samples = InitilalCentroids(complexSegment.Data, length);
+
+            foreach (var centroid in samples)
+            {
+                var segment = new Segment {CentroidPixel = centroid};
+                newElementarySegments.Add(segment);
+            }
+
+            foreach (var pixel in data)
+            {
+                var winner = NearestCentroid(pixel, newElementarySegments);
+                newElementarySegments[winner].Data.Add(pixel);
+            }
+            return newElementarySegments;
+        }
+
+        private static int NearestCentroid(Pixel pixel, List<Segment> segments)
+        {
+            int index = 0;
+            double min = Distance(segments[0], pixel);
+            for (int i = 0; i < segments.Count; i++)
+            {
+                var distance = Distance(segments[i], pixel);
+                if (min > distance)
+                {
+                    min = distance;
+                    index = i;
+                }
+            }
+            return index;
+        }
+
+        private static double Distance(Segment segment, Pixel pixel)
+        {
+            double sum = Math.Pow(pixel.X - segment.CentroidPixel.X, 2);
+            sum += Math.Pow(pixel.Y - segment.CentroidPixel.Y, 2);
+            return Math.Sqrt(sum);
+        }
+
+        private static IEnumerable<Pixel> InitilalCentroids(List<Pixel> data, int length)
+        {
+            var sortedData = data.OrderBy(d => d.X).ThenBy(d => d.Y).ToList();
+            var samplesData = new List<Pixel>();
+            int step = data.Count / length;
+
+            for (int i = 0; i < length; i++)
+            {
+                samplesData.Add(sortedData[i * step]);
+            }
+            return samplesData;
+        }
+
+        private static double Distance(double[] colorFirst, double[] colorSecond)
+        {
+            double distance = 0;
+
+            for (int i = 0; i < colorFirst.Length; i++)
+            {
+                distance += Math.Abs(colorFirst[i] - colorSecond[i]);
+            }
+
+            return distance;
         }
     }
 }

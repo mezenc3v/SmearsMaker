@@ -75,7 +75,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Segment.cs" />
-    <Compile Include="ListSegments.cs" />
+    <Compile Include="SegmentsList.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -86,7 +86,7 @@
     </Compile>
     <Compile Include="Converters.cs" />
     <Compile Include="Smear.cs" />
-    <Compile Include="SmearNetwork.cs" />
+    <Compile Include="ElementarySegmentsNetwork.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="KMeans.cs" />
     <Compile Include="MainWindow.xaml.cs">

@@ -20,7 +20,7 @@ namespace SmearTracer
             _precision = precision;
         }
 
-        public void Compute(List<Pixel> data, int maxIteration, int size)
+        public void Compute(List<Pixel> data, int maxIteration)
         {
             InitialCentroids(data);
 
@@ -39,29 +39,29 @@ namespace SmearTracer
             }
             while (delta > _precision && counter < maxIteration);
 
-            Update(size);
+            Update();
         }
 
-        private void Update(int sizeOfCluster)
+        private void Update()
         {
-            List<Pixel> smallData = new List<Pixel>();
+            //List<Pixel> smallData = new List<Pixel>();
 
             for (int i = 0; i < Clusters.Count; i++)
             {
-                if (Clusters[i].Data.Count < sizeOfCluster)
+                if (Clusters[i].Data.Count == 0)
                 {
-                    smallData.AddRange(Clusters[i].Data);
+                    //smallData.AddRange(Clusters[i].Data);
                     Clusters.Remove(Clusters[i]);
                 }
             }
-            Parallel.ForEach(smallData, d =>
+            /*Parallel.ForEach(smallData, d =>
             {
                 int index = NearestCentroid(d.Data);
                 lock (smallData)
                 {
                     Clusters[index].Data.Add(d);
                 }
-            });
+            });*/
         }
 
         private void UpdateMeans(List<Pixel> data)
