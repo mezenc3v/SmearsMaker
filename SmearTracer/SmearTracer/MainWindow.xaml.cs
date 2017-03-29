@@ -43,11 +43,17 @@ namespace SmearTracer
             //concatenation small segmentsList
             segmentsList.Concat(minSize);
             //spliting big segmentsList
-            segmentsList.Split(maxSize, tolerance);
+            segmentsList.Split(minSize, tolerance);
+
+
+            //var SmearsList = new SmearsList(minSize,maxSize);
+
+            //SmearsList.Compute(segmentsList.Segments);
+
 
             foreach (var segment in segmentsList.Segments)
             {
-                segment.Data.ForEach(d => d.Data = segment.Color);
+                segment.Data.ForEach(d => d.Data = segment.CentroidPixel.Data);
                 smearsData.AddRange(segment.Data);
             }
             //output results

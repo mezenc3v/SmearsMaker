@@ -10,30 +10,28 @@ namespace SmearTracer
     {
         public List<Segment> Segments { get; set; }
 
+        public List<Segment> SuperPixels { get; set; }
+
         public SegmentsList()
         {
             Segments = new List<Segment>();
         }
 
-        public SegmentsList(IEnumerable<SegmentsList> networks)
+        public SegmentsList(IEnumerable<SegmentsList> segments)
         {
             Segments = new List<Segment>();
-            foreach (var segmentNetwork in networks)
+            foreach (var segmentList in segments)
             {
-                Segments.AddRange(segmentNetwork.Segments);
-            }
-            for (int i = 0; i < Segments.Count; i++)
-            {
-                UpdateSegment(i);
+                Segments.AddRange(segmentList.Segments);
             }
         }
 
         public void Compute(List<Pixel> inputData)
         {
-            var segmentData = inputData.OrderBy(d=>d.X).ToList();
+            var segmentData = inputData.OrderBy(d => d.X).ToList();
             while (segmentData.Count > 0)
             {
-                var data = segmentData;                       
+                var data = segmentData;
                 int countPrevious, countNext;
                 var segment = new Segment();
                 segment.Data.Add(data[0]);
@@ -41,12 +39,12 @@ namespace SmearTracer
                 do
                 {
                     segmentData = new List<Pixel>();
-                    countPrevious = data.Count;                   
+                    countPrevious = data.Count;
                     foreach (var pixel in data)
                     {
                         if (segment.CompareTo(pixel))
                         {
-                            segment.Data.Add(pixel);                     
+                            segment.Data.Add(pixel);
                         }
                         else
                         {
@@ -56,69 +54,10 @@ namespace SmearTracer
                     data = segmentData;
                     countNext = segmentData.Count;
                 } while (countPrevious != countNext);
+
+                segment.UpdateSegment();
                 Segments.Add(segment);
             }
-            for (int i = 0; i < Segments.Count; i++)
-            {
-                UpdateSegment(i);
-            }
-        }
-
-        private void UpdateSegment(int index)
-        {
-            //coorditates for calculate centroid
-            double x = 0;
-            double y = 0;
-            double[] averageData = new double[Segments[index].Data.First().Data.Length];
-            //coordinates for calculate vector
-            double minX = Segments[index].Data[0].X;
-            double minY = Segments[index].Data[0].Y;
-            double maxX = minX;
-            double maxY = minY;
-            Segments[index].MinXPoint = new Point(Segments[index].Data[0].X, Segments[index].Data[0].Y);
-            Segments[index].MaxXPoint = new Point(Segments[index].Data[0].X, Segments[index].Data[0].Y);
-            Segments[index].MinYPoint = new Point(Segments[index].Data[0].X, Segments[index].Data[0].Y);
-            Segments[index].MaxYPoint = new Point(Segments[index].Data[0].X, Segments[index].Data[0].Y);
-            foreach (var data in Segments[index].Data)
-            {
-                x += data.X;
-                y += data.Y;
-                for (int i = 0; i < averageData.Length; i++)
-                {
-                    averageData[i] += data.Data[i];
-                }
-                //find min and max coordinates in segment
-                if (data.X < minX)
-                {
-                    minX = data.X;
-                    Segments[index].MinXPoint = new Point(data.X, data.Y);
-                }
-                if (data.Y < minY)
-                {
-                    minY = data.Y;
-                    Segments[index].MinYPoint = new Point(data.X, data.Y);
-                }
-                if (data.X > maxX)
-                {
-                    maxX = data.X;
-                    Segments[index].MaxXPoint = new Point(data.X, data.Y);
-                }
-                if (data.X > maxY)
-                {
-                    maxY = data.X;
-                    Segments[index].MaxYPoint = new Point(data.X, data.Y);
-                }
-            }
-            x /= Segments[index].Data.Count;
-            y /= Segments[index].Data.Count;
-            for (int i = 0; i < averageData.Length; i++)
-            {
-                averageData[i] /= Segments[index].Data.Count;
-            }
-            Pixel centroid = new Pixel(averageData, (int)x, (int)y);
-            Segments[index].CentroidPixel = centroid;
-
-            Segments[index].Data = Segments[index].Data.OrderBy(p => p.X).ThenBy(p => p.Y).ToList();
         }
 
         public void Concat(int minCount)
@@ -134,7 +73,7 @@ namespace SmearTracer
                     {
                         int index = Concat(Segments[i]);
                         Segments[index].Data.AddRange(Segments[i].Data);
-                        UpdateSegment(index);
+                        Segments[index].UpdateSegment();
                         Segments.RemoveAt(i);
                     }
                 }
@@ -162,61 +101,65 @@ namespace SmearTracer
 
         public void Split(int size, double tolerance)
         {
+            int diameter = (int)Math.Sqrt(size);
             var elementarySegments = new List<Segment>();
             //spliting each complex segment on elementary segments
-            Parallel.ForEach(Segments, segment=>
+            foreach (var segment in Segments)
             {
-                var countDataSegment = segment.Data.Count / size;
-                if (segment.Data.Count - size > tolerance)
-                {
-                    lock (elementarySegments)
-                    {
-                        elementarySegments.AddRange(SegmentToElementarySegments(countDataSegment, segment));
-                    }
-                }
-                else
-                {
-                    lock (elementarySegments)
-                    {
-                        elementarySegments.Add(segment);
-                    }
-                }
-            });
+                elementarySegments.AddRange(SegmentToElementarySegments(segment, diameter));
+            }
             Segments = elementarySegments;
-            //update key points in each segment
-            for (int i = 0; i < Segments.Count; i++)
+            foreach (var segment in Segments)
             {
-                UpdateSegment(i);
+                segment.UpdateSegment();
             }
         }
 
-        private static IEnumerable<Segment> SegmentToElementarySegments(int length, Segment complexSegment)
+        private static IEnumerable<Segment> SegmentToElementarySegments(Segment complexSegment, int diameter)
         {
+            complexSegment.UpdateSegment();
+
             var data = complexSegment.Data;
+            var superPixels = new List<SuperPixel>();
             var newElementarySegments = new List<Segment>();
-            var samples = InitilalCentroids(complexSegment.Data, length);
+
+            var firstPoint = new Point(complexSegment.MinXPoint.X, complexSegment.MinYPoint.Y);
+            var secondPoint = new Point(complexSegment.MaxXPoint.X, complexSegment.MaxYPoint.Y);
+            var widthCount = (int)(complexSegment.MaxXPoint.X - complexSegment.MinXPoint.X);
+            var heightCount = (int)(complexSegment.MaxYPoint.Y - complexSegment.MinYPoint.Y);
+            var samples = InitilalCentroids(widthCount, heightCount, firstPoint, secondPoint, diameter);
 
             foreach (var centroid in samples)
             {
-                var segment = new Segment {CentroidPixel = centroid};
-                newElementarySegments.Add(segment);
+                var superPixel = new SuperPixel(centroid);
+                superPixels.Add(superPixel);
             }
 
             foreach (var pixel in data)
             {
-                var winner = NearestCentroid(pixel, newElementarySegments);
-                newElementarySegments[winner].Data.Add(pixel);
+                var winner = NearestCentroid(pixel, superPixels);
+                superPixels[winner].Data.Add(pixel);
+            }
+
+            foreach (var superPixel in superPixels)
+            {
+                if (superPixel.Data.Count > 0)
+                {
+                    Segment seg = new Segment { Data = superPixel.Data };
+                    seg.UpdateSegment();
+                    newElementarySegments.Add(seg);
+                }
             }
             return newElementarySegments;
         }
 
-        private static int NearestCentroid(Pixel pixel, List<Segment> segments)
+        private static int NearestCentroid(Pixel pixel, List<SuperPixel> superPixels)
         {
             int index = 0;
-            double min = Distance(segments[0], pixel);
-            for (int i = 0; i < segments.Count; i++)
+            double min = Distance(superPixels[0], pixel);
+            for (int i = 0; i < superPixels.Count; i++)
             {
-                var distance = Distance(segments[i], pixel);
+                var distance = Distance(superPixels[i], pixel);
                 if (min > distance)
                 {
                     min = distance;
@@ -226,23 +169,32 @@ namespace SmearTracer
             return index;
         }
 
-        private static double Distance(Segment segment, Pixel pixel)
+        private static double Distance(SuperPixel superPixel, Pixel pixel)
         {
-            double sum = Math.Pow(pixel.X - segment.CentroidPixel.X, 2);
-            sum += Math.Pow(pixel.Y - segment.CentroidPixel.Y, 2);
+            double sum = Math.Pow(pixel.X - superPixel.Centroid.X, 2);
+            sum += Math.Pow(pixel.Y - superPixel.Centroid.Y, 2);
             return Math.Sqrt(sum);
         }
 
-        private static IEnumerable<Pixel> InitilalCentroids(List<Pixel> data, int length)
+        private static IEnumerable<Point> InitilalCentroids(int widthCount, int heightCount, Point firstPoint, Point secondPoint, int diameter)
         {
-            var sortedData = data.OrderBy(d => d.X).ThenBy(d => d.Y).ToList();
-            var samplesData = new List<Pixel>();
-            int step = data.Count / length;
+            var samplesData = new List<Point>();
 
-            for (int i = 0; i < length; i++)
+            if (widthCount > 0 && heightCount > 0)
             {
-                samplesData.Add(sortedData[i * step]);
+                for (int i = (int)firstPoint.X; i < (int)secondPoint.X; i += diameter)
+                {
+                    for (int j = (int)firstPoint.Y; j < (int)secondPoint.Y; j += diameter)
+                    {
+                        samplesData.Add(new Point(i + diameter / 2, j + diameter / 2));
+                    }
+                }
             }
+            else
+            {
+                samplesData.Add(new Point((firstPoint.X + secondPoint.X) / 2, (firstPoint.Y + secondPoint.Y) / 2));
+            }
+
             return samplesData;
         }
 

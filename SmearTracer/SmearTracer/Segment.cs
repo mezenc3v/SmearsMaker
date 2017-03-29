@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Windows;
 
@@ -25,6 +26,17 @@ namespace SmearTracer
             MaxYPoint = new Point();
         }
 
+        public Segment(Segment inputSegment)
+        {
+            Data = inputSegment.Data;
+            Color = Generate();
+            MinXPoint = inputSegment.MinXPoint;
+            MaxXPoint = inputSegment.MaxXPoint;
+            MinYPoint = inputSegment.MinYPoint;
+            MaxYPoint = inputSegment.MaxYPoint;
+            CentroidPixel = inputSegment.CentroidPixel;
+        }
+
         public bool CompareTo(Pixel data)
         {
             for (int i = Data.Count - 1; i >= 0; i--)
@@ -35,6 +47,66 @@ namespace SmearTracer
                 }
             }
             return false;
+        }
+
+        public void UpdateSegment()
+        {
+            if (Data.Count > 0)
+            {
+                //coorditates for calculate centroid
+                double x = 0;
+                double y = 0;
+                double[] averageData = new double[Data.First().Data.Length];
+                //coordinates for calculate vector
+                double minX = Data[0].X;
+                double minY = Data[0].Y;
+                double maxX = minX;
+                double maxY = minY;
+                MinXPoint = new Point(Data[0].X, Data[0].Y);
+                MaxXPoint = new Point(Data[0].X, Data[0].Y);
+                MinYPoint = new Point(Data[0].X, Data[0].Y);
+                MaxYPoint = new Point(Data[0].X, Data[0].Y);
+                foreach (var data in Data)
+                {
+                    x += data.X;
+                    y += data.Y;
+                    for (int i = 0; i < averageData.Length; i++)
+                    {
+                        averageData[i] += data.Data[i];
+                    }
+                    //find min and max coordinates in segment
+                    if (data.X < minX)
+                    {
+                        minX = data.X;
+                        MinXPoint = new Point(data.X, data.Y);
+                    }
+                    if (data.Y < minY)
+                    {
+                        minY = data.Y;
+                        MinYPoint = new Point(data.X, data.Y);
+                    }
+                    if (data.X > maxX)
+                    {
+                        maxX = data.X;
+                        MaxXPoint = new Point(data.X, data.Y);
+                    }
+                    if (data.Y > maxY)
+                    {
+                        maxY = data.Y;
+                        MaxYPoint = new Point(data.X, data.Y);
+                    }
+                }
+                x /= Data.Count;
+                y /= Data.Count;
+                for (int i = 0; i < averageData.Length; i++)
+                {
+                    averageData[i] /= Data.Count;
+                }
+                Pixel centroid = new Pixel(averageData, (int)x, (int)y);
+                CentroidPixel = centroid;
+
+                Data = Data.OrderBy(p => p.X).ThenBy(p => p.Y).ToList();
+            }
         }
 
         private static double[] Generate()

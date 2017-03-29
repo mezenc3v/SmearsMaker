@@ -74,8 +74,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Circle.cs" />
     <Compile Include="Segment.cs" />
     <Compile Include="SegmentsList.cs" />
+    <Compile Include="Smear.cs" />
+    <Compile Include="SmearsList.cs" />
+    <Compile Include="SuperPixel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,8 +89,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Converters.cs" />
-    <Compile Include="Smear.cs" />
-    <Compile Include="ElementarySegmentsNetwork.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="KMeans.cs" />
     <Compile Include="MainWindow.xaml.cs">
