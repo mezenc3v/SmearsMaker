@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -40,29 +41,68 @@ namespace SmearTracer
                 });
             //creating single list of complex segmentsList 
             var segmentsList = new SegmentsList(listSegments);
-            //concatenation small segmentsList
+            //concatenation small segments
             segmentsList.Concat(minSize);
-            //spliting big segmentsList
-            segmentsList.Split(minSize, tolerance);
-
-
-            //var SmearsList = new SmearsList(minSize,maxSize);
-
-            //SmearsList.Compute(segmentsList.Segments);
-
+            //spliting big segmentsList into superpixels
+            segmentsList.ComputeSuperPixels(minSize,maxSize, tolerance);
 
             foreach (var segment in segmentsList.Segments)
             {
-                segment.Data.ForEach(d => d.Data = segment.CentroidPixel.Data);
-                smearsData.AddRange(segment.Data);
+                foreach (var superPixel in segment.SuperPixels)
+                {
+                    var seg = new Segment {Data = superPixel.Data};
+                    seg.Update();
+                    superPixel.Data.ForEach(d => d.Data = seg.CentroidPixel.Data);
+                    smearsData.AddRange(superPixel.Data);
+                }
             }
+
+            /*foreach (var segment in segmentsList.Segments)
+            {
+                foreach (var pixel in segment.Data)
+                {
+                    foreach (var circle in segment.CirclesList)
+                    {
+                        if (circle.Contains(pixel))
+                        {
+                            smearsData.Add(pixel);
+                        }
+                    }
+                }
+                foreach (var superPixel in segment.SuperPixels)
+                {
+                    foreach (var circle in segment.CirclesList)
+                    {
+                        for (int i = 0; i < circle.Radius * 2; i++)
+                        {
+                            for (int j = 0; j < circle.Radius * 2; j++)
+                            {
+                                var x = circle.Center.X - circle.Radius + i;
+                                var y = circle.Center.Y - circle.Radius + j;
+                                if (circle.Contains(new Point(x,y)))
+                                {
+                                    var pixel = new Pixel(superPixel.Color, new Point(x, y));
+                                    smearsData.Add(pixel);
+                                };
+                            }
+                        }
+                    }
+
+                    foreach (var pixel in superPixel.Data)
+                    {
+                        pixel.Data = superPixel.Color;
+                        smearsData.Add(pixel);
+                    }
+                }
+            }*/
+
             //output results
             var imageResult = converter.ListPixelsToBitmapImage(image, smearsData);
             LabelStatus.Content = "Done! created " + segmentsList.Segments.Count + " segmentsList into " + kmeans.Clusters.Count + " clusters.";
             return imageResult;
         }
 
-        private void buttonOpenFile_Click(object sender, RoutedEventArgs e)
+        private void ButtonOpenFile_Click(object sender, RoutedEventArgs e)
         {
             //считывание с файла
             var fileDialog = new OpenFileDialog
@@ -85,7 +125,7 @@ namespace SmearTracer
                     var maxIter = 100;
                     var rankFilter = (int)Math.Sqrt((double)(image.PixelWidth + image.PixelHeight) / 100 / 2);
                     var dataFormatSize = image.Format.BitsPerPixel / 8;
-                    var minSize = smearSize / 4;
+                    var minSize = smearSize / 10;
                     var maxSize = smearSize;
                     ImageDisplay.Source = GetImage(image, countClusters, dataFormatSize, maxIter, rankFilter, tolerance, minSize, maxSize);
                 /*}

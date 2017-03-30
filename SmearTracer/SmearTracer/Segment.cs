@@ -9,6 +9,8 @@ namespace SmearTracer
     public class Segment
     {
         public List<Pixel> Data { get; set; }
+        public List<SuperPixel> SuperPixels { get; set; }
+        public List<Circle> CirclesList { get; set; }
         public Pixel CentroidPixel { get; set; }
         public Point MinXPoint { get; set; }
         public Point MinYPoint { get; set; }
@@ -19,6 +21,8 @@ namespace SmearTracer
         public Segment()
         {
             Data = new List<Pixel>();
+            SuperPixels = new List<SuperPixel>();
+            CirclesList = new List<Circle>();
             Color = Generate();
             MinXPoint = new Point();
             MaxXPoint = new Point();
@@ -35,6 +39,8 @@ namespace SmearTracer
             MinYPoint = inputSegment.MinYPoint;
             MaxYPoint = inputSegment.MaxYPoint;
             CentroidPixel = inputSegment.CentroidPixel;
+            SuperPixels = inputSegment.SuperPixels;
+            CirclesList = inputSegment.CirclesList;
         }
 
         public bool CompareTo(Pixel data)
@@ -49,7 +55,7 @@ namespace SmearTracer
             return false;
         }
 
-        public void UpdateSegment()
+        public void Update()
         {
             if (Data.Count > 0)
             {

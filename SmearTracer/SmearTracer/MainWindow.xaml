@@ -8,7 +8,7 @@
         <Grid HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top">
             <Image x:Name="ImageDisplay" Stretch="Uniform"/>
         </Grid>
-        <Button x:Name="ButtonOpenFile" Content="Оpen" Margin ="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="buttonOpenFile_Click"/>
+        <Button x:Name="ButtonOpenFile" Content="Оpen" Margin ="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="ButtonOpenFile_Click"/>
         <Label Name="LabelStatus" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>
