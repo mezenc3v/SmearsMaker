@@ -7,7 +7,7 @@ namespace SmearTracer
     {
         private const int DataFormatSize = 4;
 
-        public List<Pixel> BitmapImageToListPixels(BitmapSource source)
+        public List<Pixel> ConvertBitmapImageToPixels(BitmapSource source)
         {
             List<Pixel> inputData = new List<Pixel>();
             int stride = source.PixelWidth * DataFormatSize;
@@ -31,7 +31,7 @@ namespace SmearTracer
             return inputData;
         }
 
-        public BitmapSource ListPixelsToBitmapImage(BitmapSource source, List<Pixel> listPixel)
+        public BitmapSource ConvertPixelsToBitmapImage(BitmapSource source, List<Pixel> listPixel)
         {
             int stride = source.PixelWidth * DataFormatSize;
             int size = source.PixelHeight * stride;
@@ -39,10 +39,10 @@ namespace SmearTracer
 
             foreach (var pixel in listPixel)
             {
-                int indexPixel = pixel.Y * stride + DataFormatSize * pixel.X;
+                int indexPixel = (int)(pixel.PixelPosition.Y * stride + DataFormatSize * pixel.PixelPosition.X);
                 for (int i = 0; i < DataFormatSize; i++)
                 {
-                    data[indexPixel + i] = (byte)pixel.Data[i];
+                    data[indexPixel + i] = (byte)pixel.ArgbArray[i];
                 }
             }
             BitmapSource image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX,

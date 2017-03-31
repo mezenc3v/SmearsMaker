@@ -20,7 +20,7 @@ namespace SmearTracer
 
         public bool Contains(Pixel pixel)
         {      
-            if (Math.Pow(pixel.X - Center.X, 2) + Math.Pow(pixel.Y - Center.Y, 2) <= Radius)
+            if (Math.Pow(pixel.PixelPosition.X - Center.X, 2) + Math.Pow(pixel.PixelPosition.Y - Center.Y, 2) <= Radius)
             {
                 return true;
             }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -21,6 +18,7 @@ namespace SmearTracer
             MinRadius = min;
             MaxRadius = max;
         }
+
         public void Compute(Segment segment)
         {
             Circles.Add(ComputeCircle(segment));
@@ -38,52 +36,52 @@ namespace SmearTracer
             });
         }
 
-        private Circle ComputeCircle(Segment segment)
+        private Circle ComputeCircle(Segment inputSegment)
         {
-            var seg = new Segment(segment);
+            var segment = new Segment(inputSegment);
 
-            double xCenter = seg.CentroidPixel.X;
-            double yCenter = seg.CentroidPixel.Y;
+            double xCenter = segment.Information.GetCenter.PixelPosition.X;
+            double yCenter = segment.Information.GetCenter.PixelPosition.Y;
             double radius = MinRadius;
-            Circle circle = new Circle(new Point(xCenter, yCenter), radius);
-            Circle newCircle = new Circle(new Point(xCenter, yCenter), circle.Radius);
+            var oldCircle = new Circle(new Point(xCenter, yCenter), radius);
+            var newCircle = new Circle(new Point(xCenter, yCenter), oldCircle.Radius);
 
             double points = 0;
-            double newPoints = newCircle.Contains(seg.Data);
+            double newPoints = newCircle.Contains(segment.Information.GetData);
 
             while (newPoints >= points)
             {
                 while (newPoints > points)
                 {
-                    circle = new Circle(new Point(xCenter, yCenter), radius);
+                    oldCircle = new Circle(new Point(xCenter, yCenter), radius);
                     xCenter--;
-                    newCircle = new Circle(new Point(xCenter, yCenter), circle.Radius);
-                    points = circle.Contains(seg.Data);
-                    newPoints = newCircle.Contains(seg.Data);
+                    newCircle = new Circle(new Point(xCenter, yCenter), oldCircle.Radius);
+                    points = oldCircle.Contains(segment.Information.GetData);
+                    newPoints = newCircle.Contains(segment.Information.GetData);
                 }
                 xCenter++;
 
-                circle = new Circle(new Point(xCenter, yCenter), radius);
+                oldCircle = new Circle(new Point(xCenter, yCenter), radius);
                 yCenter--;
-                newCircle = new Circle(new Point(xCenter, yCenter), circle.Radius);
-                points = circle.Contains(seg.Data);
-                newPoints = newCircle.Contains(seg.Data);
+                newCircle = new Circle(new Point(xCenter, yCenter), oldCircle.Radius);
+                points = oldCircle.Contains(segment.Information.GetData);
+                newPoints = newCircle.Contains(segment.Information.GetData);
             }
             yCenter++;
 
-            circle = new Circle(new Point(xCenter, yCenter), radius);
-            newCircle = new Circle(new Point(xCenter, yCenter), circle.Radius + 1);
-            points = circle.Contains(seg.Data);
+            oldCircle = new Circle(new Point(xCenter, yCenter), radius);
+            newCircle = new Circle(new Point(xCenter, yCenter), oldCircle.Radius + 1);
+            points = oldCircle.Contains(segment.Information.GetData);
             radius++;
-            newPoints = newCircle.Contains(seg.Data);
+            newPoints = newCircle.Contains(segment.Information.GetData);
 
             while (newPoints > points && radius < MaxRadius)
             {
                 radius++;
-                circle = new Circle(new Point(xCenter, yCenter), radius);
-                newCircle = new Circle(new Point(xCenter, yCenter), circle.Radius + 1);
-                points = circle.Contains(seg.Data);
-                newPoints = newCircle.Contains(seg.Data);
+                oldCircle = new Circle(new Point(xCenter, yCenter), radius);
+                newCircle = new Circle(new Point(xCenter, yCenter), oldCircle.Radius + 1);
+                points = oldCircle.Contains(segment.Information.GetData);
+                newPoints = newCircle.Contains(segment.Information.GetData);
             }
             radius--;
 

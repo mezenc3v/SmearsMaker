@@ -5,16 +5,16 @@ using System.Windows;
 
 namespace SmearTracer
 {
-    public class SegmentsList
+    public class ClustersSegmentation
     {
         public List<Segment> Segments { get; set; }
 
-        public SegmentsList()
+        public ClustersSegmentation()
         {
             Segments = new List<Segment>();
         }
 
-        public SegmentsList(IEnumerable<SegmentsList> segments)
+        public ClustersSegmentation(IEnumerable<ClustersSegmentation> segments)
         {
             Segments = new List<Segment>();
             foreach (var segmentList in segments)
@@ -25,13 +25,13 @@ namespace SmearTracer
 
         public void Compute(List<Pixel> inputData)
         {
-            var segmentData = inputData.OrderBy(d => d.X).ToList();
+            var segmentData = inputData.OrderBy(d => d.PixelPosition.X).ToList();
             while (segmentData.Count > 0)
             {
                 var data = segmentData;
                 int countPrevious, countNext;
                 var segment = new Segment();
-                segment.Data.Add(data[0]);
+                segment.Information.AddData(data[0]);
                 data.RemoveAt(0);
                 do
                 {
@@ -39,9 +39,9 @@ namespace SmearTracer
                     countPrevious = data.Count;
                     foreach (var pixel in data)
                     {
-                        if (segment.CompareTo(pixel))
+                        if (segment.Information.CompareTo(pixel))
                         {
-                            segment.Data.Add(pixel);
+                            segment.Information.AddData(pixel);
                         }
                         else
                         {
@@ -52,7 +52,7 @@ namespace SmearTracer
                     countNext = segmentData.Count;
                 } while (countPrevious != countNext);
 
-                segment.Update();
+                segment.Information.Update();
                 Segments.Add(segment);
             }
         }
@@ -66,11 +66,11 @@ namespace SmearTracer
                 countPrevious = Segments.Count;
                 for (int i = 0; i < Segments.Count; i++)
                 {
-                    if (Segments[i].Data.Count < minCount)
+                    if (Segments[i].Information.GetData.Count < minCount)
                     {
                         int index = Concat(Segments[i]);
-                        Segments[index].Data.AddRange(Segments[i].Data);
-                        Segments[index].Update();
+                        Segments[index].Information.AddRangeData(Segments[i].Information.GetData);
+                        Segments[index].Information.Update();
                         Segments.RemoveAt(i);
                     }
                 }
@@ -83,9 +83,9 @@ namespace SmearTracer
             List<int> indexes = new List<int>();
             foreach (var segment in Segments)
             {
-                foreach (Pixel pixel in inputSegment.Data)
+                foreach (Pixel pixel in inputSegment.Information.GetData)
                 {
-                    if (segment.CompareTo(pixel) && Segments.IndexOf(segment) != Segments.IndexOf(inputSegment))
+                    if (segment.Information.CompareTo(pixel) && Segments.IndexOf(segment) != Segments.IndexOf(inputSegment))
                     {
                         indexes.Add(Segments.IndexOf(segment));
                         break;
@@ -93,7 +93,7 @@ namespace SmearTracer
                 }
             }
 
-            return indexes.OrderBy(i => Distance(Segments[i].CentroidPixel.Data, inputSegment.CentroidPixel.Data)).First();
+            return indexes.OrderBy(i => Distance(Segments[i].Information.GetCenter.ArgbArray, inputSegment.Information.GetCenter.ArgbArray)).First();
         }
 
         public void ComputeSuperPixels(int minSize, int maxSize, double tolerance)
@@ -119,8 +119,8 @@ namespace SmearTracer
 
                 foreach (var superPixel in segment.SuperPixels)
                 {
-                    var radius = Math.Sqrt(superPixel.Data.Count) / 2;
-                    var center = ComputeCenter(superPixel.Data);
+                    var radius = Math.Sqrt(superPixel.ArgbArray.Count) / 2;
+                    var center = ComputeCenter(superPixel.ArgbArray);
                     var circle = new Circle(center, radius);
                     circles.Add(circle);
                 }
@@ -131,19 +131,19 @@ namespace SmearTracer
 
             foreach (var segment in Segments)
             {
-                segment.Update();
+                segment.Information.Update();
             }
         }
 
         private static IEnumerable<SuperPixel> SegmentToSuperPixels(Segment complexSegment, int minDiameter, int maxDiameter)
         {
-            var data = complexSegment.Data;
+            var data = complexSegment.Information.GetData;
             var superPixelsList = new List<SuperPixel>();
 
-            var firstPoint = new Point(complexSegment.MinXPoint.X, complexSegment.MinYPoint.Y);
-            var secondPoint = new Point(complexSegment.MaxXPoint.X, complexSegment.MaxYPoint.Y);
-            var widthCount = (int)(complexSegment.MaxXPoint.X - complexSegment.MinXPoint.X);
-            var heightCount = (int)(complexSegment.MaxYPoint.Y - complexSegment.MinYPoint.Y);
+            var firstPoint = new Point(complexSegment.Information.GetMinXPoint.X, complexSegment.Information.GetMinYPoint.Y);
+            var secondPoint = new Point(complexSegment.Information.GetMaxXPoint.X, complexSegment.Information.GetMaxYPoint.Y);
+            var widthCount = (int)(complexSegment.Information.GetMaxXPoint.X - complexSegment.Information.GetMinXPoint.X);
+            var heightCount = (int)(complexSegment.Information.GetMaxYPoint.Y - complexSegment.Information.GetMinYPoint.Y);
             var samples = InitilalCentroids(widthCount, heightCount, firstPoint, secondPoint, maxDiameter);
             var smallData = new List<Pixel>();
             var superPixels = samples.Select(centroid => new SuperPixel(centroid)).ToList();
@@ -151,16 +151,16 @@ namespace SmearTracer
             foreach (var pixel in data)
             {
                 var winner = NearestCentroid(pixel, superPixels);
-                superPixels[winner].Data.Add(pixel);
+                superPixels[winner].Information.AddData(pixel);
             }
             //Deleting empty cells and cells with small data count
             foreach (var superPixel in superPixels)
             {
-                if (superPixel.Data.Count > 0)
+                if (superPixel.Information.GetData.Count > 0)
                 {
-                    if (superPixel.Data.Count < minDiameter * minDiameter)
+                    if (superPixel.Information.GetData.Count < minDiameter * minDiameter)
                     {
-                        smallData.AddRange(superPixel.Data);
+                        smallData.AddRange(superPixel.Information.GetData);
                     }
                     else
                     {
@@ -175,7 +175,7 @@ namespace SmearTracer
                 foreach (var pixel in smallData)
                 {
                     var winner = NearestCentroid(pixel, superPixelsList);
-                    superPixelsList[winner].Data.Add(pixel);
+                    superPixelsList[winner].Information.AddData(pixel);
                 }
             }
 
@@ -200,8 +200,8 @@ namespace SmearTracer
 
         private static double Distance(SuperPixel superPixel, Pixel pixel)
         {
-            double sum = Math.Pow(pixel.X - superPixel.Centroid.X, 2);
-            sum += Math.Pow(pixel.Y - superPixel.Centroid.Y, 2);
+            var sum = Math.Pow(pixel.PixelPosition.X - superPixel.Information.GetCenter.PixelPosition.X, 2);
+            sum += Math.Pow(pixel.PixelPosition.Y - superPixel.Information.GetCenter.PixelPosition.Y, 2);
             return Math.Sqrt(sum);
         }
 
@@ -237,20 +237,6 @@ namespace SmearTracer
             }
 
             return distance;
-        }
-
-        private static Point ComputeCenter(List<Pixel> data)
-        {
-            double x = 0;
-            double y = 0;
-            foreach (var pixel in data)
-            {
-                x += pixel.X;
-                y += pixel.Y;
-            }
-            x /= data.Count;
-            y /= data.Count;
-            return new Point(x, y);
         }
     }
 }

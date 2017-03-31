@@ -1,26 +1,32 @@
-﻿
-using System.Windows;
+﻿using System.Windows;
 
 namespace SmearTracer
 {
     public class Pixel
     {
-        public double[] Data { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public double[] ArgbArray { get; set; }
+        public Point PixelPosition;
 
-        public Pixel(double[] data, int x, int y)
+        public Pixel()
         {
-            Data = data;
-            X = x;
-            Y = y;
+            PixelPosition = new Point();
         }
 
-        public Pixel(double[] data, Point point)
+        public Pixel(Point point)
         {
-            Data = data;
-            X = (int)point.X;
-            Y = (int)point.Y;
+            PixelPosition = point;
+        }
+
+        public Pixel(double[] argbArray, int x, int y)
+        {
+            ArgbArray = argbArray;
+            PixelPosition = new Point(x, y);
+        }
+
+        public Pixel(double[] argbArray, Point point)
+        {
+            ArgbArray = argbArray;
+            PixelPosition = point;
         }
     }
 }

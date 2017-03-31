@@ -50,16 +50,16 @@ namespace SmearTracer
             {
                 if (Clusters[i].Data.Count == 0)
                 {
-                    //smallData.AddRange(Clusters[i].Data);
+                    //smallData.AddRange(Clusters[i].ArgbArray);
                     Clusters.Remove(Clusters[i]);
                 }
             }
             /*Parallel.ForEach(smallData, d =>
             {
-                int index = NearestCentroid(d.Data);
+                int index = NearestCentroid(d.ArgbArray);
                 lock (smallData)
                 {
-                    Clusters[index].Data.Add(d);
+                    Clusters[index].ArgbArray.Add(d);
                 }
             });*/
         }
@@ -72,7 +72,7 @@ namespace SmearTracer
             }
             Parallel.ForEach(data, d =>
             {
-                int index = NearestCentroid(d.Data);
+                int index = NearestCentroid(d.ArgbArray);
                 lock (data)
                 {
                     Clusters[index].Data.Add(d);
@@ -84,12 +84,12 @@ namespace SmearTracer
 
         private void InitialCentroids(List<Pixel> data)
         {
-            List<Pixel> sortedArray = data.OrderBy(p => p.Data.Sum()).ToList();
+            List<Pixel> sortedArray = data.OrderBy(p => p.ArgbArray.Sum()).ToList();
             int step = data.Count / Clusters.Count;
 
             for (int i = 0; i < Clusters.Count; i++)
             {
-                Clusters[i].Centroid = sortedArray[i * step / 2].Data;
+                Clusters[i].Centroid = sortedArray[i * step / 2].ArgbArray;
             }
         }
 
@@ -101,9 +101,9 @@ namespace SmearTracer
 
                 foreach (Pixel data in cluster.Data)
                 {
-                    for (int j = 0; j < data.Data.Length; j++)
+                    for (int j = 0; j < data.ArgbArray.Length; j++)
                     {
-                        centroid[j] += data.Data[j];
+                        centroid[j] += data.ArgbArray[j];
                     }
 
                 }

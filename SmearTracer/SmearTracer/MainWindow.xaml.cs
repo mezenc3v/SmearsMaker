@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -25,22 +24,22 @@ namespace SmearTracer
             var converter = new Converters();
             var filter = new MedianFilter(rankFilter, image.PixelWidth, image.PixelHeight);
             var kmeans = new KMeans(countClusters, tolerance, dataFormatSize);
-            var imageData = converter.BitmapImageToListPixels(image);
+            var imageData = converter.ConvertBitmapImageToPixels(image);
             var filteredData = filter.Compute(imageData);
             var smearsData = new List<Pixel>();
-            var listSegments = new List<SegmentsList>();
+            var listSegments = new List<ClustersSegmentation>();
             //calculate clusters
             kmeans.Compute(filteredData, maxIter);
             //creating segmentsList from clusters
             Parallel.ForEach(kmeans.Clusters,
                 cluster =>
                 {
-                    var clusterSegmentsList = new SegmentsList();
+                    var clusterSegmentsList = new ClustersSegmentation();
                     clusterSegmentsList.Compute(cluster.Data);
                     listSegments.Add(clusterSegmentsList);
                 });
             //creating single list of complex segmentsList 
-            var segmentsList = new SegmentsList(listSegments);
+            var segmentsList = new ClustersSegmentation(listSegments);
             //concatenation small segments
             segmentsList.Concat(minSize);
             //spliting big segmentsList into superpixels
@@ -50,16 +49,16 @@ namespace SmearTracer
             {
                 foreach (var superPixel in segment.SuperPixels)
                 {
-                    var seg = new Segment {Data = superPixel.Data};
-                    seg.Update();
-                    superPixel.Data.ForEach(d => d.Data = seg.CentroidPixel.Data);
-                    smearsData.AddRange(superPixel.Data);
+                    var seg = new SuperPixel(superPixel);
+                    seg.Information.Update();
+                    superPixel.Information.GetData.ForEach(d => d.ArgbArray = seg.Information.GetCenter.ArgbArray);
+                    smearsData.AddRange(superPixel.Information.GetData);
                 }
             }
 
             /*foreach (var segment in segmentsList.Segments)
             {
-                foreach (var pixel in segment.Data)
+                foreach (var pixel in segment.ArgbArray)
                 {
                     foreach (var circle in segment.CirclesList)
                     {
@@ -88,16 +87,16 @@ namespace SmearTracer
                         }
                     }
 
-                    foreach (var pixel in superPixel.Data)
+                    foreach (var pixel in superPixel.ArgbArray)
                     {
-                        pixel.Data = superPixel.Color;
+                        pixel.ArgbArray = superPixel.Color;
                         smearsData.Add(pixel);
                     }
                 }
             }*/
 
             //output results
-            var imageResult = converter.ListPixelsToBitmapImage(image, smearsData);
+            var imageResult = converter.ConvertPixelsToBitmapImage(image, smearsData);
             LabelStatus.Content = "Done! created " + segmentsList.Segments.Count + " segmentsList into " + kmeans.Clusters.Count + " clusters.";
             return imageResult;
         }

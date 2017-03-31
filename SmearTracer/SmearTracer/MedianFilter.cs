@@ -31,11 +31,11 @@ namespace SmearTracer
                             int index = coordMaskX * _height + coordMaskY;
                             if (index < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
                             {
-                                mask.Add(data[index].Data);
+                                mask.Add(data[index].ArgbArray);
                             }
                         }
                     }
-                    data[coordX * _height + coordY].Data = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
+                    data[coordX * _height + coordY].ArgbArray = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
                 }
             }
             return data;
