@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using System.Windows.Media.Imaging;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace SmearTracer.AL.Tests
 {
@@ -6,10 +8,12 @@ namespace SmearTracer.AL.Tests
     public class SmearsTests
     {
         [TestMethod]
-        public void ShouldCreateSmear()
+        public void ShouldCreateSmears()
         {
             //arrange
-            var smears = new SmearsGrayScale();
+            var path = new Uri(@"C:\Users\kochka100\Source\Repos\SmearTracer\SmearTracer.AL.Tests\Images\Lenna.bmp");
+            var image = new BitmapImage(path);
+            var smears = new SmearsGrayScale(image, 5, 50);
             //act
             smears.Compute();
             var testListSmears = smears.Smears();
