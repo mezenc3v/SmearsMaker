@@ -1,11 +1,12 @@
 ﻿using System.Windows;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.Model
 {
-    public class Pixel
+    public class Pixel:IUnit
     {
-        public double[] ArgbArray;
-        public Point Position;
+        public double[] ArgbArray { get; set; }
+        public Point Position { get; set; }
 
         public Pixel()
         {

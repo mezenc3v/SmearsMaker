@@ -9,7 +9,7 @@ namespace SmearTracer.AL.Tests
         public void ShouldCreateSmear()
         {
             //arrange
-            ISmears smears = new SmearsGrayScale();
+            var smears = new SmearsGrayScale();
             //act
             smears.Compute();
             var testListSmears = smears.Smears();

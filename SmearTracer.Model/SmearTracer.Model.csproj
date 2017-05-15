@@ -41,6 +41,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\ICluster.cs" />
+    <Compile Include="Abstract\IFigure.cs" />
+    <Compile Include="Abstract\IGraphicUnit.cs" />
+    <Compile Include="Abstract\ISegment.cs" />
+    <Compile Include="Abstract\IUnit.cs" />
     <Compile Include="Circle.cs" />
     <Compile Include="Cluster.cs" />
     <Compile Include="GraphicUnit.cs" />

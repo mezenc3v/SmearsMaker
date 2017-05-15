@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Windows;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.Model
 {
@@ -8,11 +9,11 @@ namespace SmearTracer.Model
         public SuperPixel(Point point)
         {
             Center = new Pixel(point);
-            Data = new List<Pixel>();
+            Data = new List<IUnit>();
             Color = Generate();
         }
 
-        public SuperPixel(GraphicUnit superPixel)
+        public SuperPixel(IGraphicUnit superPixel)
         {
             Center = superPixel.Center;
             Data = superPixel.Data;

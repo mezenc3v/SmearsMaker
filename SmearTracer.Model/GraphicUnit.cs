@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Windows;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.Model
 {
-    public class GraphicUnit
+    public class GraphicUnit:IGraphicUnit
     {
-        public Pixel Center;
-        public double[] Color;
-        public Point MinX;
-        public Point MinY;
-        public Point MaxX;
-        public Point MaxY;
-        public List<Pixel> Data;
+        public IUnit Center { get; set; }
+        public double[] Color { get; set; }
+        public Point MinX { get; set; }
+        public Point MinY { get; set; }
+        public Point MaxX { get; set; }
+        public Point MaxY { get; set; }
+        public List<IUnit> Data { get; set; }
 
         public void Update()
         {
@@ -76,12 +77,12 @@ namespace SmearTracer.Model
             }
         }
 
-        public void AddData(Pixel pixel)
+        public void AddData(IUnit pixel)
         {
             Data.Add(pixel);
         }
 
-        public bool Contains(Pixel pixel)
+        public bool Contains(IUnit pixel)
         {
             for (int i = Data.Count - 1; i >= 0; i--)
             {
@@ -94,7 +95,7 @@ namespace SmearTracer.Model
             return false;
         }
 
-        public void ArrDataRange(IEnumerable<Pixel> pixels)
+        public void AddDataRange(IEnumerable<IUnit> pixels)
         {
             Data.AddRange(pixels);
         }

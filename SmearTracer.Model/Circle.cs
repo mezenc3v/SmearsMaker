@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Windows;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.Model
 {
-    public class Circle
+    public class Circle:IFigure
     {
-        public Point Center;
-        public double Radius;
-        public double[] Color;
+        public Point Center { get; set; }
+        public double Radius { get; set; }
+        public double[] Color { get; set; }
 
         public Circle(Point center, double radius)
         {
@@ -18,7 +19,7 @@ namespace SmearTracer.Model
             Color = Generate();
         }
 
-        public bool Contains(Pixel pixel)
+        public bool Contains(IUnit pixel)
         {
             if (Math.Pow(pixel.Position.X - Center.X, 2) + Math.Pow(pixel.Position.Y - Center.Y, 2) <= Radius)
             {
@@ -36,7 +37,7 @@ namespace SmearTracer.Model
             return false;
         }
 
-        public int Contains(List<Pixel> data)
+        public int Contains(List<IUnit> data)
         {
             int counter = 0;
             foreach (var pixel in data)

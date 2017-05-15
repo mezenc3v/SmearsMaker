@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using SmearTracer.Model;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.BLL
 {
@@ -21,7 +22,7 @@ namespace SmearTracer.BLL
             _precision = precision;
         }
 
-        public void Compute(List<Pixel> data, int maxIteration)
+        public void Compute(List<IUnit> data, int maxIteration)
         {
             InitialCentroids(data);
 
@@ -65,11 +66,11 @@ namespace SmearTracer.BLL
             });*/
         }
 
-        private void UpdateMeans(List<Pixel> data)
+        private void UpdateMeans(List<IUnit> data)
         {
             foreach (var cluster in Clusters)
             {
-                cluster.Data = new List<Pixel>();
+                cluster.Data = new List<IUnit>();
             }
             Parallel.ForEach(data, d =>
             {
@@ -83,7 +84,7 @@ namespace SmearTracer.BLL
             Clusters.RemoveAll(c => c.Data.Count == 0);
         }
 
-        private void InitialCentroids(List<Pixel> data)
+        private void InitialCentroids(List<IUnit> data)
         {
             var sortedArray = data.OrderBy(p => p.ArgbArray.Sum()).ToList();
             var step = data.Count / Clusters.Count;

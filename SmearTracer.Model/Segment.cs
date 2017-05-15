@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.Model
 {
-    public class Segment : GraphicUnit
+    public class Segment : GraphicUnit, ISegment
     {
-        public List<SuperPixel> SuperPixels;
-        public List<Circle> CirclesList;
+        public List<IGraphicUnit> SuperPixels { get; set; }
+        public List<IFigure> CirclesList { get; set; }
 
         public Segment()
         {
             Center = new Pixel();
-            Data = new List<Pixel>();
-            SuperPixels = new List<SuperPixel>();
-            CirclesList = new List<Circle>();
+            Data = new List<IUnit>();
+            SuperPixels = new List<IGraphicUnit>();
+            CirclesList = new List<IFigure>();
         }
 
         public Segment(Segment segment)

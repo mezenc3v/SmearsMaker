@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Media.Imaging;
 using SmearTracer.Model;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.BLL
 {
@@ -9,9 +10,9 @@ namespace SmearTracer.BLL
     {
         private const int DataFormatSize = 4;
 
-        public List<Pixel> ConvertBitmapImageToPixels(BitmapSource source)
+        public List<IUnit> ConvertBitmapImageToPixels(BitmapSource source)
         {
-            var inputData = new List<Pixel>();
+            var inputData = new List<IUnit>();
             var stride = source.PixelWidth * DataFormatSize;
             var size = source.PixelHeight * stride;
             var data = new byte[size];
@@ -33,7 +34,7 @@ namespace SmearTracer.BLL
             return inputData;
         }
 
-        public BitmapSource ConvertPixelsToBitmapImage(BitmapSource source, List<Pixel> listPixel)
+        public BitmapSource ConvertPixelsToBitmapImage(BitmapSource source, List<IUnit> listPixel)
         {
             var stride = source.PixelWidth * DataFormatSize;
             var size = source.PixelHeight * stride;

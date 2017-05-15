@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SmearTracer.Model;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.BLL
 {
@@ -17,7 +18,7 @@ namespace SmearTracer.BLL
             _height = height;
         }
 
-        public List<Pixel> Compute(List<Pixel> data)
+        public List<IUnit> Compute(List<IUnit> data)
         {
             for (int coordX = 0; coordX < _width; coordX++)
             {

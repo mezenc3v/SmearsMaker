@@ -11,7 +11,7 @@ namespace SmearTracer.AL
         public Color Color;
     }
 
-    public class SmearsGrayScale : ISmears
+    public class SmearsGrayScale 
     {
         public SmearsGrayScale()
         {

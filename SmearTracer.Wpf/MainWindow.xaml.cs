@@ -16,7 +16,7 @@ namespace SmearTracer.Wpf
     {
         private readonly List<ImageSource> _images;
         private int _currentImageIndex;
-        private IImageLayers _layers;
+        private SmearsMap _layers;
         public MainWindow()
         {
             InitializeComponent();

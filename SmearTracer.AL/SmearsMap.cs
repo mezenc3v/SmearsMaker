@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using SmearTracer.BLL;
 using SmearTracer.Model;
+using SmearTracer.Model.Abstract;
 
 namespace SmearTracer.AL
 {
-    public class SmearsMap : IImageLayers
+    public class SmearsMap
     {
         private readonly BitmapImage _image;
         private Segmentation _data;
@@ -67,12 +68,12 @@ namespace SmearTracer.AL
         public BitmapSource SuperPixels()
         {
             var converter = new Converters();
-            var pixels = new List<Pixel>();
+            var pixels = new List<IUnit>();
             foreach (var segment in _data.Segments)
             {
                 foreach (var superPixel in segment.SuperPixels)
                 {
-                    var seg = new SuperPixel(superPixel);
+                    var seg = superPixel;
                     seg.Update();
                     superPixel.Data.ForEach(d => d.ArgbArray = seg.Center.ArgbArray);
                     pixels.AddRange(superPixel.Data);
@@ -85,7 +86,7 @@ namespace SmearTracer.AL
         public BitmapSource Circles()
         {
             var converter = new Converters();
-            var pixels = new List<Pixel>();
+            var pixels = new List<IUnit>();
             foreach (var segment in _data.Segments)
             {
                 foreach (var pixel in segment.Data)
@@ -108,7 +109,7 @@ namespace SmearTracer.AL
         public BitmapSource CirclesRndColor()
         {
             var converter = new Converters();
-            var pixels = new List<Pixel>();
+            var pixels = new List<IUnit>();
             foreach (var segment in _data.Segments)
             {
                 foreach (var pixel in segment.Data)
@@ -130,7 +131,7 @@ namespace SmearTracer.AL
         public BitmapSource SuperPixelsColor()
         {
             var converter = new Converters();
-            var pixels = new List<Pixel>();
+            var pixels = new List<IUnit>();
             foreach (var segment in _data.Segments)
             {
                 foreach (var superPixel in segment.SuperPixels)
@@ -148,7 +149,7 @@ namespace SmearTracer.AL
         public BitmapSource VectorMap()
         {
             var converter = new Converters();
-            var pixels = new List<Pixel>();
+            var pixels = new List<IUnit>();
             //
             var image = converter.ConvertPixelsToBitmapImage(_image, pixels);
             return image;
