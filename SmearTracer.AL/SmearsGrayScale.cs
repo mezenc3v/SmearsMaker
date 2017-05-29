@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using SmearTracer.AL.Abstract;
 using SmearTracer.BLL;
 
 namespace SmearTracer.AL
@@ -57,10 +56,10 @@ namespace SmearTracer.AL
             _data.ComputeSuperPixels(_minSize, _maxSize, _tolerance);
         }
 
-        public List<ISmear> Smears()
+        /*public List<Smear> Smears()
         {
-            var list = new List<ISmear>();
-            ISmear smear = new Smear();
+            var list = new List<Smear>();
+            var smear = new Smear();
             smear.Points = new List<Point>
             {
                 new Point(1,1),
@@ -72,6 +71,6 @@ namespace SmearTracer.AL
             smear.Color = Colors.Black;
             list.Add(smear);
             return list;
-        }
+        }*/
     }
 }

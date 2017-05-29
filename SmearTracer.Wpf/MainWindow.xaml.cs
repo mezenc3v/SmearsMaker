@@ -1,10 +1,12 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SmearTracer.AL;
+using SmearTracer.UI;
 
 
 namespace SmearTracer.Wpf
@@ -16,7 +18,7 @@ namespace SmearTracer.Wpf
     {
         private readonly List<ImageSource> _images;
         private int _currentImageIndex;
-        private SmearsMap _layers;
+        //private SmearsMap _layers;
         public MainWindow()
         {
             InitializeComponent();
@@ -41,15 +43,23 @@ namespace SmearTracer.Wpf
                 //{
                 var image = new BitmapImage(new Uri(fileDialog.FileName));
 
-                _layers = new SmearsMap(image);
+                /*_layers = new SmearsMap(image);
                 _layers.Compute();
                 _images.Add(_layers.Initial());
                 _images.Add(_layers.SuperPixels());
                 _images.Add(_layers.VectorMap());
                 _images.Add(_layers.SuperPixelsColor());
                 _images.Add(_layers.Circles());
-                Image.Source = _images[0];
+                 Image.Source = _images[0];*/
+;
+                var ui = new UserInterface(image);
+                ui.Split();
+                _images.Add(ui.SuperPixels());
+                _images.Add(ui.BrushStrokes());
+                _images.Add(ui.BrushStrokesLines());
+                _images.Add(ui.SuperPixelsColor());
 
+                Image.Source = _images.Last();
                 /*}
                 catch (Exception ex)
                 {

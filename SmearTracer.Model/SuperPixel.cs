@@ -8,7 +8,7 @@ namespace SmearTracer.Model
     {
         public SuperPixel(Point point)
         {
-            Center = new Pixel(point);
+            Center = new Pixel(point) {ArgbArray = Generate()};
             Data = new List<IUnit>();
             Color = Generate();
         }
@@ -16,6 +16,7 @@ namespace SmearTracer.Model
         public SuperPixel(IGraphicUnit superPixel)
         {
             Center = superPixel.Center;
+            Center.ArgbArray = Generate();
             Data = superPixel.Data;
             Color = Generate();
             MinX = superPixel.MinX;

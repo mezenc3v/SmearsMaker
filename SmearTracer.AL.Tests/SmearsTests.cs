@@ -10,7 +10,7 @@ namespace SmearTracer.AL.Tests
         [TestMethod]
         public void ShouldCreateSmears()
         {
-            //arrange
+            /*//arrange
             var path = new Uri(@"C:\Users\kochka100\Source\Repos\SmearTracer\SmearTracer.AL.Tests\Images\Lenna.bmp");
             var image = new BitmapImage(path);
             var smears = new SmearsGrayScale(image, 5, 50);
@@ -22,7 +22,7 @@ namespace SmearTracer.AL.Tests
             foreach (var testSmear in testListSmears)
             {
                 Assert.IsNotNull(testSmear);
-            }
+            }*/
         }
     }
 }

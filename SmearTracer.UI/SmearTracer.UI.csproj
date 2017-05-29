@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D8AA76C1-97C4-4BFC-968F-A27F81211267}</ProjectGuid>
+    <ProjectGuid>{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmearTracer.AL</RootNamespace>
-    <AssemblyName>SmearTracer.AL</AssemblyName>
+    <RootNamespace>SmearTracer.UI</RootNamespace>
+    <AssemblyName>SmearTracer.UI</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -20,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -28,12 +30,13 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xaml" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -43,24 +46,34 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrushStrokesMaker.cs" />
     <Compile Include="Models\BrushStroke.cs" />
+    <Compile Include="Abstract\Canvas.cs" />
+    <Compile Include="Abstract\Concatinator.cs" />
+    <Compile Include="Abstract\Layer.cs" />
+    <Compile Include="Abstract\Segment.cs" />
+    <Compile Include="Abstract\ClusterSplitter.cs" />
+    <Compile Include="Abstract\Filter.cs" />
+    <Compile Include="Abstract\Cluster.cs" />
+    <Compile Include="Abstract\GraphicUnit.cs" />
+    <Compile Include="Utils.cs" />
+    <Compile Include="Kmeans.cs" />
+    <Compile Include="MedianFilter.cs" />
     <Compile Include="Models\ColorCluster.cs" />
+    <Compile Include="Models\Superpixel.cs" />
     <Compile Include="Models\PictureCanvas.cs" />
     <Compile Include="Models\PictureLayer.cs" />
-    <Compile Include="Models\Segment.cs" />
+    <Compile Include="Models\Unit.cs" />
+    <Compile Include="Models\UnitSegment.cs" />
+    <Compile Include="Abstract\SegmentSplitter.cs" />
+    <Compile Include="Abstract\UnitSplitter.cs" />
+    <Compile Include="Segmentation.cs" />
+    <Compile Include="SegmentConcatinator.cs" />
+    <Compile Include="SuperpixelSplitter.cs" />
+    <Compile Include="UserInterface.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SmearsGrayScale.cs" />
-    <Compile Include="SmearsMap.cs" />
+    <Compile Include="Abstract\UtilsInterface.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\SmearTracer.BLL\SmearTracer.BLL.csproj">
-      <Project>{203e2f48-86f6-4df8-8678-ae9f80d4d50d}</Project>
-      <Name>SmearTracer.BLL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmearTracer.Model\SmearTracer.Model.csproj">
-      <Project>{0CE3FEC9-6FC0-4040-BB59-4BD7B514EAD2}</Project>
-      <Name>SmearTracer.Model</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

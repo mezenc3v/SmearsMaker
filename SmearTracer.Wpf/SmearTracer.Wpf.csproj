@@ -98,6 +98,10 @@
       <Project>{D8AA76C1-97C4-4BFC-968F-A27F81211267}</Project>
       <Name>SmearTracer.AL</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SmearTracer.UI\SmearTracer.UI.csproj">
+      <Project>{c504258b-f71d-4b60-8fa9-ada8b2aba735}</Project>
+      <Name>SmearTracer.UI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using SmearTracer.AL.Models;
 using SmearTracer.BLL;
 using SmearTracer.Model;
 using SmearTracer.Model.Abstract;
@@ -10,6 +11,8 @@ namespace SmearTracer.AL
 {
     public class SmearsMap
     {
+        //private PictureCanvas _canvas;
+
         private readonly BitmapImage _image;
         private Segmentation _data;
         private readonly int _countClusters;

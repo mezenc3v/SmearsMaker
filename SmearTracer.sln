@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer.AL.Tests", "Sme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer.BLL", "SmearTracer.BLL\SmearTracer.BLL.csproj", "{203E2F48-86F6-4DF8-8678-AE9F80D4D50D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer.UI", "SmearTracer.UI\SmearTracer.UI.csproj", "{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{203E2F48-86F6-4DF8-8678-AE9F80D4D50D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{203E2F48-86F6-4DF8-8678-AE9F80D4D50D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{203E2F48-86F6-4DF8-8678-AE9F80D4D50D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C504258B-F71D-4B60-8FA9-ADA8B2ABA735}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
