@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using SmearTracer.UI.Abstract;
-using SmearTracer.UI.Models;
+using SmearTracer.Core.Abstract;
+using SmearTracer.Core.Models;
 
-namespace SmearTracer.UI
+namespace SmearTracer.Core
 {
     public static class Utils
     {
         private const int DataFormatSize = 4;
 
-        public static List<Unit> ConvertBitmapImageToPixels(BitmapSource source)
+        public static List<IUnit> ConvertBitmapImageToPixels(BitmapSource source)
         {
-            var inputData = new List<Unit>();
+            var inputData = new List<IUnit>();
             var stride = source.PixelWidth * DataFormatSize;
             var size = source.PixelHeight * stride;
             var data = new byte[size];
@@ -30,13 +31,13 @@ namespace SmearTracer.UI
                     {
                         dataPixel[i] = data[indexPixel + i];
                     }
-                    inputData.Add(new Unit(dataPixel, new Point(x, y)));
+                    inputData.Add(new Pixel(dataPixel, new Point(x, y)));
                 }
             }
             return inputData;
         }
 
-        public static BitmapSource ConvertPixelsToBitmapImage(BitmapSource source, List<Unit> listPixel)
+        public static BitmapSource ConvertPixelsToBitmapImage(BitmapSource source, List<IUnit> listPixel)
         {
             var stride = source.PixelWidth * DataFormatSize;
             var size = source.PixelHeight * stride;
@@ -47,7 +48,7 @@ namespace SmearTracer.UI
                 var indexPixel = (int)(pixel.Position.Y * stride + DataFormatSize * pixel.Position.X);
                 for (int i = 0; i < DataFormatSize; i++)
                 {
-                    data[indexPixel + i] = (byte)pixel.ArgbArray[i];
+                    data[indexPixel + i] = (byte)pixel.Data[i];
                 }
             }
             var image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX,
@@ -58,37 +59,46 @@ namespace SmearTracer.UI
 
         public static void Concat(int minCount, List<Cluster> clusters)
         {
-            foreach (var cluster in clusters)
-            {
-                int countPrevious;
-                int countNext;
 
-                var segments = cluster.Segments;
-                do
+                Parallel.ForEach(clusters, cluster =>
                 {
-                    countPrevious = segments.Count;
-                    for (int i = 0; i < segments.Count; i++)
-                    {
-                        if (segments[i].Units.Count < minCount)
-                        {
-                            foreach (var c in clusters.OrderBy(c => Distance(c.Centroid, segments[i].Center.ArgbArray)))
-                            {
-                                if (Concat(c.Segments, segments[i]))
-                                {
-                                    segments.RemoveAt(i);
-                                    break;
-                                }
-                            }
+                    int countPrevious;
+                    int countNext;
 
-                            
+                    var segments = cluster.Segments;
+                    do
+                    {
+                        countPrevious = segments.Count;
+                        for (int i = 0; i < segments.Count; i++)
+                        {
+                            var width = (int)(segments[i].MaxX.X - segments[i].MinX.X);
+                            var height = (int)(segments[i].MaxY.Y - segments[i].MinY.Y);
+
+                            if (segments[i].Units.Count < minCount * 5
+                                || (width / (height + 1) > 3 || height / (width + 1) > 3) && segments[i].Units.Count < minCount * 6
+                                || (width > Math.Sqrt(minCount) * 3 || height > Math.Sqrt(minCount) * 3) && segments[i].Units.Count < minCount * 6)
+                            {
+                                foreach (var c in clusters.OrderBy(c => Distance(c.Centroid, segments[i].Center.Data)))
+                                {
+                                    lock (clusters)
+                                    {
+                                        if (Concat(c.Segments, segments[i]))
+                                        {
+                                            segments.RemoveAt(i);
+                                            break;
+                                        }
+                                    }
+                                }
+
+
+                            }
                         }
-                    }
-                    countNext = segments.Count;
-                } while (countNext != countPrevious);
-            }
+                        countNext = segments.Count;
+                    } while (countNext != countPrevious);
+                });
         }
 
-        private static bool Concat(List<Segment> segments, Segment segment)
+        private static bool Concat(IEnumerable<Segment> segments, Part segment)
         {
             foreach (var seg in segments)
             {
@@ -102,12 +112,11 @@ namespace SmearTracer.UI
             return false;
         }
 
-
-        private static double Distance(double[] colorFirst, double[] colorSecond)
+        private static double Distance(IReadOnlyList<double> colorFirst, IReadOnlyList<double> colorSecond)
         {
             double distance = 0;
 
-            for (int i = 0; i < colorFirst.Length; i++)
+            for (int i = 0; i < colorFirst.Count; i++)
             {
                 distance += Math.Abs(colorFirst[i] - colorSecond[i]);
             }

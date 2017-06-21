@@ -3,28 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Windows;
-using SmearTracer.UI.Abstract;
+using SmearTracer.Core.Abstract;
 
-namespace SmearTracer.UI.Models
+namespace SmearTracer.Core.Models
 {
-    public class Superpixel : GraphicUnit
+    public class Superpixel : Part
     {
         public Superpixel(Point point)
         {
-            Center = new Unit(point);
-            Units = new List<Unit>();
+            Center = new Pixel(point);
+            Units = new List<IUnit>();
             Color = Generate();
-        }
-
-        public Superpixel(GraphicUnit superPixel)
-        {
-            Center = superPixel.Center;
-            Units = superPixel.Units;
-            Color = Generate();
-            MinX = superPixel.MinX;
-            MaxX = superPixel.MaxX;
-            MinY = superPixel.MinY;
-            MaxY = superPixel.MaxY;
         }
 
         public override void Update()
@@ -34,7 +23,7 @@ namespace SmearTracer.UI.Models
                 //coorditates for compute centroid
                 int x = 0;
                 int y = 0;
-                var averageData = new double[Units.First().ArgbArray.Length];
+                var averageData = new double[Units.First().Data.Length];
                 //coordinates for compute vector
                 var minX = Units[0].Position.X;
                 var minY = Units[0].Position.Y;
@@ -50,7 +39,7 @@ namespace SmearTracer.UI.Models
                     y += (int)data.Position.Y;
                     for (int i = 0; i < averageData.Length; i++)
                     {
-                        averageData[i] += data.ArgbArray[i];
+                        averageData[i] += data.Data[i];
                     }
                     //find min and max coordinates in segment
                     if (data.Position.X < minX)
@@ -80,24 +69,24 @@ namespace SmearTracer.UI.Models
                 {
                     averageData[i] /= Units.Count;
                 }
-                var centroid = new Unit(averageData, new Point(x, y));
+                var centroid = new Pixel(averageData, new Point(x, y));
                 Center = centroid;
 
                 Units = Units.OrderBy(p => p.Position.X).ThenBy(p => p.Position.Y).ToList();
             }
         }
 
-        public override void AddData(Unit unut)
+        public override void AddData(IUnit unut)
         {
             Units.Add(unut);
         }
 
-        public override bool Contains(Unit unit)
+        public override bool Contains(IUnit pixel)
         {
             for (int i = Units.Count - 1; i >= 0; i--)
             {
-                if (Math.Abs(unit.Position.X - Units[i].Position.X)
-                    < 2 && Math.Abs(unit.Position.Y - Units[i].Position.Y) < 2)
+                if (Math.Abs(pixel.Position.X - Units[i].Position.X)
+                    < 2 && Math.Abs(pixel.Position.Y - Units[i].Position.Y) < 2)
                 {
                     return true;
                 }
@@ -105,7 +94,7 @@ namespace SmearTracer.UI.Models
             return false;
         }
 
-        public override void AddDataRange(IEnumerable<Unit> units)
+        public override void AddDataRange(IEnumerable<IUnit> units)
         {
             Units.AddRange(units);
         }

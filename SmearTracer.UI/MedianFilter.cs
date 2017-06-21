@@ -1,11 +1,10 @@
 ﻿using System.Collections.Generic;
-using SmearTracer.UI.Abstract;
-using SmearTracer.UI.Models;
 using System.Linq;
+using SmearTracer.Core.Abstract;
 
-namespace SmearTracer.UI
+namespace SmearTracer.Core
 {
-    public class MedianFilter:Filter
+    public class MedianFilter:IFilter
     {
         public int Rank;
         private readonly int _width;
@@ -18,7 +17,7 @@ namespace SmearTracer.UI
             _height = height;
         }
 
-        public override List<Unit> Filtering(List<Unit> units)
+        public List<IUnit> Filtering(List<IUnit> units)
         {
             for (int coordX = 0; coordX < _width; coordX++)
             {
@@ -33,11 +32,11 @@ namespace SmearTracer.UI
                             var index = coordMaskX * _height + coordMaskY;
                             if (index < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
                             {
-                                mask.Add(units[index].ArgbArray);
+                                mask.Add(units[index].Data);
                             }
                         }
                     }
-                    units[coordX * _height + coordY].ArgbArray = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
+                    units[coordX * _height + coordY].Data = mask.OrderByDescending(v => v.Sum()).ToArray()[mask.Count / 2];
                 }
             }
             return units;

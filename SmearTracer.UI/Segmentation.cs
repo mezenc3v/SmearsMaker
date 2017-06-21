@@ -1,20 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearTracer.UI.Abstract;
-using SmearTracer.UI.Models;
+using SmearTracer.Core.Abstract;
+using SmearTracer.Core.Models;
 
-namespace SmearTracer.UI
+namespace SmearTracer.Core
 {
-    public class Segmentation:SegmentSplitter
+    public class Segmentation:ISegmentsSplitter
     {
-        private readonly List<UnitSegment> _segments;
-        private readonly List<Unit> _data;
+        private readonly List<Segment> _segments;
+        private readonly List<IUnit> _data;
         private readonly int _minSize;
 
-        public Segmentation(List<Unit> data, int minSize)
+        public Segmentation(List<IUnit> data, int minSize)
         {
-            _segments = new List<UnitSegment>();
+            _segments = new List<Segment>();
             _data = data;
             _minSize = minSize;
         }
@@ -29,9 +29,10 @@ namespace SmearTracer.UI
                 var segment = new UnitSegment();
                 segment.AddData(data[0]);
                 data.RemoveAt(0);
+                data = data.OrderBy(p => Distance(p, segment.Units.Last())).ToList();
                 do
                 {
-                    segmentData = new List<Unit>();
+                    segmentData = new List<IUnit>();
                     countPrevious = data.Count;
                     foreach (var pixel in data)
                     {
@@ -52,11 +53,17 @@ namespace SmearTracer.UI
                 _segments.Add(segment);
             }
         }
+        private double Distance(IUnit left, IUnit right)
+        {
+            var sum = Math.Pow(right.Position.X - left.Position.X, 2);
+            sum += Math.Pow(right.Position.Y - left.Position.Y, 2);
+            return Math.Sqrt(sum);
+        }
 
-        public override List<Segment> Segmenting()
+        public List<Segment> Segmenting()
         {
             Compute();
-            return _segments.ToList<Segment>();
+            return _segments;
         }
     }
 }

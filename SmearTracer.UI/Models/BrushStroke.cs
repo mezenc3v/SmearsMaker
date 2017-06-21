@@ -2,23 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
+using SmearTracer.Core.Abstract;
 
-namespace SmearTracer.UI.Models
+namespace SmearTracer.Core.Models
 {
-    public class BrushStroke
+    public class BrushStroke:SequenceOfParts
     {
-        public double[] Color;
-        public List<Point> Points;
-        public int Width;
-        public double Length => Points.Select((t, i) => Distance(t, Points[i + 1])).Sum();
+        public override double GetLength()
+        {
+            var length = 0d;
+            for (int i = 1; i < Points.Count; i++)
+            {
+                length += Distance(Points[i - 1].Position, Points[i].Position);
+            }
+
+            return length;
+        }
 
         public BrushStroke()
         {
-            Points = new List<Point>();
-            Color = Generate();
+            Points = new List<IUnit>();
         }
 
         private static double Distance(Point first, Point second)
@@ -28,7 +32,7 @@ namespace SmearTracer.UI.Models
             return Math.Sqrt(sum);
         }
 
-        public double[] Generate()
+        private static double[] Generate()
         {
             var c = new RNGCryptoServiceProvider();
             var randomNumber = new byte[3];

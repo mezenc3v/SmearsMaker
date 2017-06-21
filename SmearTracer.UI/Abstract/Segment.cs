@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using SmearTracer.UI.Models;
 
-namespace SmearTracer.UI.Abstract
+namespace SmearTracer.Core.Abstract
 {
-    public abstract class Segment:GraphicUnit
+    public abstract class Segment:Part
     {
-        public abstract List<GraphicUnit> GraphicUnits { get; set; }
+        public List<Part> GraphicUnits;
 
-        public List<BrushStroke> BrushStrokes;
+        public List<SequenceOfParts> BrushStrokes;
     }
 }

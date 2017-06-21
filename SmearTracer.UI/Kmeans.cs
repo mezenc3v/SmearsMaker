@@ -1,25 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SmearTracer.UI.Abstract;
-using SmearTracer.UI.Models;
+using SmearTracer.Core.Abstract;
+using SmearTracer.Core.Models;
 
-namespace SmearTracer.UI
+namespace SmearTracer.Core
 {
-    public class Kmeans:ClusterSplitter
+    public class Kmeans
     {
         private readonly List<Cluster> _clusters;
 
         private readonly double _precision;
         private readonly int _maxIteration;
-        private readonly List<Unit> _units;
+        private readonly List<IUnit> _units;
 
-        public Kmeans(int countClusters, double precision, int dataFormatSize, List<Unit> units, int maxIteration)
+        public Kmeans(int clustersCount, double precision, int dataFormatSize, List<IUnit> units, int maxIteration)
         {
             _clusters = new List<Cluster>();
-            for (int i = 0; i < countClusters; i++)
+            for (int i = 0; i < clustersCount; i++)
             {
-                _clusters.Add(new ColorCluster(dataFormatSize));
+                _clusters.Add(new Cluster(dataFormatSize));
             }
             _precision = precision;
             _maxIteration = maxIteration;
@@ -28,35 +28,35 @@ namespace SmearTracer.UI
 
         private void Update()
         {
-            //List<Pixel> smallData = new List<Pixel>();
+            var smallData = new List<IUnit>();
 
             for (int i = 0; i < _clusters.Count; i++)
             {
                 if (_clusters[i].Data.Count == 0)
                 {
-                    //smallData.AddRange(Clusters[i].ArgbArray);
+                    smallData.AddRange(_clusters[i].Data);
                     _clusters.Remove(_clusters[i]);
                 }
             }
-            /*Parallel.ForEach(smallData, d =>
+            Parallel.ForEach(smallData, d =>
             {
-                int index = NearestCentroid(d.ArgbArray);
+                var index = NearestCentroid(d.Data);
                 lock (smallData)
                 {
-                    Clusters[index].ArgbArray.Add(d);
+                    _clusters[index].Data.Add(d);
                 }
-            });*/
+            });
         }
 
         private void UpdateMeans()
         {
             foreach (var cluster in _clusters)
             {
-                cluster.Data = new List<Unit>();
+                cluster.Data = new List<IUnit>();
             }
             Parallel.ForEach(_units, d =>
             {
-                var index = NearestCentroid(d.ArgbArray);
+                var index = NearestCentroid(d.Data);
                 lock (_units)
                 {
                     _clusters[index].Data.Add(d);
@@ -68,12 +68,12 @@ namespace SmearTracer.UI
 
         private void InitialCentroids()
         {
-            var sortedArray = _units.OrderBy(p => p.ArgbArray.Sum()).ToList();
+            var sortedArray = _units.OrderBy(p => p.Data.Sum()).ToList();
             var step = _units.Count / _clusters.Count;
 
             for (int i = 0; i < _clusters.Count; i++)
             {
-                _clusters[i].Centroid = sortedArray[i * step / 2].ArgbArray;
+                _clusters[i].Centroid = sortedArray[i * step / 2].Data;
             }
         }
 
@@ -85,9 +85,9 @@ namespace SmearTracer.UI
 
                 foreach (var data in cluster.Data)
                 {
-                    for (int j = 0; j < data.ArgbArray.Length; j++)
+                    for (int j = 0; j < data.Data.Length; j++)
                     {
-                        centroid[j] += data.ArgbArray[j];
+                        centroid[j] += data.Data[j];
                     }
 
                 }
@@ -102,7 +102,7 @@ namespace SmearTracer.UI
             });
         }
 
-        private int NearestCentroid(double[] data)
+        private int NearestCentroid(IReadOnlyList<double> data)
         {
             var index = 0;
             var min = Distance(data, _clusters[0].Centroid);
@@ -119,11 +119,11 @@ namespace SmearTracer.UI
             return index;
         }
 
-        private static double Distance(double[] leftVector, double[] rightVector)
+        private static double Distance(IReadOnlyList<double> leftVector, IReadOnlyList<double> rightVector)
         {
             double dictance = 0;
 
-            for (int i = 0; i < leftVector.Length; i++)
+            for (int i = 0; i < leftVector.Count; i++)
             {
                 var d = leftVector[i] - rightVector[i];
                 if (d < 0)
@@ -138,7 +138,7 @@ namespace SmearTracer.UI
             return dictance;
         }
 
-        public override List<Cluster> Clustering()
+        public List<Cluster> Clustering()
         {
             InitialCentroids();
 
