@@ -377,14 +377,14 @@ namespace SmearTracer.Core
                     {
                         foreach (var brushStroke in segment.BrushStrokes)
                         {
-                            plt += "PC" + 1 + (uint)brushStroke.Color[1] + "," + (uint)brushStroke.Color[2] + (uint)brushStroke.Color[3] + ";";
-                            plt += "PU" + (uint)brushStroke.Points.First().Position.X + "," + (uint)brushStroke.Points.First().Position.Y + ";";
+                            plt += "PC" + 1 + "," + (uint)brushStroke.Color[2] + "," + (uint)brushStroke.Color[1] + "," + (uint)brushStroke.Color[0] + ";";
+                            plt += "PU" + (uint)brushStroke.Points.First().Position.X + "," + (uint)(height - brushStroke.Points.First().Position.Y) + ";";
 
                             for (int i = 1; i < brushStroke.Points.Count - 1; i++)
                             {
-                                plt += "PD" + (uint)brushStroke.Points[i].Position.X + "," + (uint)brushStroke.Points[i].Position.Y + ";";
+                                plt += "PD" + (uint)brushStroke.Points[i].Position.X + "," + (uint)(height - brushStroke.Points[i].Position.Y) + ";";
                             }
-                            plt += "PU" + (uint)brushStroke.Points.Last().Position.X + "," + (uint)brushStroke.Points.Last().Position.Y + ";";
+                            plt += "PU" + (uint)brushStroke.Points.Last().Position.X + "," + (uint)(height - brushStroke.Points.Last().Position.Y) + ";";
                         }
                     }
                 }
