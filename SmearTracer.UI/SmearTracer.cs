@@ -16,38 +16,53 @@ namespace SmearTracer.Core
     {
         public Canvas Canvas;
 
-        private readonly BitmapSource _image;
-        private readonly int _countClusters;
+        public readonly BitmapSource Image;
+        public readonly int CountClusters;
         private readonly double _tolerance;
         private readonly int _maxIter;
         private readonly int _rankFilter;
         private readonly int _width;
         private readonly int _height;
         private readonly int _dataFormatSize;
-        private readonly int _minSize;
-        private readonly int _maxSize;
-        private readonly int _maxLength;
+        public readonly int MinSize;
+        public readonly int MaxLength;
 
         public SmearTracer(BitmapSource image)
         {
-            _image = image;
+            Image = image;
             _width = image.PixelWidth;
             _height = image.PixelHeight;
             const int countSmears = 100;
             var smearSize = _width * _height / countSmears;
-            _countClusters = (int)Math.Sqrt(_width + _height) + (int)Math.Sqrt(_width + _height) / 2 + 3;
+            CountClusters = (int)(Math.Sqrt(_width + _height) + Math.Sqrt(_width + _height) / 2) + 3;
             _tolerance = 0.001;
             _maxIter = 100;
             _rankFilter = (int)Math.Sqrt((double)(_width + _height) / 80 / 2) - 1;
             _dataFormatSize = image.Format.BitsPerPixel / 8;
-            _minSize = smearSize / 100;
-            _maxSize = smearSize;
-            _maxLength = _minSize * 100000000;
+            MinSize = smearSize / 100;
+            MaxLength = int.MaxValue - 1;
+        }
+
+        public SmearTracer(BitmapSource image, int smearHeight, int countColors, int maxSmearlength)
+        {
+            Image = image;
+            _width = image.PixelWidth;
+            _height = image.PixelHeight;
+
+            CountClusters = countColors;
+            _tolerance = 0.001;
+            _maxIter = 100;
+            _rankFilter = (int)Math.Sqrt((double)(_width + _height) / 80 / 2) - 1;
+            _dataFormatSize = image.Format.BitsPerPixel / 8;
+
+            MinSize = smearHeight * smearHeight;
+
+            MaxLength = maxSmearlength;
         }
 
         public void Split()
         {
-            var dataSource = Utils.ConvertBitmapImageToPixels(_image);
+            var dataSource = Utils.ConvertBitmapImageToPixels(Image);
 
             Canvas = new Canvas();
             IFilter filter = new MedianFilter(_rankFilter, _width, _height);
@@ -57,30 +72,30 @@ namespace SmearTracer.Core
 
             foreach (var canvasLayer in Canvas.Layers)
             {
-                var cs = new Kmeans(_countClusters, _tolerance, _dataFormatSize, canvasLayer.Data, _maxIter);
+                var cs = new Kmeans(CountClusters, _tolerance, _dataFormatSize, canvasLayer.Data, _maxIter);
                 canvasLayer.Clusters = cs.Clustering();
 
                 Parallel.ForEach(layer.Clusters, cluster =>
                 {
-                    ISegmentsSplitter ss = new Segmentation(cluster.Data, _maxSize);
+                    ISegmentsSplitter ss = new Segmentation(cluster.Data);
                     cluster.Segments = ss.Segmenting();
                 });
 
-                Utils.Concat(_minSize, canvasLayer.Clusters);
+                Utils.Concat(MinSize, canvasLayer.Clusters);
 
                 Parallel.ForEach(layer.Clusters, cluster =>
                 {
                     Parallel.ForEach(cluster.Segments, segment =>
                     {
                         //IPartsSplitter up = new SuperpixelSplitter(segment, _minSize, _minSize + 1, 1);
-                        IPartsSplitter up = new KmeansSplitter(segment, _minSize);
+                        IPartsSplitter up = new KmeansSplitter(segment, MinSize);
                         segment.GraphicUnits = up.Splitting();
                         foreach (var unit in segment.GraphicUnits)
                         {
                             unit.Update();
                         }
                         //ISequenceOfPartMaker maker = new Bsm(segment, _maxLength);
-                        ISequenceOfPartMaker maker = new BsmPair(segment, _minSize * 1.5);
+                        ISequenceOfPartMaker maker = new BsmPair(segment, MinSize * 1.5);
                         segment.BrushStrokes = maker.Execute();
                     });
                 });
@@ -116,7 +131,7 @@ namespace SmearTracer.Core
                     }
                 }
             }
-            return Utils.ConvertPixelsToBitmapImage(_image, units);
+            return Utils.ConvertPixelsToBitmapImage(Image, units);
         }
 
         public BitmapSource SuperPixelsColor()
@@ -138,7 +153,7 @@ namespace SmearTracer.Core
                     }
                 }
             }
-            return Utils.ConvertPixelsToBitmapImage(_image, units);
+            return Utils.ConvertPixelsToBitmapImage(Image, units);
         }
 
         public BitmapSource BrushStrokes()
@@ -169,7 +184,7 @@ namespace SmearTracer.Core
                     }
                 }
             }
-            return Utils.ConvertPixelsToBitmapImage(_image, units);
+            return Utils.ConvertPixelsToBitmapImage(Image, units);
         }
 
         public BitmapSource BrushStrokesLines()
@@ -178,7 +193,7 @@ namespace SmearTracer.Core
             using (var outStream = new MemoryStream())
             {
                 BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(_image));
+                enc.Frames.Add(BitmapFrame.Create(Image));
                 enc.Save(outStream);
                 bitmap = new Bitmap(outStream);
             }
@@ -208,7 +223,7 @@ namespace SmearTracer.Core
                                 (byte)cluster.Centroid[1], (byte)cluster.Centroid[0]));*/
 
                             var pointsF = brushStroke.Points.Select(point => new PointF((int)point.Position.X, (int)point.Position.Y)).ToArray();
-                            pen.Width = (_minSize) / 7;
+                            pen.Width = (MinSize) / 2 + 1;
                             if (pointsF.Length > 1)
                             {
                                 g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
@@ -249,7 +264,7 @@ namespace SmearTracer.Core
             using (var outStream = new MemoryStream())
             {
                 BitmapEncoder enc = new BmpBitmapEncoder();
-                enc.Frames.Add(BitmapFrame.Create(_image));
+                enc.Frames.Add(BitmapFrame.Create(Image));
                 enc.Save(outStream);
                 bitmap = new Bitmap(outStream);
             }
@@ -281,7 +296,7 @@ namespace SmearTracer.Core
                     (byte)brushStrokes[i].Color[1], (byte)brushStrokes[i].Color[0]));
 
                 var pointsF = brushStrokes[i].Points.Select(point => new PointF((int)point.Position.X, (int)point.Position.Y)).ToArray();
-                pen.Width = (_minSize) / 7;
+                pen.Width = (MinSize) / 7;
                 if (pointsF.Length > 1)
                 {
                     g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width * 2, pen.Width * 3);
@@ -315,12 +330,10 @@ namespace SmearTracer.Core
 
         public string GetPlt()
         {
-            var heightImage = _image.Height;
+            var heightImage = Image.Height;
 
-            //resize image
-            const int height = 130;
-            const int width = 190;
-
+            const int height = 5200;
+            const int width = 7600;
 
             var dy = (float)(height / heightImage);
 
@@ -341,7 +354,7 @@ namespace SmearTracer.Core
                 }
             }
 
-            var widthImage = _image.Width * dy;
+            var widthImage = Image.Width * dy;
 
             if (widthImage > width)
             {
@@ -365,19 +378,19 @@ namespace SmearTracer.Core
                 }
             }
 
-
             //building string
             var plt = "IN;";
 
             foreach (var layer in Canvas.Layers)
             {
-                foreach (var cluster in layer.Clusters.OrderBy(c => c.Centroid.Sum()))
+                foreach (var cluster in layer.Clusters.OrderByDescending(c => c.Centroid.Sum()))
                 {
-                    foreach (var segment in cluster.Segments.OrderBy(s => s.Center.Data.Sum()))
+                    plt += "PC" + 1 + "," + (uint)cluster.Centroid[2] + "," + (uint)cluster.Centroid[1] + "," + (uint)cluster.Centroid[0] + ";";
+
+                    foreach (var segment in cluster.Segments.OrderByDescending(s => s.Center.Data.Sum()))
                     {
-                        foreach (var brushStroke in segment.BrushStrokes)
+                        foreach (var brushStroke in segment.BrushStrokes.OrderByDescending(b=>b.Points.Count))
                         {
-                            plt += "PC" + 1 + "," + (uint)brushStroke.Color[2] + "," + (uint)brushStroke.Color[1] + "," + (uint)brushStroke.Color[0] + ";";
                             plt += "PU" + (uint)brushStroke.Points.First().Position.X + "," + (uint)(height - brushStroke.Points.First().Position.Y) + ";";
 
                             for (int i = 1; i < brushStroke.Points.Count - 1; i++)

@@ -5,13 +5,40 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d"
         Title="SmearTracer" Height="650" Width="600" WindowStartupLocation="CenterScreen" KeyUp="MainForm_KeyUp">
     <Grid x:Name="MainGrid">
-        <Grid HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top">
-            <Image x:Name="Image" Stretch="Uniform"/>
-        </Grid>
-        <Button x:Name="ButtonLeftImage" Content="(-" Margin ="5,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Width="25" Click="ButtonLeftImage_Click" Background="#00000000" BorderBrush="#00707070"/>
-        <Button x:Name="ButtonRightImage" Content="-)" Margin ="0,0,5,0" HorizontalAlignment="Right" VerticalAlignment="Center" Width="25" Click="ButtonRightImage_Click" Background="#00000000" BorderBrush="#00707070"/>
-        <Button x:Name="ButtonOpenFile" Content="Оpen" Margin ="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="ButtonOpenFile_Click"/>
-        <Label Name="LabelStatus" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+        <TabControl x:Name="TabControl" SelectionChanged="TabControl_SelectionChanged">
+            <TabItem Header="Main">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="20*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <Image Grid.Row="0" HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top" x:Name="Image" Stretch="Uniform"/>
+                    <Label Grid.Row="1" Name="LabelStatus" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                    <Button Grid.Row="1" x:Name="ButtonOpenFile" Content="Оpen" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="75" Click="ButtonOpenFile_Click" Margin="218,0,293,0"/>
+                    <Button Grid.Row="1" x:Name="ButtonRun" Content="Run" HorizontalAlignment="Center"  VerticalAlignment="Bottom" Width="75" Margin="298,0,213,0" Click="ButtonRun_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Settings">
+                <Grid Name="SettingsGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="*"></RowDefinition>
+                        <RowDefinition Height="20*"></RowDefinition>
+                    </Grid.RowDefinitions>
+
+                    <Label Grid.Row="0" Content="Ширина мазка" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Row="0" Name="TextBoxSmearHeight" Margin="168,0,178,0" />
+                    <Label Grid.Row="1" Content="Количество цветов" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Row="1" Name="TextBoxColorCount" Margin="168,0,178,0" />
+                    <Label Grid.Row="2" Content="Максимальная длина мазка" HorizontalAlignment="Left"/>
+                    <TextBox Grid.Row="2" Name="TextBoxMaxLength" Margin="168,0,178,0" />
+                    <Button Grid.Row="4" Width="100" Content="Apply" Click="Button_Click"></Button>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
 

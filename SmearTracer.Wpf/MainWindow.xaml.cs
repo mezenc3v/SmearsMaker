@@ -5,10 +5,12 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SmearTracer.Core;
+using SmearTracer = SmearTracer.Core.SmearTracer;
 
 
 namespace SmearTracer.Wpf
@@ -20,7 +22,9 @@ namespace SmearTracer.Wpf
     {
         private readonly List<ImageSource> _images;
         private int _currentImageIndex;
-        //private SmearsMap _layers;
+        private Core.SmearTracer _smearTracer;
+        private BitmapImage _image;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -43,20 +47,15 @@ namespace SmearTracer.Wpf
             {
                 //try
                 //{
-                var image = new BitmapImage(new Uri(fileDialog.FileName));
+                _image = new BitmapImage(new Uri(fileDialog.FileName));
 ;
-                var ui = new Core.SmearTracer(image);
-                ui.Split();
+                _smearTracer = new Core.SmearTracer(_image);
+                TextBoxSmearHeight.Text = ((int)Math.Sqrt(_smearTracer.MinSize)).ToString();
+                TextBoxColorCount.Text = _smearTracer.CountClusters.ToString();
+                TextBoxMaxLength.Text = _smearTracer.MaxLength.ToString();
 
-                _images.Add(ui.SuperPixels());
-                _images.Add(ui.SuperPixelsColor());
-                _images.Add(ui.BrushStrokes());
-                _images.Add(ui.BrushStrokesLines());
-                _images.Add(ui.BrushStroke());
+                Image.Source = _smearTracer.Image;
 
-                Image.Source = _images.Last();
-
-                SaveFile(ui.GetPlt());
                 /*}
                 catch (Exception ex)
                 {
@@ -66,41 +65,31 @@ namespace SmearTracer.Wpf
             }
         }
 
-        private void ButtonRightImage_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentImageIndex < _images.Count - 1)
-            {
-                Image.Source = _images[++_currentImageIndex];
-            }
-            else
-            {
-                _currentImageIndex = 0;
-                Image.Source = _images[_currentImageIndex];
-            }
-        }
-
-        private void ButtonLeftImage_Click(object sender, RoutedEventArgs e)
-        {
-            if (_currentImageIndex > 0)
-            {
-                Image.Source = _images[--_currentImageIndex];
-            }
-            else
-            {
-                _currentImageIndex = _images.Count - 1;
-                Image.Source = _images[_currentImageIndex];
-            }
-        }
-
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Right)
             {
-                ButtonRightImage_Click(sender, e);
+                if (_currentImageIndex < _images.Count - 1)
+                {
+                    Image.Source = _images[++_currentImageIndex];
+                }
+                else
+                {
+                    _currentImageIndex = 0;
+                    Image.Source = _images[_currentImageIndex];
+                }
             }
             else if (e.Key == Key.Left)
             {
-                ButtonLeftImage_Click(sender, e);
+                if (_currentImageIndex > 0)
+                {
+                    Image.Source = _images[--_currentImageIndex];
+                }
+                else
+                {
+                    _currentImageIndex = _images.Count - 1;
+                    Image.Source = _images[_currentImageIndex];
+                }
             }
         }
 
@@ -117,6 +106,49 @@ namespace SmearTracer.Wpf
             if (fileDialog.ShowDialog() == true)
             {
                 File.WriteAllText(fileDialog.FileName, plt, Encoding.ASCII);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                if (_image != null)
+                {
+                    _smearTracer = new Core.SmearTracer(_image, Convert.ToInt32(TextBoxSmearHeight.Text),
+                        Convert.ToInt32(TextBoxColorCount.Text), Convert.ToInt32(TextBoxMaxLength.Text));
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Некорректные значения!");
+            }
+        }
+
+        private void TabControl_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            if (_smearTracer != null)
+            {
+                TextBoxSmearHeight.Text = ((int)Math.Sqrt(_smearTracer.MinSize)).ToString();
+                TextBoxColorCount.Text = _smearTracer.CountClusters.ToString();
+                TextBoxMaxLength.Text = _smearTracer.MaxLength.ToString();
+            }
+        }
+
+        private void ButtonRun_Click(object sender, RoutedEventArgs e)
+        {
+            if (_smearTracer != null)
+            {
+                _smearTracer.Split();
+                _images.Add(_smearTracer.SuperPixels());
+                _images.Add(_smearTracer.SuperPixelsColor());
+                _images.Add(_smearTracer.BrushStrokes());
+                _images.Add(_smearTracer.BrushStrokesLines());
+                _images.Add(_smearTracer.BrushStroke());
+
+                Image.Source = _images.Last();
+
+                SaveFile(_smearTracer.GetPlt());
             }
         }
     }

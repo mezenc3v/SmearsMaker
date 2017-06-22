@@ -10,13 +10,11 @@ namespace SmearTracer.Core
     {
         private readonly List<Segment> _segments;
         private readonly List<IUnit> _data;
-        private readonly int _minSize;
 
-        public Segmentation(List<IUnit> data, int minSize)
+        public Segmentation(List<IUnit> data)
         {
             _segments = new List<Segment>();
             _data = data;
-            _minSize = minSize;
         }
 
         private void Compute()
