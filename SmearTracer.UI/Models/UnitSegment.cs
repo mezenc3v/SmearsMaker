@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using System.Windows;
 using SmearTracer.Core.Abstract;
 
@@ -84,7 +85,7 @@ namespace SmearTracer.Core.Models
             Units.Add(unut);
         }
 
-        public override bool Contains(IUnit pixel)
+        /*public override bool Contains(IUnit pixel)
         {
             for (int i = Units.Count - 1; i >= 0; i--)
             {
@@ -95,7 +96,34 @@ namespace SmearTracer.Core.Models
                 }
             }
             return false;
+        }*/
+
+        public override bool Contains(IUnit pixel)
+        {
+            foreach (var unit in Units)
+            {
+                if (Math.Abs(pixel.Position.X - unit.Position.X)
+                    < 2 && Math.Abs(pixel.Position.Y - unit.Position.Y) < 2)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
+
+        /*public override bool Contains(IUnit pixel)
+        {
+            var check = false;
+            Parallel.ForEach(Units, (unit, state) =>
+            {
+                if (Math.Abs(pixel.Position.X - unit.Position.X) < 2 && Math.Abs(pixel.Position.Y - unit.Position.Y) < 2)
+                {
+                    check = true;
+                    state.Break();
+                }
+            });
+            return check;
+        }*/
 
         public override void AddDataRange(IEnumerable<IUnit> units)
         {

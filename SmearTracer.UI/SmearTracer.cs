@@ -75,7 +75,18 @@ namespace SmearTracer.Core
                 var cs = new Kmeans(CountClusters, _tolerance, _dataFormatSize, canvasLayer.Data, _maxIter);
                 canvasLayer.Clusters = cs.Clustering();
 
-                Parallel.ForEach(layer.Clusters, cluster =>
+                /*foreach (var cluster in layer.Clusters)
+                {
+                    ISegmentsSplitter ss = new Segmentation(cluster.Data);
+                    cluster.Segments = ss.Segmenting();
+                }*/
+
+                var options = new ParallelOptions
+                {
+                    MaxDegreeOfParallelism = 4
+                };
+
+                Parallel.ForEach(layer.Clusters, options, cluster =>
                 {
                     ISegmentsSplitter ss = new Segmentation(cluster.Data);
                     cluster.Segments = ss.Segmenting();
@@ -83,9 +94,9 @@ namespace SmearTracer.Core
 
                 Utils.Concat(MinSize, canvasLayer.Clusters);
 
-                Parallel.ForEach(layer.Clusters, cluster =>
+                Parallel.ForEach(layer.Clusters, options, cluster =>
                 {
-                    Parallel.ForEach(cluster.Segments, segment =>
+                    Parallel.ForEach(cluster.Segments, options, segment =>
                     {
                         //IPartsSplitter up = new SuperpixelSplitter(segment, _minSize, _minSize + 1, 1);
                         IPartsSplitter up = new KmeansSplitter(segment, MinSize);
@@ -94,8 +105,8 @@ namespace SmearTracer.Core
                         {
                             unit.Update();
                         }
-                        //ISequenceOfPartMaker maker = new Bsm(segment, _maxLength);
-                        ISequenceOfPartMaker maker = new BsmPair(segment, MinSize * 1.5);
+                        //ISequenceOfPartMaker maker = new Bsm(segment, 9999990);
+                        ISequenceOfPartMaker maker = new BsmPair(segment, MinSize * 1.2);
                         segment.BrushStrokes = maker.Execute();
                     });
                 });

@@ -19,20 +19,20 @@ namespace SmearTracer.Core
 
         private void Compute()
         {
-            var segmentData = _data.OrderBy(d => d.Position.X).ToList();
-            while (segmentData.Count > 0)
+            var data = _data.OrderBy(p => p.Position.X).ToList();
+
+            while (data.Count > 0)
             {
-                var data = segmentData;
                 int countPrevious, countNext;
                 var segment = new UnitSegment();
                 segment.AddData(data[0]);
                 data.RemoveAt(0);
-                data = data.OrderBy(p => Distance(p, segment.Units.Last())).ToList();
+
                 do
                 {
-                    segmentData = new List<IUnit>();
+                    var segmentData = new List<IUnit>();
                     countPrevious = data.Count;
-                    foreach (var pixel in data)
+                    foreach (var pixel in data.OrderBy(p=>Distance(p, segment.Units.Last())))
                     {
                         if (segment.Contains(pixel))
                         {
