@@ -11,7 +11,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="20"></RowDefinition>
 			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="25"></RowDefinition>
+			<RowDefinition Height="30"></RowDefinition>
 		</Grid.RowDefinitions>
 
 		<Menu Grid.Row="0">
@@ -30,7 +30,7 @@
 		</Menu>
 		<Image Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top" x:Name="Image" Stretch="Uniform" Source="{Binding CurrentImage}"/>
 
-		<Button Grid.Row="2" x:Name="ButtonRun" Content="Старт" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="76" Click="ButtonRun_Click" />
+		<Button Grid.Row="2" x:Name="ButtonRun" Content="Старт" Margin="0,0,0,5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="76" Click="ButtonRun_Click" />
 		<Label Grid.Row="2" Name="LabelStatus" HorizontalAlignment="Right" VerticalAlignment="Bottom" Content="{Binding Label}"/>
 
 	</Grid>
