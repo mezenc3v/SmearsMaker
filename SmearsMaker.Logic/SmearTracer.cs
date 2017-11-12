@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
+using NLog;
 using SmearsMaker.ClusterAnalysis.Kmeans;
 using SmearsMaker.Concatenation;
 using SmearsMaker.Filtering;
@@ -20,6 +22,7 @@ namespace SmearsMaker.Logic
 		private readonly ImageModel _model;
 		private readonly List<Smear> _smears;
 		private readonly ProgressBar _progress;
+		private static ILogger _log = LogManager.GetCurrentClassLogger();
 
 		public SmearTracer(ImageModel model, ProgressBar progress)
 		{
@@ -41,15 +44,23 @@ namespace SmearsMaker.Logic
 
 			return Task.Run(() =>
 			{
+				_log.Trace("Начало обработки изображения");
 				_progress.NewProgress("Фильтрация");
+				var sw = Stopwatch.StartNew();
 				filter.Filter(model);
+				_log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
+				sw.Restart();
 				_progress.NewProgress("Кластеризация");
 				var clusters = kmeans.Clustering();
+				_log.Trace($"Кластеризация заняла {sw.Elapsed.Seconds} с.");
+
 				_progress.NewProgress("Обработка", 0, clusters.Sum(c => c.Data.Count));
 				Parallel.ForEach(clusters, (cluster) =>
 				{
+					var swClusters = Stopwatch.StartNew();				
 					var segments = splitter.Split(cluster.Data);
-
+					_log.Trace($"Сегментация кластера размером {cluster.Data.Count} пикселей заняла {swClusters.Elapsed.Seconds} с.");
+					swClusters.Reset();
 					Parallel.ForEach(segments, segment =>
 					{
 						var superPixels = supPixSplitter.Splitting(segment);
@@ -67,7 +78,9 @@ namespace SmearsMaker.Logic
 							_progress.Update(newSmear.BrushStroke.Objects.Sum(o => o.Data.Count));
 						}
 					});
+					_log.Trace($"Разбиение на мазки кластера размером {cluster.Data.Count} пикселей заняло {swClusters.Elapsed.Seconds} с.");
 				});
+				_log.Trace("Обработки изображения завершена");
 				_progress.NewProgress("Готово");
 			});
 		}

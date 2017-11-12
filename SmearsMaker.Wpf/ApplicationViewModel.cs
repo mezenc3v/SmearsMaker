@@ -10,6 +10,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
+using NLog;
 using SmearsMaker.Logic;
 
 namespace SmearsMaker.Wpf
@@ -46,6 +47,7 @@ namespace SmearsMaker.Wpf
 		private string _label;
 		private ImageSource _currentImage;
 		private readonly List<ImageViewModel> _images;
+		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 		private int _currentImageIndex;
 		private SmearTracer _tracer;
 		private BitmapImage _image;
@@ -105,6 +107,7 @@ namespace SmearsMaker.Wpf
 			catch (Exception ex)
 			{
 				MessageBox.Show($"Ошибка! {ex.Message}");
+				Log.Error(ex);
 			}
 		}
 
