@@ -18,11 +18,11 @@ namespace SmearsMaker.Logic
 {
 	public class SmearTracer
 	{
-		private readonly ImageContext _context;
+		private readonly ImageModel _model;
 		private readonly List<Smear> _smears;
-		public SmearTracer(ImageContext context)
+		public SmearTracer(ImageModel model)
 		{
-			_context = context ?? throw new NullReferenceException("context");
+			_model = model ?? throw new NullReferenceException("model");
 			_smears = new List<Smear>();
 		}
 
@@ -34,15 +34,15 @@ namespace SmearsMaker.Logic
 			}
 
 			progress.NewProgress("Фильтрация...", 1, 22, 1);
-			var model = ImageModel.ConvertBitmapToImage(_context.Image, ColorModel.Rgb);
-			var filter = new MedianFilter(_context.FilterRank, _context.Width, _context.Height);
+			var model = Model.ImageModel.ConvertBitmapToImage(_model.Image, ColorModel.Rgb);
+			var filter = new MedianFilter(_model.FilterRank, _model.Width, _model.Height);
 			filter.Filter(model);
 
 			//model.ChangeColorModel(ColorModel.GrayScale);
-			var kmeans = new KmeansClassic(_context.ClustersCount, _context.ClustersPrecision, model, _context.ClusterMaxIteration);
+			var kmeans = new KmeansClassic(_model.ClustersCount, _model.ClustersPrecision, model, _model.ClusterMaxIteration);
 			var splitter = new SimpleSegmentsSplitter();
-			var supPixSplitter = new SuperpixelSplitter(_context.MinSizeSuperpixel, _context.MaxSizeSuperpixel, _context.ClustersPrecision);
-			var bsm = new BsmPair(_context.MaxSmearDistance);
+			var supPixSplitter = new SuperpixelSplitter(_model.MinSizeSuperpixel, _model.MaxSizeSuperpixel, _model.ClustersPrecision);
+			var bsm = new BsmPair(_model.MaxSmearDistance);
 
 			return Task.Run(() =>
 			{
@@ -86,7 +86,7 @@ namespace SmearsMaker.Logic
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_context.Image, data);
+			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data);
 		}
 
 		public BitmapSource Clusters()
@@ -100,7 +100,7 @@ namespace SmearsMaker.Logic
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_context.Image, data);
+			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data);
 		}
 
 		public BitmapSource Segments()
@@ -114,7 +114,7 @@ namespace SmearsMaker.Logic
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_context.Image, data);
+			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data);
 		}
 
 		public BitmapSource BrushStrokes()
@@ -130,7 +130,7 @@ namespace SmearsMaker.Logic
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_context.Image, data);
+			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data);
 		}
 
 		public string GetPlt()
@@ -138,8 +138,8 @@ namespace SmearsMaker.Logic
 			const int height = 5200;
 			const int width = 7600;
 
-			var delta = (float)(height / _context.Height);
-			var widthImage = _context.Width * delta;
+			var delta = (float)(height / _model.Height);
+			var widthImage = _model.Width * delta;
 			if (widthImage > width)
 			{
 				delta *= width / widthImage;

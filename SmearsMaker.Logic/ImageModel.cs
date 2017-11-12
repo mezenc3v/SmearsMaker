@@ -3,7 +3,7 @@ using System.Windows.Media.Imaging;
 
 namespace SmearsMaker.Logic
 {
-	public class ImageContext
+	public class ImageModel
 	{
 		#region properties
 		public BitmapSource Image { get; }
@@ -18,21 +18,9 @@ namespace SmearsMaker.Logic
 		public int ClusterMaxIteration { get; set; }
 		#endregion
 
-		public ImageContext(BitmapSource image)
+		public ImageModel(BitmapSource image)
 		{
 			Image = image ?? throw new NullReferenceException("image");
-			InitProperties();
-		}
-
-		private void InitProperties()
-		{
-			ClustersCount = (int)(Math.Sqrt(Width + Height) + Math.Sqrt(Width + Height) / 2) + 3;
-			ClusterMaxIteration = 100;
-			MinSizeSuperpixel = Width * Height / 1000;
-			MaxSizeSuperpixel = Width * Height / 500;
-			MaxSmearDistance = Width * Height;
-			FilterRank = (int)Math.Sqrt((double)(Width + Height) / 80 / 2);
-			ClustersPrecision = 0.001f;
 		}
 	}
 }

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,13 +18,13 @@ using SmearsMaker.Logic;
 namespace SmearsMaker.Wpf
 {
 	/// <summary>
-	/// Interaction logic for MainWindow.xaml
+	/// Interaction logic for MainPage.xaml
 	/// </summary>
-	public partial class MainWindow : Window
+	public partial class MainPage : Page
 	{
 		private readonly ApplicationViewModel _model;
 
-		public MainWindow()
+		public MainPage()
 		{
 			InitializeComponent();
 			_model = new ApplicationViewModel();
@@ -37,21 +36,9 @@ namespace SmearsMaker.Wpf
 			await _model.Run();
 		}
 
-		private void Window_KeyUp(object sender, KeyEventArgs e)
+		private void Page_KeyUp(object sender, KeyEventArgs e)
 		{
 			_model.ChangeImage(e);
 		}
-
-		private void ExitMenuItem_Click(object sender, RoutedEventArgs e)
-		{
-			Close();
-		}
-
-		private void SettingsMenuItem_Click(object sender, RoutedEventArgs e)
-		{
-			var settingsForm = new SettingsWindow(_model.Settings);
-			settingsForm.Show();
-		}
 	}
 }
-

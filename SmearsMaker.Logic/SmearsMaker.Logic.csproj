@@ -43,7 +43,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ImageContext.cs" />
+    <Compile Include="ImageModel.cs" />
     <Compile Include="ProgressBar.cs" />
     <Compile Include="Smear.cs" />
     <Compile Include="SmearTracer.cs" />
