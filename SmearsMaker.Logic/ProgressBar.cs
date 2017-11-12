@@ -4,7 +4,6 @@ namespace SmearsMaker.Logic
 {
 	public class ProgressBar
 	{
-		public event EventHandler<ProgressBarEventArgs> NewStep;
 		public event EventHandler<ProgressBarEventArgs> UpdateProgress;
 
 		public string Message;
@@ -13,35 +12,31 @@ namespace SmearsMaker.Logic
 		public int Maximum;
 		public int Step;
 
-		public void NewProgress(string msg, int minimum, int maximum, int step)
+		public void NewProgress(string msg, int minimum, int maximum)
 		{
 			Message = msg;
 			Minimum = minimum;
 			Maximum = maximum;
-			Step = step;
-			Position = (Step > 0) ? Minimum : Maximum;
+			Position = 0;
 
-			NewStep?.Invoke(this, new ProgressBarEventArgs(msg, CurrPercent));
+			UpdateProgress?.Invoke(this, new ProgressBarEventArgs(msg, CurrPercent));
 		}
 
-		public void Decrement(int val)
+		public void NewProgress(string msg)
 		{
-			Position -= val;
+			Message = msg;
+
+			UpdateProgress?.Invoke(this, new ProgressBarEventArgs(msg, CurrPercent));
 		}
 
-		public void Increment(int val)
+		public void Update(int step)
 		{
-			Position += val;
-		}
-
-		public void Update()
-		{
-			Position += Step;
+			Position += step;
 
 			UpdateProgress?.Invoke(this, new ProgressBarEventArgs(Message, CurrPercent));
 		}
 
-		private int CurrPercent => (Minimum + Position) * 100 / (Maximum - Minimum);
+		private int CurrPercent => Minimum - Maximum != 0 ? (Minimum + Position) * 100 / (Maximum - Minimum) : 0;
 	}
 
 	public class ProgressBarEventArgs : EventArgs

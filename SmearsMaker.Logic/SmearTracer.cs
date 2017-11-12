@@ -19,23 +19,19 @@ namespace SmearsMaker.Logic
 	{
 		private readonly ImageModel _model;
 		private readonly List<Smear> _smears;
-		public SmearTracer(ImageModel model)
+		private readonly ProgressBar _progress;
+
+		public SmearTracer(ImageModel model, ProgressBar progress)
 		{
-			_model = model ?? throw new NullReferenceException("model");
+			_progress = progress ?? throw new NullReferenceException(nameof(progress));
+			_model = model ?? throw new NullReferenceException(nameof(model));
 			_smears = new List<Smear>();
 		}
 
-		public Task Execute(ProgressBar progress)
+		public Task Execute()
 		{
-			if (progress == null)
-			{
-				throw new NullReferenceException(nameof(progress));
-			}
-
-			progress.NewProgress("Фильтрация...", 1, 22, 1);
 			var model = Model.ImageModel.ConvertBitmapToImage(_model.Image, ColorModel.Rgb);
 			var filter = new MedianFilter(_model.FilterRank, _model.Width, _model.Height);
-			filter.Filter(model);
 
 			//model.ChangeColorModel(ColorModel.GrayScale);
 			var kmeans = new KmeansClassic(_model.ClustersCount, _model.ClustersPrecision, model, _model.ClusterMaxIteration);
@@ -45,9 +41,11 @@ namespace SmearsMaker.Logic
 
 			return Task.Run(() =>
 			{
-				progress.NewProgress("Кластеризация...", 1, 22, 1);
+				_progress.NewProgress("Фильтрация");
+				filter.Filter(model);
+				_progress.NewProgress("Кластеризация");
 				var clusters = kmeans.Clustering();
-
+				_progress.NewProgress("Обработка", 0, clusters.Sum(c => c.Data.Count));
 				Parallel.ForEach(clusters, (cluster) =>
 				{
 					var segments = splitter.Split(cluster.Data);
@@ -55,7 +53,6 @@ namespace SmearsMaker.Logic
 					Parallel.ForEach(segments, segment =>
 					{
 						var superPixels = supPixSplitter.Splitting(segment);
-
 						var smears = bsm.Execute(superPixels.ToList<IObject>());
 
 						foreach (var smear in smears)
@@ -67,15 +64,17 @@ namespace SmearsMaker.Logic
 							};
 
 							_smears.Add(newSmear);
-
+							_progress.Update(newSmear.BrushStroke.Objects.Sum(o => o.Data.Count));
 						}
 					});
 				});
+				_progress.NewProgress("Готово");
 			});
 		}
 
 		public BitmapSource SuperPixels()
 		{
+			_progress.NewProgress("Вычисление суперпикселей");
 			var data = new List<Point>();
 			foreach (var smear in _smears)
 			{
@@ -90,6 +89,7 @@ namespace SmearsMaker.Logic
 
 		public BitmapSource Clusters()
 		{
+			_progress.NewProgress("Вычисление кластеров");
 			var data = new List<Point>();
 			foreach (var smear in _smears)
 			{
@@ -104,6 +104,7 @@ namespace SmearsMaker.Logic
 
 		public BitmapSource Segments()
 		{
+			_progress.NewProgress("Вычисление сегментов");
 			var data = new List<Point>();
 			foreach (var smear in _smears)
 			{
@@ -118,6 +119,7 @@ namespace SmearsMaker.Logic
 
 		public BitmapSource BrushStrokes()
 		{
+			_progress.NewProgress("Вычисление мазков");
 			var data = new List<Point>();
 			foreach (var smear in _smears)
 			{

@@ -16,7 +16,6 @@ namespace SmearsMaker.Wpf
 {
 	public class ApplicationViewModel : INotifyPropertyChanged
 	{
-		public event EventHandler<ProgressBarEventArgs> Progress;
 		public event PropertyChangedEventHandler PropertyChanged;
 		public SettingsViewModel Settings { get; set; }
 
@@ -83,11 +82,11 @@ namespace SmearsMaker.Wpf
 					context.WidthPlt = Settings.WidthPlt;
 				}
 
-				_tracer = new SmearTracer(context);
 				var progressBar = new ProgressBar();
-				progressBar.NewStep += UpdateLabel;
+				progressBar.UpdateProgress += UpdateProgress;
+				_tracer = new SmearTracer(context, progressBar);
 
-				await _tracer.Execute(progressBar);
+				await _tracer.Execute();
 
 				var sprpxls = _tracer.SuperPixels();
 				var clusters = _tracer.Clusters();
@@ -109,11 +108,10 @@ namespace SmearsMaker.Wpf
 			}
 		}
 
-		private void UpdateLabel(object sender, ProgressBarEventArgs args)
+		private void UpdateProgress(object sender, ProgressBarEventArgs args)
 		{
-			Label = args.Msg;
+			Label = args.Percentage != 0 ? $"{args.Msg} {args.Percentage}%" : args.Msg;
 		}
-
 		public void SavePtl()
 		{
 			if (_tracer != null)
@@ -169,53 +167,53 @@ namespace SmearsMaker.Wpf
 				FileName = "select folder"
 			};
 
-			if (sf.ShowDialog() == true)
+			if (sf.ShowDialog() != true) return;
+			var path = Path.GetDirectoryName(sf.FileName);
+			foreach (var image in _images)
 			{
-				var path = Path.GetDirectoryName(sf.FileName);
-				foreach (var image in _images)
+				var encoder = new PngBitmapEncoder();
+				encoder.Frames.Add(BitmapFrame.Create(image.Source));
+				if (path == null) continue;
+				using (var filestream = new FileStream(Path.Combine(path, $"{image.Name}.bmp"), FileMode.Create))
 				{
-					var encoder = new PngBitmapEncoder();
-					encoder.Frames.Add(BitmapFrame.Create(image.Source));
-					using (var filestream = new FileStream(Path.Combine(path, $"{image.Name}.bmp"), FileMode.Create))
-					{
-						encoder.Save(filestream);
-					}
+					encoder.Save(filestream);
 				}
 			}
 		}
 
 		public void ChangeImage(KeyEventArgs e)
 		{
-			if (_images.Count > 0)
+			if (_images.Count <= 0)
 			{
-				switch (e.Key)
-				{
-					case Key.Right:
-						if (_currentImageIndex < _images.Count - 1)
-						{
-							CurrentImage = _images[++_currentImageIndex].Source;
-						}
-						else
-						{
-							_currentImageIndex = 0;
-							CurrentImage = _images[_currentImageIndex].Source;
-						}
-						Label = _images[_currentImageIndex].Name;
-						break;
-					case Key.Left:
-						if (_currentImageIndex > 0)
-						{
-							CurrentImage = _images[--_currentImageIndex].Source;
-						}
-						else
-						{
-							_currentImageIndex = _images.Count - 1;
-							CurrentImage = _images[_currentImageIndex].Source;
-						}
-						Label = _images[_currentImageIndex].Name;
-						break;
-					default: return;
-				}
+				return;
+			}
+			switch (e.Key)
+			{
+				case Key.Right:
+					if (_currentImageIndex < _images.Count - 1)
+					{
+						CurrentImage = _images[++_currentImageIndex].Source;
+					}
+					else
+					{
+						_currentImageIndex = 0;
+						CurrentImage = _images[_currentImageIndex].Source;
+					}
+					Label = _images[_currentImageIndex].Name;
+					break;
+				case Key.Left:
+					if (_currentImageIndex > 0)
+					{
+						CurrentImage = _images[--_currentImageIndex].Source;
+					}
+					else
+					{
+						_currentImageIndex = _images.Count - 1;
+						CurrentImage = _images[_currentImageIndex].Source;
+					}
+					Label = _images[_currentImageIndex].Name;
+					break;
+				default: return;
 			}
 		}
 
