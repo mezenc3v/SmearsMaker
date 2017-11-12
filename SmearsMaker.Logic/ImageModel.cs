@@ -16,6 +16,8 @@ namespace SmearsMaker.Logic
 		public int MaxSizeSuperpixel { get; set; }
 		public float ClustersPrecision { get; set; }
 		public int ClusterMaxIteration { get; set; }
+		public int HeightPlt { get; set; }
+		public int WidthPlt { get; set; }
 		#endregion
 
 		public ImageModel(BitmapSource image)

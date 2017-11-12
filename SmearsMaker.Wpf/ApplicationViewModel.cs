@@ -79,10 +79,12 @@ namespace SmearsMaker.Wpf
 					context.MaxSmearDistance = Settings.MaxSmearDistance;
 					context.MaxSizeSuperpixel = Settings.MaxSizeSuperpixel;
 					context.MinSizeSuperpixel = Settings.MinSizeSuperpixel;
+					context.HeightPlt = Settings.HeightPlt;
+					context.WidthPlt = Settings.WidthPlt;
 				}
 
 				_tracer = new SmearTracer(context);
-				var progressBar = new Logic.ProgressBar();
+				var progressBar = new ProgressBar();
 				progressBar.NewStep += UpdateLabel;
 
 				await _tracer.Execute(progressBar);
@@ -184,32 +186,36 @@ namespace SmearsMaker.Wpf
 
 		public void ChangeImage(KeyEventArgs e)
 		{
-			switch (e.Key)
+			if (_images.Count > 0)
 			{
-				case Key.Right:
-					if (_currentImageIndex < _images.Count - 1)
-					{
-						CurrentImage = _images[++_currentImageIndex].Source;
-					}
-					else
-					{
-						_currentImageIndex = 0;
-						CurrentImage = _images[_currentImageIndex].Source;
-					}
-					Label = _images[_currentImageIndex].Name;
-					break;
-				case Key.Left:
-					if (_currentImageIndex > 0)
-					{
-						CurrentImage = _images[--_currentImageIndex].Source;
-					}
-					else
-					{
-						_currentImageIndex = _images.Count - 1;
-						CurrentImage = _images[_currentImageIndex].Source;
-					}
-					Label = _images[_currentImageIndex].Name;
-					break;
+				switch (e.Key)
+				{
+					case Key.Right:
+						if (_currentImageIndex < _images.Count - 1)
+						{
+							CurrentImage = _images[++_currentImageIndex].Source;
+						}
+						else
+						{
+							_currentImageIndex = 0;
+							CurrentImage = _images[_currentImageIndex].Source;
+						}
+						Label = _images[_currentImageIndex].Name;
+						break;
+					case Key.Left:
+						if (_currentImageIndex > 0)
+						{
+							CurrentImage = _images[--_currentImageIndex].Source;
+						}
+						else
+						{
+							_currentImageIndex = _images.Count - 1;
+							CurrentImage = _images[_currentImageIndex].Source;
+						}
+						Label = _images[_currentImageIndex].Name;
+						break;
+					default: return;
+				}
 			}
 		}
 

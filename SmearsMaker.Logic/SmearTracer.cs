@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -135,10 +134,10 @@ namespace SmearsMaker.Logic
 
 		public string GetPlt()
 		{
-			const int height = 5200;
-			const int width = 7600;
+			var height = _model.HeightPlt;
+			var width = _model.WidthPlt;
 
-			var delta = (float)(height / _model.Height);
+			var delta = ((float)height / _model.Height);
 			var widthImage = _model.Width * delta;
 			if (widthImage > width)
 			{
@@ -153,7 +152,7 @@ namespace SmearsMaker.Logic
 			foreach (var cluster in clusterGroups.OrderByDescending(c => c.Key.Centroid.Sum))
 			{
 				plt.Append($"PC1,{(uint)cluster.Key.Centroid.Data[2]},{(uint)cluster.Key.Centroid.Data[1]},{(uint)cluster.Key.Centroid.Data[0]};");
-				var segmentsGroups = cluster.GroupBy(c => c.Segment); ;
+				var segmentsGroups = cluster.GroupBy(c => c.Segment);
 
 				foreach (var segment in segmentsGroups.OrderByDescending(s => s.Key.Centroid.Original.Sum))
 				{

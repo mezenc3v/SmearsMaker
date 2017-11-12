@@ -13,6 +13,8 @@ namespace SmearsMaker.Wpf
 		public int MaxSizeSuperpixel { get; set; }
 		public float ClustersPrecision { get; set; }
 		public int ClusterMaxIteration { get; set; }
+		public int HeightPlt { get; set; }
+		public int WidthPlt { get; set; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
@@ -30,6 +32,8 @@ namespace SmearsMaker.Wpf
 			MaxSmearDistance = width * height;
 			FilterRank = (int)Math.Sqrt((double)(width + height) / 80 / 2);
 			ClustersPrecision = 0.001f;
+			HeightPlt = 7600;
+			WidthPlt = 5200;
 		}
 
 		protected virtual void OnPropertyChanged([CallerMemberName] string prop = null)

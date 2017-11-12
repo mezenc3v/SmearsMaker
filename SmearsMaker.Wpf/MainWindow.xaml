@@ -23,7 +23,7 @@
 				<MenuItem x:Name="ExitMenuItem" Header="Exit" Click="ExitMenuItem_Click"></MenuItem>
 			</MenuItem>
 			<MenuItem Header="Edit">
-				<MenuItem Header="Copy"></MenuItem>
+				<MenuItem x:Name="ClipboardCopyMenuItem" Header="Copy" Click="ClipboardCopyMenuItem_Click"></MenuItem>
 				<Separator></Separator>
 				<MenuItem x:Name="SettingsMenuItem" Header="Settings" Click="SettingsMenuItem_Click"></MenuItem>
 			</MenuItem>

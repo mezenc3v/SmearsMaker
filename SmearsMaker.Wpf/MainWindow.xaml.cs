@@ -52,6 +52,14 @@ namespace SmearsMaker.Wpf
 			var settingsForm = new SettingsWindow(_model.Settings);
 			settingsForm.Show();
 		}
+
+		private void ClipboardCopyMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			if (Image.Source != null)
+			{
+				Clipboard.SetImage((BitmapImage)Image.Source);
+			}
+		}
 	}
 }
 
