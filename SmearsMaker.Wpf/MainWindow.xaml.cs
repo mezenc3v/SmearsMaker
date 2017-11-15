@@ -57,7 +57,7 @@ namespace SmearsMaker.Wpf
 		{
 			if (Image.Source != null)
 			{
-				Clipboard.SetImage((BitmapImage)Image.Source);
+				Clipboard.SetImage((BitmapSource)Image.Source);
 			}
 		}
 	}

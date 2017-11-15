@@ -46,7 +46,7 @@ namespace SmearsMaker.Wpf
 
 		private string _label;
 		private ImageSource _currentImage;
-		private readonly List<ImageViewModel> _images;
+		private List<ImageViewModel> _images;
 		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 		private int _currentImageIndex;
 		private SmearTracer _tracer;
@@ -90,16 +90,9 @@ namespace SmearsMaker.Wpf
 
 				await _tracer.Execute();
 
-				var sprpxls = _tracer.SuperPixels();
-				var clusters = _tracer.Clusters();
-				var segments = _tracer.Segments();
-				var brushsrks = _tracer.BrushStrokes();
-
-				_images.Add(new ImageViewModel(_image, "Оригинал"));
-				_images.Add(new ImageViewModel(sprpxls, "Суперпиксели"));
-				_images.Add(new ImageViewModel(clusters, "Кластеры"));
-				_images.Add(new ImageViewModel(segments, "Сегменты"));
-				_images.Add(new ImageViewModel(brushsrks, "Мазки"));
+				var views = _tracer.Views;
+				_images = new List<ImageViewModel>();
+				_images.AddRange(views);
 
 				CurrentImage = _images[_currentImageIndex].Source;
 				Label = _images[_currentImageIndex].Name;
@@ -156,7 +149,6 @@ namespace SmearsMaker.Wpf
 			if (fileDialog.ShowDialog() == true)
 			{
 				_image = new BitmapImage(new Uri(fileDialog.FileName));
-				_images.Add(new ImageViewModel(_image, "Оригинал"));
 				CurrentImage = _image;
 				Label = "Нажмите кнопку старт";
 				Settings.Update(_image.PixelWidth, _image.PixelHeight);
