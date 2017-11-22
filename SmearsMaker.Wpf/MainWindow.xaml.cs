@@ -14,7 +14,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using Microsoft.Win32;
-using SmearsMaker.Logic;
 
 namespace SmearsMaker.Wpf
 {
@@ -51,6 +50,11 @@ namespace SmearsMaker.Wpf
 		{
 			var settingsForm = new SettingsWindow(_model.Settings);
 			settingsForm.Show();
+		}
+
+		private void SmearTracerMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			_model.SetAlgorithm(ApplicationViewModel.Algorithms.SmearTracer);
 		}
 
 		private void ClipboardCopyMenuItem_Click(object sender, RoutedEventArgs e)

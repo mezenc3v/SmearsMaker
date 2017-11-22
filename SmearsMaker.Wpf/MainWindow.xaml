@@ -27,6 +27,9 @@
 				<Separator></Separator>
 				<MenuItem x:Name="SettingsMenuItem" Header="Settings" Click="SettingsMenuItem_Click"></MenuItem>
 			</MenuItem>
+			<MenuItem Header="Algorithm">
+				<MenuItem x:Name="SmearTracer" Header="SmearTracer" Click="SmearTracerMenuItem_Click"></MenuItem>
+			</MenuItem>
 		</Menu>
 		<Image Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top" x:Name="Image" Stretch="Uniform" Source="{Binding CurrentImage}"/>
 

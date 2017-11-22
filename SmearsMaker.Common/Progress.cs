@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace SmearsMaker.Logic
+namespace SmearsMaker.Common
 {
-	public class ProgressBar
+	public class Progress
 	{
 		public event EventHandler<ProgressBarEventArgs> UpdateProgress;
 

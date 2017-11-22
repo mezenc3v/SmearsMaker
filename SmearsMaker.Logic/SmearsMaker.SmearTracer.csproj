@@ -7,8 +7,8 @@
     <ProjectGuid>{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmearsMaker.Logic</RootNamespace>
-    <AssemblyName>SmearsMaker.Logic</AssemblyName>
+    <RootNamespace>SmearsMaker.SmearTracer</RootNamespace>
+    <AssemblyName>SmearsMaker.SmearTracer</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -49,16 +49,18 @@
   <ItemGroup>
     <Compile Include="ImageHelper.cs" />
     <Compile Include="ImageModel.cs" />
-    <Compile Include="ImageViewModel.cs" />
-    <Compile Include="ProgressBar.cs" />
     <Compile Include="Smear.cs" />
-    <Compile Include="SmearTracer.cs" />
+    <Compile Include="Analyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmearsMaker.ClusterAnalysis\SmearsMaker.ClusterAnalysis.csproj">
       <Project>{46a0411f-313b-4e61-9d52-1d7ed83f1db6}</Project>
       <Name>SmearsMaker.ClusterAnalysis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmearsMaker.Common\SmearsMaker.Common.csproj">
+      <Project>{9425d82a-b2e0-4718-a7aa-7a8177b87696}</Project>
+      <Name>SmearsMaker.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmearsMaker.Concatenation\SmearsMaker.Concatenation.csproj">
       <Project>{a7dee711-0ce6-47eb-a37e-5d42e4f58074}</Project>

@@ -10,6 +10,7 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using NLog;
 using SmearsMaker.ClusterAnalysis.Kmeans;
+using SmearsMaker.Common;
 using SmearsMaker.Concatenation;
 using SmearsMaker.Filtering;
 using SmearsMaker.Model;
@@ -20,32 +21,34 @@ using SmearsMaker.Segmentation.SuperpixelSplitter;
 using Color = System.Drawing.Color;
 using Point = SmearsMaker.Model.Point;
 
-namespace SmearsMaker.Logic
+namespace SmearsMaker.SmearTracer
 {
-	public class SmearTracer
+	public class Analyzer : ITracer
 	{
+		public List<ImageSetting> Settings => _model.Settings;
+
 		private readonly ImageModel _model;
 		private readonly List<Smear> _smears;
-		private readonly ProgressBar _progress;
+		private readonly Progress _progress;
 		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
-		public SmearTracer(ImageModel model, ProgressBar progress)
+		public Analyzer(BitmapImage image, Progress progress)
 		{
 			_progress = progress ?? throw new NullReferenceException(nameof(progress));
-			_model = model ?? throw new NullReferenceException(nameof(model));
+			_model = new ImageModel(image);
 			_smears = new List<Smear>();
 		}
 
 		public Task Execute()
 		{
 			var model = Model.ImageModel.ConvertBitmapToImage(_model.Image, ColorModel.Rgb);
-			var filter = new MedianFilter(_model.FilterRank, _model.Width, _model.Height);
+			var filter = new MedianFilter((int)_model.FilterRank.Value, _model.Width, _model.Height);
 
 			//model.ChangeColorModel(ColorModel.GrayScale);
-			var kmeans = new KmeansClassic(_model.ClustersCount, _model.ClustersPrecision, model, _model.ClusterMaxIteration);
+			var kmeans = new KmeansClassic((int)_model.ClustersCount.Value, _model.ClustersPrecision.Value, model, (int)_model.ClusterMaxIteration.Value);
 			var splitter = new SimpleSegmentsSplitter();
-			var supPixSplitter = new SuperpixelSplitter(_model.MinSizeSuperpixel, _model.MaxSizeSuperpixel, _model.ClustersPrecision);
-			var bsm = new BsmPair(_model.MaxSmearDistance);
+			var supPixSplitter = new SuperpixelSplitter((int)_model.MinSizeSuperpixel.Value, (int)_model.MaxSizeSuperpixel.Value, _model.ClustersPrecision.Value);
+			var bsm = new BsmPair((int)_model.MaxSmearDistance.Value);
 
 			var segmentsCount = 0;
 			var smearsCount = 0;
@@ -77,7 +80,7 @@ namespace SmearsMaker.Logic
 
 						foreach (var supPix in superPixels)
 						{
-							if (supPix.Data.Count < _model.MinSizeSuperpixel)
+							if (supPix.Data.Count < _model.MinSizeSuperpixel.Value)
 							{
 								lock (defectedPixels)
 								{
@@ -113,10 +116,10 @@ namespace SmearsMaker.Logic
 						throw new NullReferenceException("point");
 					}
 				}
-
+				_progress.NewProgress("Распределение удаленных точек");
 				Helper.Concat(_smears, defectedPixels);
 
-				Log.Trace("Обработки изображения завершена");
+				Log.Trace("Обработка изображения завершена");
 				_progress.NewProgress("Готово");
 				Log.Trace($"Сформировано {clusters.Count} кластеров, {segmentsCount} сегментов, {smearsCount} мазков");
 			});
@@ -239,7 +242,7 @@ namespace SmearsMaker.Logic
 					(byte)center.Original.Data[1], (byte)center.Original.Data[0]));
 
 				var pointsF = smear.BrushStroke.Objects.Select(point => new PointF((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
-				pen.Width = (_model.MinSizeSuperpixel) / 10 + 1;
+				pen.Width = ((int)_model.MinSizeSuperpixel.Value) / 20 + 1;
 				if (pointsF.Length > 1)
 				{
 					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
@@ -276,11 +279,11 @@ namespace SmearsMaker.Logic
 			var height = _model.HeightPlt;
 			var width = _model.WidthPlt;
 
-			var delta = ((float)height / _model.Height);
+			var delta = ((float)height.Value / _model.Height);
 			var widthImage = _model.Width * delta;
-			if (widthImage > width)
+			if (widthImage > width.Value)
 			{
-				delta *= width / widthImage;
+				delta *= (float)width.Value / widthImage;
 			}
 
 			//building string
@@ -299,14 +302,14 @@ namespace SmearsMaker.Logic
 
 					foreach (var brushStroke in brushstrokeGroup.OrderByDescending(b => b.Key.Objects.Count))
 					{
-						plt.Append($"PU{(uint)(brushStroke.Key.Objects.First().Centroid.Position.X * delta)},{(uint)(height - brushStroke.Key.Objects.First().Centroid.Position.Y * delta)};");
+						plt.Append($"PU{(uint)(brushStroke.Key.Objects.First().Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Key.Objects.First().Centroid.Position.Y * delta)};");
 
 						for (int i = 1; i < brushStroke.Key.Objects.Count - 1; i++)
 						{
-							plt.Append($"PD{(uint)(brushStroke.Key.Objects[i].Centroid.Position.X * delta)},{(uint)(height - brushStroke.Key.Objects[i].Centroid.Position.Y * delta)};");
+							plt.Append($"PD{(uint)(brushStroke.Key.Objects[i].Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Key.Objects[i].Centroid.Position.Y * delta)};");
 						}
 
-						plt.Append($"PU{(uint)(brushStroke.Key.Objects.Last().Centroid.Position.X * delta)},{(uint)(height - brushStroke.Key.Objects.Last().Centroid.Position.Y * delta)};");
+						plt.Append($"PU{(uint)(brushStroke.Key.Objects.Last().Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Key.Objects.Last().Centroid.Position.Y * delta)};");
 					}
 				}
 			}

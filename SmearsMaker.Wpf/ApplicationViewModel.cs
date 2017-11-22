@@ -11,16 +11,21 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using NLog;
-using SmearsMaker.Logic;
+using SmearsMaker.Common;
+using SmearsMaker.SmearTracer;
 
 namespace SmearsMaker.Wpf
 {
 	public class ApplicationViewModel : INotifyPropertyChanged
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-		public SettingsViewModel Settings { get; set; }
+		public enum Algorithms { SmearTracer }
 
-		public ICommand OpenImage { get;}
+		private Algorithms _currentAlg;
+
+		public event PropertyChangedEventHandler PropertyChanged;
+		public List<ImageSetting> Settings { get; set; }
+
+		public ICommand OpenImage { get; }
 		public ICommand SavePlt { get; }
 		public ICommand SaveImages { get; }
 
@@ -49,7 +54,7 @@ namespace SmearsMaker.Wpf
 		private List<ImageViewModel> _images;
 		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 		private int _currentImageIndex;
-		private SmearTracer _tracer;
+		private ITracer _tracer;
 		private BitmapImage _image;
 
 		public ApplicationViewModel()
@@ -57,10 +62,21 @@ namespace SmearsMaker.Wpf
 			OpenImage = new Command(OpenFile);
 			SavePlt = new Command(SavePtl);
 			SaveImages = new Command(SaveImagesInFolder);
-			Settings = new SettingsViewModel();
 			_images = new List<ImageViewModel>();
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
+		}
+
+		public void SetAlgorithm(Algorithms alg)
+		{
+			if (alg == Algorithms.SmearTracer && _image != null)
+			{
+				var progressBar = new Progress();
+				progressBar.UpdateProgress += UpdateProgress;
+				_tracer = new Analyzer(_image, progressBar);
+				Settings = _tracer.Settings;
+				_currentAlg = alg;
+			}
 		}
 
 		public async Task Run()
@@ -68,26 +84,10 @@ namespace SmearsMaker.Wpf
 			try
 			{
 				if (_image == null) return;
-
-				var context = new ImageModel(_image);
-
-				if (Settings != null)
+				if (_tracer == null)
 				{
-					context.ClusterMaxIteration = Settings.ClusterMaxIteration;
-					context.ClustersPrecision = Settings.ClustersPrecision;
-					context.ClustersCount = Settings.ClustersCount;
-					context.FilterRank = Settings.FilterRank;
-					context.MaxSmearDistance = Settings.MaxSmearDistance;
-					context.MaxSizeSuperpixel = Settings.MaxSizeSuperpixel;
-					context.MinSizeSuperpixel = Settings.MinSizeSuperpixel;
-					context.HeightPlt = Settings.HeightPlt;
-					context.WidthPlt = Settings.WidthPlt;
+					SetAlgorithm(_currentAlg);
 				}
-
-				var progressBar = new ProgressBar();
-				progressBar.UpdateProgress += UpdateProgress;
-				_tracer = new SmearTracer(context, progressBar);
-
 				await _tracer.Execute();
 
 				var views = _tracer.Views;
@@ -151,7 +151,8 @@ namespace SmearsMaker.Wpf
 				_image = new BitmapImage(new Uri(fileDialog.FileName));
 				CurrentImage = _image;
 				Label = "Нажмите кнопку старт";
-				Settings.Update(_image.PixelWidth, _image.PixelHeight);
+				
+				SetAlgorithm(_currentAlg);
 			}
 		}
 

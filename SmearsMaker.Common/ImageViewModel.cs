@@ -1,6 +1,6 @@
 ﻿using System.Windows.Media.Imaging;
 
-namespace SmearsMaker.Logic
+namespace SmearsMaker.Common
 {
 	public class ImageViewModel
 	{

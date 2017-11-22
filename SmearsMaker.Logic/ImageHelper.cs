@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using NLog;
 using SmearsMaker.Model;
 
-namespace SmearsMaker.Logic
+namespace SmearsMaker.SmearTracer
 {
 	public static class Helper
 	{
@@ -17,18 +18,22 @@ namespace SmearsMaker.Logic
 			{
 				var minDist = Distance(smears.First().BrushStroke.Objects.First().Centroid, point);
 				var nearestObj = smears.First().BrushStroke.Objects.First();
-				foreach (var smear in smears)
+				Parallel.ForEach(smears, smear =>
 				{
 					foreach (var obj in smear.BrushStroke.Objects)
 					{
 						var dist = Distance(obj.Centroid, point);
 						if (dist < minDist)
 						{
-							nearestObj = obj;
+							lock (nearestObj)
+							{
+								nearestObj = obj;
+							}
+
 							minDist = dist;
 						}
 					}
-				}
+				});
 				nearestObj.Data.Add(point);
 			}
 		}

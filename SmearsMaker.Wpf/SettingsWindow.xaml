@@ -6,39 +6,32 @@
         xmlns:local="clr-namespace:SmearsMaker.Wpf"
         mc:Ignorable="d"
         Title="SettingsWindow" Height="400" Width="400">
-	
+
 	<Grid Name="SettingsGrid">
 		<Grid.RowDefinitions>
+			<RowDefinition Height="10*"></RowDefinition>
 			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="*"></RowDefinition>
-			<RowDefinition Height="5*"></RowDefinition>
 		</Grid.RowDefinitions>
 
-		<Label Grid.Row="0" Content="Ранг фильтра" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="0" Margin="170,0,0,0" Name="TextBoxFilterRank" Text="{Binding FilterRank, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="1" Content="Кол-во кластеров" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="1" Margin="170,0,0,0" Name="TextBoxColorCount" Text="{Binding ClustersCount, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="2" Content="Точность поиска кластеров" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="2" Margin="170,0,0,0" Name="TextBoxClustersPrecision" Text="{Binding ClustersPrecision, UpdateSourceTrigger=PropertyChanged, StringFormat=N6}"/>
-		<Label Grid.Row="3" Content="Макс. число итераций класт." HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="3" Margin="170,0,0,0" Name="TextBoxClusterMaxIteration" Text="{Binding ClusterMaxIteration, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="4" Content="Максимальная длина мазка" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="4" Margin="170,0,0,0" Name="TextBoxMaxLength" Text="{Binding MaxSmearDistance, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="5" Content="Мин. размер суперпикселя" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="5" Margin="170,0,0,0" Name="TextBoxMinSizeSuperpixel" Text="{Binding MinSizeSuperpixel, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="6" Content="Мaкс. размер суперпикселя" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="6" Margin="170,0,0,0" Name="TextBoxMaxSizeSuperpixel" Text="{Binding MaxSizeSuperpixel, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="7" Content="Ширина plt" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="7" Margin="170,0,0,0" Name="TextBoxPltWidth" Text="{Binding WidthPlt, UpdateSourceTrigger=PropertyChanged}"/>
-		<Label Grid.Row="8" Content="Высота plt" HorizontalAlignment="Left"/>
-		<TextBox Grid.Row="8" Margin="170,0,0,0" Name="TextBoxPltHeigth" Text="{Binding HeightPlt, UpdateSourceTrigger=PropertyChanged}"/>
-		<Button Grid.Row="9" Width="76" Height="23" VerticalAlignment="Bottom" Content="Ок" Click="Button_Click" ></Button>
+		<ListBox Grid.Row="0" Name="lstSettings" Margin="5" SelectionMode="Single">
+			<ListBox.ItemContainerStyle>
+				<Style TargetType="{x:Type ListBoxItem}">
+					<Setter Property="Margin" Value="3"/>
+					<Setter Property="Padding" Value="3"/>
+					<Setter Property="Template">
+						<Setter.Value>
+							<ControlTemplate TargetType="{x:Type ListBoxItem}">
+								<StackPanel Orientation="Horizontal">
+									<Label Content="{Binding Name}" Width="170"/>
+									<TextBox Text="{Binding Value}" Width="190"/>
+								</StackPanel>
+							</ControlTemplate>
+						</Setter.Value>
+					</Setter>
+				</Style>
+			</ListBox.ItemContainerStyle>
+		</ListBox>
+
+		<Button Grid.Row="1" Width="76" Height="23" Margin="0,0,0,5" VerticalAlignment="Bottom" Content="Ок" Click="Button_Click" ></Button>
 	</Grid>
 </Window>
