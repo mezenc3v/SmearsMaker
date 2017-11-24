@@ -33,7 +33,14 @@ namespace SmearsMaker.Wpf
 
 		private async void ButtonRun_Click(object sender, RoutedEventArgs e)
 		{
-			await _model.Run();
+			try
+			{
+				await _model.Run();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
+			}
 		}
 
 		private void Window_KeyUp(object sender, KeyEventArgs e)
@@ -62,6 +69,18 @@ namespace SmearsMaker.Wpf
 			if (Image.Source != null)
 			{
 				Clipboard.SetImage((BitmapSource)Image.Source);
+			}
+		}
+
+		private void MenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			try
+			{
+				_model.OpenPlt();
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(ex.Message);
 			}
 		}
 	}

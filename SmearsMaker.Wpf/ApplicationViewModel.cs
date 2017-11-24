@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
+using SmearsMaker.HPGL;
 using SmearsMaker.SmearTracer;
 
 namespace SmearsMaker.Wpf
@@ -120,7 +121,7 @@ namespace SmearsMaker.Wpf
 					{
 						FileName = "pltFile",
 						DefaultExt = ".plt",
-						Filter = "Plt Files |.plt",
+						Filter = "Plt Files (*.plt)|*.plt|All files (*.*)|*.*",
 						RestoreDirectory = true
 					};
 
@@ -154,6 +155,20 @@ namespace SmearsMaker.Wpf
 				
 				SetAlgorithm(_currentAlg);
 			}
+		}
+
+		internal void OpenPlt()
+		{
+			//считывание с файла
+			var fileDialog = new OpenFileDialog
+			{
+				Filter =
+					"Plt Files (*.plt)|*.plt|All files (*.*)|*.*",
+				RestoreDirectory = true
+			};
+			if (fileDialog.ShowDialog() != true) return;
+			var reader = new PltReader();
+			CurrentImage = reader.Read(fileDialog.FileName);
 		}
 
 		private void SaveImagesInFolder()

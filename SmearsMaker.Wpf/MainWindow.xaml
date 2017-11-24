@@ -17,6 +17,7 @@
 		<Menu Grid.Row="0">
 			<MenuItem Header="File">
 				<MenuItem Header="Open" Command="{Binding OpenImage}"></MenuItem>
+				<MenuItem Header="Open plt" Click="MenuItem_Click" ></MenuItem>
 				<MenuItem Header="Save images" Command="{Binding SaveImages}"></MenuItem>
 				<MenuItem Header="Save plt" Command="{Binding SavePlt}"></MenuItem>
 				<Separator></Separator>

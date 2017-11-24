@@ -78,7 +78,7 @@ namespace SmearsMaker.SmearTracer
 					{
 						var superPixels = supPixSplitter.Splitting(segment);
 
-						foreach (var supPix in superPixels)
+						Parallel.ForEach(superPixels, (supPix) =>
 						{
 							if (supPix.Data.Count < _model.MinSizeSuperpixel.Value)
 							{
@@ -87,7 +87,7 @@ namespace SmearsMaker.SmearTracer
 									defectedPixels.AddRange(supPix.Data);
 								}
 							}
-						}
+						});
 
 						if (superPixels.Count > 0)
 						{
@@ -277,6 +277,7 @@ namespace SmearsMaker.SmearTracer
 		public string GetPlt()
 		{
 			var height = _model.HeightPlt;
+
 			var width = _model.WidthPlt;
 
 			var delta = ((float)height.Value / _model.Height);
@@ -285,15 +286,15 @@ namespace SmearsMaker.SmearTracer
 			{
 				delta *= (float)width.Value / widthImage;
 			}
-
+			var smearWidth = (int)((_model.MinSizeSuperpixel.Value / 20 + 1) * delta);
+			var index = 1;
 			//building string
 			var plt = new StringBuilder().Append("IN;");
-
 			var clusterGroups = _smears.GroupBy(s => s.Cluster);
 
 			foreach (var cluster in clusterGroups.OrderByDescending(c => c.Key.Centroid.Sum))
 			{
-				plt.Append($"PC1,{(uint)cluster.Key.Centroid.Data[2]},{(uint)cluster.Key.Centroid.Data[1]},{(uint)cluster.Key.Centroid.Data[0]};");
+				plt.Append($"PC{index},{(uint)cluster.Key.Centroid.Data[2]},{(uint)cluster.Key.Centroid.Data[1]},{(uint)cluster.Key.Centroid.Data[0]};");
 				var segmentsGroups = cluster.GroupBy(c => c.Segment);
 
 				foreach (var segment in segmentsGroups.OrderByDescending(s => s.Key.Centroid.Original.Sum))
@@ -302,6 +303,7 @@ namespace SmearsMaker.SmearTracer
 
 					foreach (var brushStroke in brushstrokeGroup.OrderByDescending(b => b.Key.Objects.Count))
 					{
+						plt.Append($"PW{smearWidth},{index};");
 						plt.Append($"PU{(uint)(brushStroke.Key.Objects.First().Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Key.Objects.First().Centroid.Position.Y * delta)};");
 
 						for (int i = 1; i < brushStroke.Key.Objects.Count - 1; i++)
@@ -312,6 +314,7 @@ namespace SmearsMaker.SmearTracer
 						plt.Append($"PU{(uint)(brushStroke.Key.Objects.Last().Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Key.Objects.Last().Centroid.Position.Y * delta)};");
 					}
 				}
+				index++;
 			}
 
 			return plt.ToString();
