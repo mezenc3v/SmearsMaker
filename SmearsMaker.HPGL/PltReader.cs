@@ -95,6 +95,9 @@ namespace SmearsMaker.HPGL
 
 						if (points.Count > 1)
 						{
+							g.FillEllipse(brush, points.First().X, points.First().Y, pen.Width, pen.Width);
+							g.FillEllipse(brush, points.Last().X, points.Last().Y, pen.Width, pen.Width);
+
 							g.DrawLines(pen, points.ToArray());
 						}
 

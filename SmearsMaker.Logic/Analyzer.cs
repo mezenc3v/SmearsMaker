@@ -101,7 +101,10 @@ namespace SmearsMaker.SmearTracer
 									Segment = segment
 								};
 
-								_smears.Add(newSmear);
+								lock (_smears)
+								{
+									_smears.Add(newSmear);
+								}
 								_progress.Update(newSmear.BrushStroke.Objects.Sum(o => o.Data.Count));
 							}
 						}
