@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Common", "Smear
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "SmearsMaker.HPGL\SmearsMaker.HPGL.csproj", "{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GradientTracer", "GradientTracer", "{943B6384-7767-45E3-A1E4-B761A2D7E67E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
