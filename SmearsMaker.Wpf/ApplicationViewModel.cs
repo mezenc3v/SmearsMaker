@@ -13,7 +13,7 @@ using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
 using SmearsMaker.HPGL;
-using SmearsMaker.SmearTracer;
+using SmearTracer.Analyzer;
 
 namespace SmearsMaker.Wpf
 {

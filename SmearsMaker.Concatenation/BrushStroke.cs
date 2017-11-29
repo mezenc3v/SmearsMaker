@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using SmearsMaker.Model;
-using SmearsMaker.Segmentation;
+using SmearTracer.Segmentation;
 
-namespace SmearsMaker.Concatenation
+namespace SmearTracer.Concatenation
 {
 	public class BrushStroke
 	{

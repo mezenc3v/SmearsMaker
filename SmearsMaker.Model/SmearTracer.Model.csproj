@@ -7,8 +7,8 @@
     <ProjectGuid>{6AEA490A-85F4-48BD-9611-B0B3EDF508E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmearsMaker.Model</RootNamespace>
-    <AssemblyName>SmearsMaker.Model</AssemblyName>
+    <RootNamespace>SmearTracer.Model</RootNamespace>
+    <AssemblyName>SmearTracer.Model</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
+using SmearTracer.Model;
 
-namespace SmearsMaker.Segmentation.SimpleSegmentsSplitter
+namespace SmearTracer.Segmentation.SimpleSegmentsSplitter
 {
 	public class SimpleSegmentsSplitter
 	{

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NLog;
-using SmearsMaker.Model;
+using SmearTracer.Model;
 
-namespace SmearsMaker.SmearTracer
+namespace SmearTracer.Analyzer
 {
 	public static class Helper
 	{

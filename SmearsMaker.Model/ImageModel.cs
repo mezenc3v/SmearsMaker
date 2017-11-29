@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
-using SmearsMaker.Model.Helpers;
+using SmearTracer.Model.Helpers;
 
-namespace SmearsMaker.Model
+namespace SmearTracer.Model
 {
 	public enum ColorModel
 	{

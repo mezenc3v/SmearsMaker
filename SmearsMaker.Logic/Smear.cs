@@ -1,8 +1,8 @@
-﻿using SmearsMaker.ClusterAnalysis.Kmeans;
-using SmearsMaker.Concatenation;
-using SmearsMaker.Segmentation.SimpleSegmentsSplitter;
+﻿using SmearTracer.ClusterAnalysis.Kmeans;
+using SmearTracer.Concatenation;
+using SmearTracer.Segmentation.SimpleSegmentsSplitter;
 
-namespace SmearsMaker.SmearTracer
+namespace SmearTracer.Analyzer
 {
 	public class Smear
 	{

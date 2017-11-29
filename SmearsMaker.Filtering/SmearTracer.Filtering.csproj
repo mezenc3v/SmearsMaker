@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{46A0411F-313B-4E61-9D52-1D7ED83F1DB6}</ProjectGuid>
+    <ProjectGuid>{6EA6E6A6-F80D-4995-B2D0-51F405084159}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SmearsMaker.ClusterAnalysis</RootNamespace>
-    <AssemblyName>SmearsMaker.ClusterAnalysis</AssemblyName>
+    <RootNamespace>SmearTracer.Filtering</RootNamespace>
+    <AssemblyName>SmearTracer.Filtering</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -38,18 +38,15 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Kmeans\Cluster.cs" />
-    <Compile Include="Kmeans\Kmeans.cs" />
-    <Compile Include="Kmeans\KmeansClassic.cs" />
+    <Compile Include="MedianFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmearsMaker.Model\SmearsMaker.Model.csproj">
+    <ProjectReference Include="..\SmearsMaker.Model\SmearTracer.Model.csproj">
       <Project>{6aea490a-85f4-48bd-9611-b0b3edf508e9}</Project>
-      <Name>SmearsMaker.Model</Name>
+      <Name>SmearTracer.Model</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

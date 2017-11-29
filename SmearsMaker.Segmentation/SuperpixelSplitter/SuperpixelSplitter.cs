@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using SmearsMaker.Segmentation.SimpleSegmentsSplitter;
 using System.Linq;
-using SmearsMaker.Model;
+using SmearTracer.Model;
+using SmearTracer.Segmentation.SimpleSegmentsSplitter;
 
-namespace SmearsMaker.Segmentation.SuperpixelSplitter
+namespace SmearTracer.Segmentation.SuperpixelSplitter
 {
 	public class SuperpixelSplitter
 	{
@@ -148,7 +148,7 @@ namespace SmearsMaker.Segmentation.SuperpixelSplitter
 			return samplesData;
 		}
 
-		private static double Distance(SuperPixel superPixel, Model.Point pixel)
+		private static double Distance(SuperPixel superPixel, Point pixel)
 		{
 			//var sum = Math.Pow(pixel.Position.X - superPixel.Centroid.Position.X, 2);
 			//sum += Math.Pow(pixel.Position.Y - superPixel.Centroid.Position.Y, 2);
@@ -180,7 +180,7 @@ namespace SmearsMaker.Segmentation.SuperpixelSplitter
 			return dictance;
 		}
 
-		private static int NearestCentroid(Model.Point pixel, IReadOnlyList<SuperPixel> superPixels)
+		private static int NearestCentroid(Point pixel, IReadOnlyList<SuperPixel> superPixels)
 		{
 			var index = 0;
 			var min = Distance(superPixels[0], pixel);
