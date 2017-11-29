@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SmearsMaker.Model;
+using SmearTracer.Model;
 
-namespace SmearsMaker.ClusterAnalysis.Kmeans
+namespace SmearTracer.ClusterAnalysis.Kmeans
 {
 	public abstract class Kmeans
 	{

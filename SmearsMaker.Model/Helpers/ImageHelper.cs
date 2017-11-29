@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.Imaging;
 
-namespace SmearsMaker.Model.Helpers
+namespace SmearTracer.Model.Helpers
 {
 	public class ImageHelper
 	{

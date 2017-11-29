@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
+using SmearTracer.Model;
 
-namespace SmearsMaker.ClusterAnalysis.Kmeans
+namespace SmearTracer.ClusterAnalysis.Kmeans
 {
 	public sealed class KmeansClassic : Kmeans
 	{

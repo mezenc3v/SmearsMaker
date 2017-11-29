@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Point = System.Windows.Point;
 
-namespace SmearsMaker.Segmentation.SuperpixelSplitter
+namespace SmearTracer.Segmentation.SuperpixelSplitter
 {
 	public class SuperPixel : IObject
 	{

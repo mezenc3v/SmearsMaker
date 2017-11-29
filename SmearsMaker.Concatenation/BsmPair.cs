@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
-using SmearsMaker.Segmentation;
+using SmearTracer.Model;
+using SmearTracer.Segmentation;
 
-namespace SmearsMaker.Concatenation
+namespace SmearTracer.Concatenation
 {
 	public class BsmPair
 	{

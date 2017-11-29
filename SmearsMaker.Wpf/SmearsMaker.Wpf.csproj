@@ -116,9 +116,9 @@
       <Project>{f56c57bb-3d59-436b-bc1e-b40b2c7b9db5}</Project>
       <Name>SmearsMaker.HPGL</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SmearsMaker.Logic\SmearsMaker.SmearTracer.csproj">
+    <ProjectReference Include="..\SmearsMaker.Logic\SmearTracer.Analyzer.csproj">
       <Project>{7ddc7640-b2d5-4914-8fec-d0a8d2ecf6d1}</Project>
-      <Name>SmearsMaker.SmearTracer</Name>
+      <Name>SmearTracer.Analyzer</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
