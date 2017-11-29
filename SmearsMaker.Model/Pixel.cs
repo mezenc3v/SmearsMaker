@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace SmearsMaker.Model
+namespace SmearTracer.Model
 {
 	public class Pixel
 	{

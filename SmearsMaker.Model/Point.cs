@@ -1,5 +1,6 @@
 ﻿using System;
-namespace SmearsMaker.Model
+
+namespace SmearTracer.Model
 {
 	public class Point
 	{

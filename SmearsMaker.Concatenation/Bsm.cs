@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Segmentation;
+using SmearTracer.Segmentation;
 using Point = System.Windows.Point;
 
-namespace SmearsMaker.Concatenation
+namespace SmearTracer.Concatenation
 {
     public class Bsm
     {
@@ -104,7 +104,7 @@ namespace SmearsMaker.Concatenation
 		    _finishPoint = finish;
 	    }
 
-	    private static double Distance(System.Windows.Point first, System.Windows.Point second)
+	    private static double Distance(Point first, Point second)
 	    {
 		    var sum = Math.Pow(first.X - second.X, 2);
 		    sum += Math.Pow(first.Y - second.Y, 2);

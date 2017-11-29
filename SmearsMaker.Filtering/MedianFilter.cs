@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using SmearsMaker.Model;
 using System.Linq;
+using SmearTracer.Model;
 
-namespace SmearsMaker.Filtering
+namespace SmearTracer.Filtering
 {
 	public class MedianFilter
 	{

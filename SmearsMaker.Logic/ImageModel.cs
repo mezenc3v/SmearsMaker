@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 
-namespace SmearsMaker.SmearTracer
+namespace SmearTracer.Analyzer
 {
 	public class ImageModel : INotifyPropertyChanged
 	{

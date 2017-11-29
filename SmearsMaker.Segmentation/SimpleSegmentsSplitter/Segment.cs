@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SmearsMaker.Model;
+using SmearTracer.Model;
 
-namespace SmearsMaker.Segmentation.SimpleSegmentsSplitter
+namespace SmearTracer.Segmentation.SimpleSegmentsSplitter
 {
 	public class Segment : IObject
 	{

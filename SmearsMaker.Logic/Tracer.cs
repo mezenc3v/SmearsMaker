@@ -9,19 +9,19 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using NLog;
-using SmearsMaker.ClusterAnalysis.Kmeans;
 using SmearsMaker.Common;
-using SmearsMaker.Concatenation;
-using SmearsMaker.Filtering;
-using SmearsMaker.Model;
-using SmearsMaker.Model.Helpers;
-using SmearsMaker.Segmentation;
-using SmearsMaker.Segmentation.SimpleSegmentsSplitter;
-using SmearsMaker.Segmentation.SuperpixelSplitter;
+using SmearTracer.ClusterAnalysis.Kmeans;
+using SmearTracer.Concatenation;
+using SmearTracer.Filtering;
+using SmearTracer.Model;
+using SmearTracer.Model.Helpers;
+using SmearTracer.Segmentation;
+using SmearTracer.Segmentation.SimpleSegmentsSplitter;
+using SmearTracer.Segmentation.SuperpixelSplitter;
 using Color = System.Drawing.Color;
-using Point = SmearsMaker.Model.Point;
+using Point = SmearTracer.Model.Point;
 
-namespace SmearsMaker.SmearTracer
+namespace SmearTracer.Analyzer
 {
 	public class Analyzer : ITracer
 	{
@@ -222,7 +222,7 @@ namespace SmearsMaker.SmearTracer
 		private BitmapSource BrushStrokesLines()
 		{
 			_progress.NewProgress("Вычисление мазков (линии)");
-			System.Drawing.Bitmap bitmap;
+			Bitmap bitmap;
 			using (var outStream = new MemoryStream())
 			{
 				BitmapEncoder enc = new BmpBitmapEncoder();
