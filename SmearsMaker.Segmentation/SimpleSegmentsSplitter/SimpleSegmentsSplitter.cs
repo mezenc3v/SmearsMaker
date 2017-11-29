@@ -72,21 +72,38 @@ namespace SmearsMaker.Segmentation.SimpleSegmentsSplitter
 		}
 		private static bool Contains(Point pixel, IEnumerable<Point> units)
 		{
-			foreach (var unit in units)
-			{
-				if (Math.Abs(pixel.Position.X - unit.Position.X)
-				    < 2 && Math.Abs(pixel.Position.Y - unit.Position.Y) < 2)
-				{
-					return true;
-				}
-			}
-			return false;
+			return units.Any(unit => Math.Abs(pixel.Position.X - unit.Position.X) < 2 && Math.Abs(pixel.Position.Y - unit.Position.Y) < 2);
 		}
-		private double Distance(Point left, Point right)
+		private static double Distance(Point left, Point right)
 		{
-			var sum = Math.Pow(right.Position.X - left.Position.X, 2);
-			sum += Math.Pow(right.Position.Y - left.Position.Y, 2);
-			return Math.Sqrt(sum);
+			//var sum = Math.Pow(right.Position.X - left.Position.X, 2);
+			//sum += Math.Pow(right.Position.Y - left.Position.Y, 2);
+			//return Math.Sqrt(sum);
+
+			double dictance = 0;
+
+			var d = left.Position.X - right.Position.X;
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			d = left.Position.Y - right.Position.Y;
+
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			return dictance;
 		}
 	}
 }

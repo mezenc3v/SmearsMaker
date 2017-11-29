@@ -150,9 +150,34 @@ namespace SmearsMaker.Segmentation.SuperpixelSplitter
 
 		private static double Distance(SuperPixel superPixel, Model.Point pixel)
 		{
-			var sum = Math.Pow(pixel.Position.X - superPixel.Centroid.Position.X, 2);
-			sum += Math.Pow(pixel.Position.Y - superPixel.Centroid.Position.Y, 2);
-			return Math.Sqrt(sum);
+			//var sum = Math.Pow(pixel.Position.X - superPixel.Centroid.Position.X, 2);
+			//sum += Math.Pow(pixel.Position.Y - superPixel.Centroid.Position.Y, 2);
+			//return Math.Sqrt(sum);
+
+			double dictance = 0;
+
+			var d = pixel.Position.X - superPixel.Centroid.Position.X;
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			d = pixel.Position.Y - superPixel.Centroid.Position.Y;
+
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			return dictance;
 		}
 
 		private static int NearestCentroid(Model.Point pixel, IReadOnlyList<SuperPixel> superPixels)

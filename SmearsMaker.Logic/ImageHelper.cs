@@ -49,7 +49,32 @@ namespace SmearsMaker.SmearTracer
 
 		private static double Distance(Point first, Point second)
 		{
-			return Math.Sqrt(Math.Pow((first.Position.X - second.Position.X),2) + Math.Pow((first.Position.Y - second.Position.Y), 2));
+			//return Math.Sqrt(Math.Pow((first.Position.X - second.Position.X),2) + Math.Pow((first.Position.Y - second.Position.Y), 2));
+
+			double dictance = 0;
+
+			var d = first.Position.X - second.Position.X;
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			d = first.Position.Y - second.Position.Y;
+
+			if (d < 0)
+			{
+				dictance -= d;
+			}
+			else
+			{
+				dictance += d;
+			}
+
+			return dictance;
 		}
 	}
 }
