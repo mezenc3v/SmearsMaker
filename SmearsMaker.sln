@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "SmearsM
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GradientTracer", "GradientTracer", "{943B6384-7767-45E3-A1E4-B761A2D7E67E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTracer.Analyzer", "GradientTracer.Analyzer\GradientTracer.Analyzer.csproj", "{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +84,7 @@ Global
 		{C4319B4E-7456-42D3-BE22-5291D4E7A831} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 		{A7DEE711-0CE6-47EB-A37E-5D42E4F58074} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46} = {943B6384-7767-45E3-A1E4-B761A2D7E67E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B853E930-5CCE-4D69-800C-05202171F662}
