@@ -2,7 +2,7 @@
 using SmearsMaker.Concatenation;
 using SmearsMaker.Segmentation.SimpleSegmentsSplitter;
 
-namespace SmearsMaker.Logic
+namespace SmearsMaker.SmearTracer
 {
 	public class Smear
 	{

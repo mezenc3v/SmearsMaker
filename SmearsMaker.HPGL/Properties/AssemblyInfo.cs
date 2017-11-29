@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SmearMaker.ClusterAnalysis")]
+[assembly: AssemblyTitle("SmearsMaker.HPGL")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SmearMaker.ClusterAnalysis")]
+[assembly: AssemblyProduct("SmearsMaker.HPGL")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("12a3950d-2096-4d2c-87b3-ac7a14df8709")]
+[assembly: Guid("f56c57bb-3d59-436b-bc1e-b40b2c7b9db5")]
 
 // Version information for an assembly consists of the following four values:
 //

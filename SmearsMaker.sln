@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2005
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Wpf", "SmearsMaker.Wpf\SmearsMaker.Wpf.csproj", "{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}"
 EndProject
@@ -15,7 +15,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Segmentation", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Concatenation", "SmearsMaker.Concatenation\SmearsMaker.Concatenation.csproj", "{A7DEE711-0CE6-47EB-A37E-5D42E4F58074}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Logic", "SmearsMaker.Logic\SmearsMaker.Logic.csproj", "{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.SmearTracer", "SmearsMaker.Logic\SmearsMaker.SmearTracer.csproj", "{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SmearTracer", "SmearTracer", "{E41629F3-0454-4A79-8783-DC694E87CED8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Common", "SmearsMaker.Common\SmearsMaker.Common.csproj", "{9425D82A-B2E0-4718-A7AA-7A8177B87696}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "SmearsMaker.HPGL\SmearsMaker.HPGL.csproj", "{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,9 +57,25 @@ Global
 		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6AEA490A-85F4-48BD-9611-B0B3EDF508E9} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{46A0411F-313B-4E61-9D52-1D7ED83F1DB6} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{6EA6E6A6-F80D-4995-B2D0-51F405084159} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{C4319B4E-7456-42D3-BE22-5291D4E7A831} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{A7DEE711-0CE6-47EB-A37E-5D42E4F58074} = {E41629F3-0454-4A79-8783-DC694E87CED8}
+		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B853E930-5CCE-4D69-800C-05202171F662}
