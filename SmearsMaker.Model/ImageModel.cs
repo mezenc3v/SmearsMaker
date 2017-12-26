@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Windows.Media.Imaging;
-using SmearTracer.Model.Helpers;
 
-namespace SmearTracer.Model
+namespace SmearsMaker.Model
 {
 	public enum ColorModel
 	{
@@ -28,7 +27,7 @@ namespace SmearTracer.Model
 		{
 			switch (_colorModel)
 			{
-				case ColorModel.Argb: return ImageHelper.ConvertRgbToRgbBitmap(bmpSource, Points);
+				case ColorModel.Argb: return ImageHelper.ConvertRgbToRgbBitmap(bmpSource, Points, Consts.Filtered);
 				case ColorModel.GrayScale: return ImageHelper.ConvertGrayScaleToRgbBitmap(bmpSource, Points);
 				case ColorModel.Rgb:
 					break;
@@ -47,9 +46,9 @@ namespace SmearTracer.Model
 			{
 				foreach (var point in Points)
 				{
-					var data = point.Filtered.Data;
+					var data = point.Pixels[Consts.Filtered].Data;
 					var newArray = new float[] { ImageHelper.ConvertToGrayScale((byte)data[0], (byte)data[1], (byte)data[2]) };
-					point.SetFilteredPixel(newArray);
+					point.Pixels[Consts.Filtered] = new Pixel(newArray);
 				}
 			}
 		}

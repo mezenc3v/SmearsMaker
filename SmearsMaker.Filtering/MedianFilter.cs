@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SmearTracer.Model;
+using SmearsMaker.Model;
 
-namespace SmearTracer.Filtering
+namespace SmearsMaker.Filtering
 {
 	public class MedianFilter
 	{
@@ -26,7 +26,7 @@ namespace SmearTracer.Filtering
 					var mask = GetMask(units, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
-					units[pos].SetFilteredPixel(median);
+					units[pos].Pixels[Consts.Filtered] = new Pixel(median);
 				}
 			}
 		}
@@ -41,7 +41,7 @@ namespace SmearTracer.Filtering
 					var idx = coordMaskX * _height + coordMaskY;
 					if (idx < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
 					{
-						mask.Add(units[idx].Original);
+						mask.Add(units[idx].Pixels[Consts.Original]);
 					}
 				}
 			}

@@ -64,7 +64,12 @@ namespace SmearsMaker.Wpf
 			_model.SetAlgorithm(ApplicationViewModel.Algorithms.SmearTracer);
 		}
 
-		private void ClipboardCopyMenuItem_Click(object sender, RoutedEventArgs e)
+		private void GradientTracerMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			_model.SetAlgorithm(ApplicationViewModel.Algorithms.GradientTracer);
+		}
+
+	private void ClipboardCopyMenuItem_Click(object sender, RoutedEventArgs e)
 		{
 			if (Image.Source != null)
 			{

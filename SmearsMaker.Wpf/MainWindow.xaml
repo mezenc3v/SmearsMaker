@@ -30,6 +30,7 @@
 			</MenuItem>
 			<MenuItem Header="Algorithm">
 				<MenuItem x:Name="SmearTracer" Header="SmearTracer" Click="SmearTracerMenuItem_Click"></MenuItem>
+				<MenuItem x:Name="GradientTracer" Header="GradientTracer" Click="GradientTracerMenuItem_Click"></MenuItem>
 			</MenuItem>
 		</Menu>
 		<Image Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top" x:Name="Image" Stretch="Uniform" Source="{Binding CurrentImage}"/>

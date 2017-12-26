@@ -4,13 +4,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}</ProjectGuid>
+    <ProjectGuid>{6EA6E6A6-F80D-4995-B2D0-51F405084159}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GradientTracer.Analyzer</RootNamespace>
-    <AssemblyName>GradientTracer.Analyzer</AssemblyName>
+    <RootNamespace>SmearsMaker.Filtering</RootNamespace>
+    <AssemblyName>SmearsMaker.Filtering</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,10 +31,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
-      <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -42,39 +39,16 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ImageModel.cs" />
-    <Compile Include="Tracer.cs" />
+    <Compile Include="MedianFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GradientTracer.FeatureDetection\GradientTracer.FeatureDetection.csproj">
-      <Project>{34bef686-f168-4482-80ab-640baaeb2cf5}</Project>
-      <Name>GradientTracer.FeatureDetection</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmearsMaker.Common\SmearsMaker.Common.csproj">
-      <Project>{9425d82a-b2e0-4718-a7aa-7a8177b87696}</Project>
-      <Name>SmearsMaker.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SmearsMaker.Filtering\SmearsMaker.Filtering.csproj">
-      <Project>{6EA6E6A6-F80D-4995-B2D0-51F405084159}</Project>
-      <Name>SmearsMaker.Filtering</Name>
-    </ProjectReference>
     <ProjectReference Include="..\SmearsMaker.Model\SmearsMaker.Model.csproj">
       <Project>{6aea490a-85f4-48bd-9611-b0b3edf508e9}</Project>
       <Name>SmearsMaker.Model</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="NLog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="NLog.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
