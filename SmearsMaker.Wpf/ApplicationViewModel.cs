@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using GradientTracer.Analyzer;
 using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
@@ -19,7 +20,7 @@ namespace SmearsMaker.Wpf
 {
 	public class ApplicationViewModel : INotifyPropertyChanged
 	{
-		public enum Algorithms { SmearTracer }
+		public enum Algorithms { SmearTracer, GradientTracer }
 
 		private Algorithms _currentAlg;
 
@@ -70,13 +71,24 @@ namespace SmearsMaker.Wpf
 
 		public void SetAlgorithm(Algorithms alg)
 		{
-			if (alg == Algorithms.SmearTracer && _image != null)
+			if (_image != null)
 			{
 				var progressBar = new Progress();
 				progressBar.UpdateProgress += UpdateProgress;
-				_tracer = new Analyzer(_image, progressBar);
-				Settings = _tracer.Settings;
 				_currentAlg = alg;
+				switch (alg)
+				{
+					case Algorithms.SmearTracer:
+						_tracer = new Analyzer(_image, progressBar);
+						break;
+					case Algorithms.GradientTracer:
+						_tracer = new Tracer(_image, progressBar);
+						break;
+					default:
+						_tracer = new Analyzer(_image, progressBar);
+						break;
+				}
+				Settings = _tracer.Settings;
 			}
 		}
 

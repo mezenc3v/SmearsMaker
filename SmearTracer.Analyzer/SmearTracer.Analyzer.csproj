@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}</ProjectGuid>
+    <ProjectGuid>{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GradientTracer.Analyzer</RootNamespace>
-    <AssemblyName>GradientTracer.Analyzer</AssemblyName>
+    <RootNamespace>SmearTracer.Analyzer</RootNamespace>
+    <AssemblyName>SmearTracer.Analyzer</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,6 +30,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="bcParser.NET, Version=5.9.6263.1168, Culture=neutral, PublicKeyToken=e21afe7ca57d14d8, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Users\kochka100\Desktop\bcParserNET_Eval\bcParserNET\Eval\bcParser.NET.dll</HintPath>
+    </Reference>
     <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c, processorArchitecture=MSIL">
       <HintPath>..\packages\NLog.4.4.12\lib\net45\NLog.dll</HintPath>
     </Reference>
@@ -37,6 +41,7 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,22 +51,23 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BsmPair.cs" />
+    <Compile Include="ImageHelper.cs" />
     <Compile Include="ImageModel.cs" />
+    <Compile Include="Smear.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\GradientTracer.FeatureDetection\GradientTracer.FeatureDetection.csproj">
-      <Project>{34bef686-f168-4482-80ab-640baaeb2cf5}</Project>
-      <Name>GradientTracer.FeatureDetection</Name>
+    <ProjectReference Include="..\GradientTracer.Analyzer\GradientTracer.Analyzer.csproj">
+      <Project>{e0e3ebde-f8e7-410f-b9ec-b2c9aba9de46}</Project>
+      <Name>GradientTracer.Analyzer</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmearsMaker.Common\SmearsMaker.Common.csproj">
       <Project>{9425d82a-b2e0-4718-a7aa-7a8177b87696}</Project>
       <Name>SmearsMaker.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmearsMaker.Filtering\SmearsMaker.Filtering.csproj">
-      <Project>{6EA6E6A6-F80D-4995-B2D0-51F405084159}</Project>
+      <Project>{6ea6e6a6-f80d-4995-b2d0-51f405084159}</Project>
       <Name>SmearsMaker.Filtering</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmearsMaker.Model\SmearsMaker.Model.csproj">

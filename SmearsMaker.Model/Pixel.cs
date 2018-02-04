@@ -1,13 +1,25 @@
 ﻿using System;
 using System.Linq;
 
-namespace SmearTracer.Model
+namespace SmearsMaker.Model
 {
 	public class Pixel
 	{
 		public float Sum => _colorData.Sum();
 		public float[] Data => _colorData.Clone() as float[];
 		public int Length => _colorData.Length;
+
+		public float GrayScale
+		{
+			get
+			{
+				{
+					//var grayscale = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
+					var grayscale = (float)(0.299 * _colorData[0] + 0.587 * _colorData[1] + 0.114 * _colorData[2]);
+					return grayscale;
+				};
+			}
+		}
 
 		private readonly float[] _colorData;
 
