@@ -15,7 +15,7 @@ namespace SmearsMaker.Model
 			{
 				{
 					//var grayscale = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
-					var grayscale = (byte)(0.299 * _colorData[0] + 0.587 * _colorData[1] + 0.114 * _colorData[2]);
+					var grayscale = (float)(0.299 * _colorData[0] + 0.587 * _colorData[1] + 0.114 * _colorData[2]);
 					return grayscale;
 				};
 			}

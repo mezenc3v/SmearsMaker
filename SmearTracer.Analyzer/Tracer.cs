@@ -147,11 +147,13 @@ namespace SmearTracer.Analyzer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(obj.Centroid.Pixels[Consts.Original].Data));
+					var color = Helper.GetGandomData(3);
+					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(color.ToArray()));
+					//obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(obj.Centroid.Pixels[Consts.Original].Data));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_imageModel.Image, data, Consts.Original);
+			return ImageHelper.ConvertRgbToRgbBitmap(_imageModel.Image, data, Consts.Filtered);
 		}
 
 		private BitmapSource Clusters()
@@ -232,7 +234,7 @@ namespace SmearTracer.Analyzer
 			}
 
 			var g = Graphics.FromImage(bitmap);
-			g.Clear(Color.White);
+			//g.Clear(Color.White);
 
 			foreach (var smear in _smears.OrderByDescending(s=>s.BrushStroke.Objects.Count))
 			{

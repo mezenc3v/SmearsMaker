@@ -37,9 +37,18 @@ namespace GradientTracer.FeatureDetection
 						tetta += 180;
 					}
 
+					if (gx == 0)
+					{
+						tetta = 0;
+					}
+
 					for (int i = 0; i < gradient.Length - 1; i++)
 					{
 						gradient[i] = tetta;
+						if (Single.IsInfinity(tetta) || Single.IsNaN(tetta))
+						{
+							
+						}
 						curve[i] = norm;
 					}
 					gradient[3] = 255;

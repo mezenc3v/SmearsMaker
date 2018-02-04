@@ -2,16 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Model;
+using SmearTracer.Concatenation;
 using SmearTracer.Segmentation;
 
-namespace SmearTracer.Concatenation
+namespace GradientTracer.Analyzer
 {
 	public class BsmPair
 	{
 		private readonly double _maxDistance;
+		private readonly double _tolerance;
 
-		public BsmPair(double maxDistance)
+		public BsmPair(double maxDistance, float toLerance)
 		{
+			_tolerance = toLerance;
 			_maxDistance = maxDistance;
 		}
 
@@ -33,17 +36,27 @@ namespace SmearTracer.Concatenation
 				{
 					for (int i = 0; i < sequences.Count && sequences.Count > 1; i++)
 					{
-						var index = NearestPart(sequences, sequences[i]);
+						var head = sequences[i].Objects.First();
+						var tail = sequences[i].Objects.Last();
 
-						if (Distance(sequences[i], sequences[index]) < _maxDistance)
+						var trueSequenses = sequences.FindAll(
+							s => ToLerance(s.Objects.First(), head) || ToLerance(s.Objects.First(), tail)
+							     || ToLerance(s.Objects.Last(), head) || ToLerance(s.Objects.Last(), tail));
+						if (trueSequenses.Any())
 						{
-							distanceCheck = true;
-							var combinedSequence = Combine(sequences[i], sequences[index]);
-							var segmentToBeDeleted = sequences[index];
-							sequences.RemoveAt(i);
-							sequences.Remove(segmentToBeDeleted);
-							sequences.Add(combinedSequence);
+							var index = NearestPart(trueSequenses, sequences[i]);
+
+							if (Distance(sequences[i], sequences[index]) < _maxDistance)
+							{
+								distanceCheck = true;
+								var combinedSequence = Combine(sequences[i], sequences[index]);
+								var segmentToBeDeleted = sequences[index];
+								sequences.RemoveAt(i);
+								sequences.Remove(segmentToBeDeleted);
+								sequences.Add(combinedSequence);
+							}
 						}
+						
 					}
 				}
 			} while (distanceCheck);
@@ -254,26 +267,32 @@ namespace SmearTracer.Concatenation
 					if (points.Count > 1)
 					{
 						var list = new List<IObject>();
-						var main = points.OrderBy(p => Distance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
+						var main = points.Last();
 
 						list.Add(main);
 						points.Remove(main);
 
-						var next = points.OrderBy(p => Distance(main.Centroid.Position, p.Centroid.Position)).First();
-
-						if (Distance(next.Centroid.Position, main.Centroid.Position) < _maxDistance)
+						var truePoints = points.FindAll(p => ToLerance(p, main) && Distance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
+						if (truePoints.Any())
 						{
+							var next = FindByGradient(main, truePoints);
+							//var next = truePoints.OrderBy(p => Distance(main.Centroid.Position, p.Centroid.Position)).First();
+
 							list.Add(next);
 							points.Remove(next);
 							brushStrokes.Add(new BrushStroke { Objects = list });
 						}
-						else
+						else if (brushStrokes.Any())
 						{
 							var index = FindNearestSequence(brushStrokes, list.First().Centroid);
 							var newSequence = Combine(brushStrokes[index], list.First());
 
 							brushStrokes.RemoveAt(index);
 							brushStrokes.Add(newSequence);
+						}
+						else
+						{
+							brushStrokes.Add(new BrushStroke { Objects = list });
 						}
 					}
 					else
@@ -295,6 +314,87 @@ namespace SmearTracer.Concatenation
 			}
 
 			return brushStrokes;
+		}
+
+		private bool ToLerance(IObject next, IObject main)
+		{
+			//return Math.Abs(Math.Abs(next.Centroid.Pixels[FeatureDetection.Consts.Gradient].Data[0]) -
+			                //Math.Abs(main.Centroid.Pixels[FeatureDetection.Consts.Gradient].Data[0])) < 30
+			return Math.Abs(Distance(next.Centroid.Pixels[Consts.Original].Data, main.Centroid.Pixels[Consts.Original].Data)) <= _tolerance;
+			//return Math.Abs(next.Centroid.Pixels[Consts.SuperPixelsGrad].Data[0] - main.Centroid.Pixels[Consts.SuperPixelsGrad].Data[0]) <= _tolerance;
+		}
+
+		private static IObject FindByGradient(IObject obj, List<IObject> objs)
+		{		
+			if (objs.Count == 1)
+			{
+				return objs.Single();
+			}
+
+			IEnumerable<IObject> result;
+
+			var grad = obj.Centroid.Pixels[GradientTracer.FeatureDetection.Consts.SuperPixelsGrad].Data[0];
+			if (grad > -22.5 && grad <= 22.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X).OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 22.5 && grad <= 67.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 67.5 && grad <= 112.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.Y > obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 112.5 && grad <= 157.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 157.5 && grad <= 202.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 202.5 && grad <= 247.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else if (grad > 247.5 && grad <= 292.5)
+			{
+				result = objs.FindAll(o => o.Centroid.Position.Y < obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+			else
+			{
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y)
+					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			}
+
+			if (!result.Any())
+			{
+				return objs.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position)).First();
+			}
+
+			return result.First();
+		}
+
+		private static double Distance(float[] first, float[] second)
+		{
+			var dist = first.Select((t, i) => Math.Pow(2, t - second[i])).Sum();
+
+			return Math.Sqrt(dist);
+		}
+
+		private bool ToLerance(BrushStroke first, BrushStroke second)
+		{
+			return ToLerance(first.Objects.First(), second.Objects.First()) ||
+			ToLerance(first.Objects.First(), second.Objects.Last()) ||
+			ToLerance(first.Objects.Last(), second.Objects.Last()) ||
+			ToLerance(first.Objects.Last(), second.Objects.First());
 		}
 
 		private static double Distance(System.Windows.Point first, System.Windows.Point second)

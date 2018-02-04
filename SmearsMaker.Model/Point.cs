@@ -4,7 +4,7 @@ namespace SmearsMaker.Model
 {
 	public class Point
 	{
-		public System.Windows.Point Position { get; }
+		public System.Windows.Point Position { get; set; }
 		public PixelCollection Pixels { get; }
 
 		public Point(double posX, double posY)

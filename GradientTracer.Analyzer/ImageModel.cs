@@ -21,6 +21,9 @@ namespace GradientTracer.Analyzer
 		public ImageSetting FilterRank { get; set; }
 		public ImageSetting HeightPlt { get; set; }
 		public ImageSetting WidthPlt { get; set; }
+		public ImageSetting SizeSuperPixel { get; set; }
+		public ImageSetting HeightSmear { get; set; }
+		public ImageSetting Tolerance { get; set; }
 		#endregion
 
 		public ImageModel(BitmapSource image)
@@ -44,11 +47,30 @@ namespace GradientTracer.Analyzer
 				Name = "Высота plt"
 			};
 
+			SizeSuperPixel = new ImageSetting
+			{
+				Value = (int)(Width * Height / 500),
+				Name = "Размер суперпикселя"
+			};
+			HeightSmear = new ImageSetting
+			{
+				Value = Width * Height / 5000 + 1,
+				Name = "Ширина мазка"
+			};
+			Tolerance = new ImageSetting
+			{
+				Value = 10,
+				Name = "Погрешность в rgb"
+			};
+
 			Settings = new List<ImageSetting>
 			{
 				FilterRank,
 				HeightPlt,
-				WidthPlt
+				WidthPlt,
+				SizeSuperPixel,
+				HeightSmear,
+				Tolerance
 			};
 		}
 

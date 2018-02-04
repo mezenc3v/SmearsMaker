@@ -36,6 +36,7 @@
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -45,6 +46,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BsmPair.cs" />
     <Compile Include="ImageModel.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -65,6 +67,18 @@
     <ProjectReference Include="..\SmearsMaker.Model\SmearsMaker.Model.csproj">
       <Project>{6aea490a-85f4-48bd-9611-b0b3edf508e9}</Project>
       <Name>SmearsMaker.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmearTracer.ClusterAnalysis\SmearTracer.ClusterAnalysis.csproj">
+      <Project>{46a0411f-313b-4e61-9d52-1d7ed83f1db6}</Project>
+      <Name>SmearTracer.ClusterAnalysis</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmearTracer.Concatenation\SmearTracer.Concatenation.csproj">
+      <Project>{a7dee711-0ce6-47eb-a37e-5d42e4f58074}</Project>
+      <Name>SmearTracer.Concatenation</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SmearTracer.Segmentation\SmearTracer.Segmentation.csproj">
+      <Project>{c4319b4e-7456-42d3-be22-5291d4e7a831}</Project>
+      <Name>SmearTracer.Segmentation</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
