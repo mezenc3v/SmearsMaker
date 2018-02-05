@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
-using SmearTracer.Segmentation;
+using SmearsMaker.Common.BaseTypes;
 
 namespace SmearTracer.Concatenation
 {
@@ -15,7 +14,7 @@ namespace SmearTracer.Concatenation
 			_maxDistance = maxDistance;
 		}
 
-		public List<BrushStroke> Execute(List<IObject> objs)
+		public List<BrushStroke> Execute(List<BaseObject> objs)
 		{
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
@@ -204,7 +203,7 @@ namespace SmearTracer.Concatenation
 			return index;
 		}
 
-		private static BrushStroke Combine(BrushStroke first, IObject second)
+		private static BrushStroke Combine(BrushStroke first, BaseObject second)
 		{
 			var newSequence = new BrushStroke();
 
@@ -225,7 +224,7 @@ namespace SmearTracer.Concatenation
 			return newSequence;
 		}
 
-		private System.Windows.Point GetCenter(IReadOnlyCollection<IObject> objs)
+		private System.Windows.Point GetCenter(IReadOnlyCollection<BaseObject> objs)
 		{
 			var x = 0d;
 			var y = 0d;
@@ -237,10 +236,10 @@ namespace SmearTracer.Concatenation
 
 			return new System.Windows.Point(x / objs.Count, y / objs.Count);
 		}
-		private List<BrushStroke> Pairing(IReadOnlyCollection<IObject> objs)
+		private List<BrushStroke> Pairing(IReadOnlyCollection<BaseObject> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<IObject>();
+			var points = new List<BaseObject>();
 			points.AddRange(objs);
 
 			if (objs.Count > 1)
@@ -253,7 +252,7 @@ namespace SmearTracer.Concatenation
 				{
 					if (points.Count > 1)
 					{
-						var list = new List<IObject>();
+						var list = new List<BaseObject>();
 						var main = points.OrderBy(p => Distance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
 
 						list.Add(main);
@@ -283,7 +282,7 @@ namespace SmearTracer.Concatenation
 
 						brushStrokes.RemoveAt(index);
 						brushStrokes.Add(newSequence);
-						points = new List<IObject>();
+						points = new List<BaseObject>();
 					}
 				}
 			}

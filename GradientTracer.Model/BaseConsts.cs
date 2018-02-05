@@ -1,6 +1,8 @@
-﻿namespace GradientTracer.FeatureDetection
+﻿using SmearsMaker.Common;
+
+namespace GradientTracer.Model
 {
-	public static class Consts
+	public class GtConsts : Consts
 	{
 		public static string Gradient = "Gradient";
 		public static string Curves = "Curves";

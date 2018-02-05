@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using SmearsMaker.Model;
 
-namespace SmearTracer.Segmentation.SimpleSegmentsSplitter
+namespace SmearsMaker.Common.BaseTypes
 {
-	public class Segment : IObject
+	public abstract class BaseObject
 	{
 		public Point Centroid { get; set; }
 		public List<Point> Data { get; set; }
@@ -11,10 +10,5 @@ namespace SmearTracer.Segmentation.SimpleSegmentsSplitter
 		public System.Windows.Point MinY { get; set; }
 		public System.Windows.Point MaxX { get; set; }
 		public System.Windows.Point MaxY { get; set; }
-
-		public Segment()
-		{
-			Data = new List<Point>();
-		}
 	}
 }

@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SmearsMaker.Model;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
 
 namespace SmearTracer.ClusterAnalysis.Kmeans
 {

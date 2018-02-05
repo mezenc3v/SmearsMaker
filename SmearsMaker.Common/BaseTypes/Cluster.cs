@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using SmearsMaker.Model;
 
-namespace SmearTracer.ClusterAnalysis.Kmeans
+namespace SmearsMaker.Common.BaseTypes
 {
 	public class Cluster
 	{

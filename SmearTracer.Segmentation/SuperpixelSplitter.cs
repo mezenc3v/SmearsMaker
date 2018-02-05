@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
-using SmearTracer.Segmentation.SimpleSegmentsSplitter;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
 
-namespace SmearTracer.Segmentation.SuperpixelSplitter
+namespace SmearTracer.Segmentation
 {
 	public class SuperpixelSplitter
 	{

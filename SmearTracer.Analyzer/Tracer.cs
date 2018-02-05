@@ -10,15 +10,14 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using NLog;
 using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Common.Helpers;
 using SmearsMaker.Filtering;
-using SmearsMaker.Model;
 using SmearTracer.ClusterAnalysis.Kmeans;
 using SmearTracer.Concatenation;
 using SmearTracer.Segmentation;
-using SmearTracer.Segmentation.SimpleSegmentsSplitter;
-using SmearTracer.Segmentation.SuperpixelSplitter;
 using Color = System.Drawing.Color;
-using Point = SmearsMaker.Model.Point;
+using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearTracer.Analyzer
 {
@@ -26,7 +25,7 @@ namespace SmearTracer.Analyzer
 	{
 		public List<ImageSetting> Settings => _imageModel.Settings;
 
-		private SmearsMaker.Model.ImageModel _data;
+		private SmearsMaker.Common.ImageModel _data;
 		private readonly ImageModel _imageModel;
 		private readonly List<Smear> _smears;
 		private readonly Progress _progress;
@@ -41,7 +40,7 @@ namespace SmearTracer.Analyzer
 
 		public Task Execute()
 		{
-			_data = SmearsMaker.Model.ImageModel.ConvertBitmapToImage(_imageModel.Image, ColorModel.Rgb);
+			_data = SmearsMaker.Common.ImageModel.ConvertBitmapToImage(_imageModel.Image);
 			var filter = new MedianFilter((int)_imageModel.FilterRank.Value, _imageModel.Width, _imageModel.Height);
 
 			//model.ChangeColorModel(ColorModel.GrayScale);
@@ -91,7 +90,7 @@ namespace SmearTracer.Analyzer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList<IObject>());
+							var smears = bsm.Execute(superPixels.ToList<BaseObject>());
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{

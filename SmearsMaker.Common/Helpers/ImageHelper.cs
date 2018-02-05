@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.Imaging;
+using SmearsMaker.Common.BaseTypes;
 
-namespace SmearsMaker.Model
+namespace SmearsMaker.Common.Helpers
 {
 	public class ImageHelper
 	{
@@ -79,12 +80,6 @@ namespace SmearsMaker.Model
 
 			foreach (var pixel in points)
 			{
-				if (pixel == null)
-				{
-					//hack
-					continue;
-				}
-
 				var indexPixel = (int)(pixel.Position.Y * stride + DataFormatSize * pixel.Position.X);
 				var dataArray = pixel.Pixels[name].Data;
 				for (int i = 0; i < dataArray.Length; i++)
@@ -92,8 +87,7 @@ namespace SmearsMaker.Model
 					data[indexPixel + i] = (byte)dataArray[i];
 				}
 			}
-			var image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX,
-				source.DpiY, source.Format, source.Palette, data, stride);
+			var image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX, source.DpiY, source.Format, source.Palette, data, stride);
 
 			return image;
 		}

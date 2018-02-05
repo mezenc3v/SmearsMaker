@@ -41,15 +41,14 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrushStroke.cs" />
     <Compile Include="Bsm.cs" />
     <Compile Include="BsmPair.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmearsMaker.Model\SmearsMaker.Model.csproj">
-      <Project>{6aea490a-85f4-48bd-9611-b0b3edf508e9}</Project>
-      <Name>SmearsMaker.Model</Name>
+    <ProjectReference Include="..\SmearsMaker.Common\SmearsMaker.Common.csproj">
+      <Project>{9425d82a-b2e0-4718-a7aa-7a8177b87696}</Project>
+      <Name>SmearsMaker.Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\SmearTracer.Segmentation\SmearTracer.Segmentation.csproj">
       <Project>{c4319b4e-7456-42d3-be22-5291d4e7a831}</Project>

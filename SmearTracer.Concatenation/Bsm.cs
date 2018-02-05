@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearTracer.Segmentation;
+using SmearsMaker.Common.BaseTypes;
 using Point = System.Windows.Point;
 
 namespace SmearTracer.Concatenation
@@ -16,18 +16,18 @@ namespace SmearTracer.Concatenation
 		    _maxLemgth = maxLemgth;
 	    }
 
-	    public List<BrushStroke> Execute(List<IObject> objs)
+	    public List<BrushStroke> Execute(List<BaseObject> objs)
 	    {
 		    FindPoints(objs);
 		    if (objs.Count > 0)
 		    {
 			    var size = Math.Sqrt(objs.First().Data.Count);
 			    var brushStrokes = new List<BrushStroke>();
-			    var points = new List<IObject>();
+			    var points = new List<BaseObject>();
 				points.AddRange(objs);
 
 			    double length = 0;
-			    var list = new List<IObject>();
+			    var list = new List<BaseObject>();
 
 			    while (points.Count > 0)
 			    {
@@ -61,12 +61,12 @@ namespace SmearTracer.Concatenation
 					    if (length <= _maxLemgth)
 					    {
 						    length = 0;
-						    list = new List<IObject>();
+						    list = new List<BaseObject>();
 					    }
 					    else
 					    {
 						    length = 0;
-						    list = new List<IObject>
+						    list = new List<BaseObject>
 						    {
 							    brushStrokes.Last().Objects.Last()
 						    };
@@ -84,7 +84,7 @@ namespace SmearTracer.Concatenation
 		    return new List<BrushStroke>();
 	    }
 
-	    private void FindPoints(IEnumerable<IObject> objs)
+	    private void FindPoints(IEnumerable<BaseObject> objs)
 	    {
 		    var finish = objs.First().MinX;
 		    double maxDistance = 0;

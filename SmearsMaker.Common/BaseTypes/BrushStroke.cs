@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using SmearTracer.Segmentation;
 
-namespace SmearTracer.Concatenation
+namespace SmearsMaker.Common.BaseTypes
 {
 	public class BrushStroke
 	{
-		public List<IObject> Objects;
+		public List<BaseObject> Objects;
 		public int Width;
 
 		public BrushStroke()
 		{
-			Objects = new List<IObject>();
+			Objects = new List<BaseObject>();
 		}
 
 		public double GetLength()

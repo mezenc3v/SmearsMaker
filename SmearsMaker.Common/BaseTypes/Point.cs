@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace SmearsMaker.Model
+﻿namespace SmearsMaker.Common.BaseTypes
 {
 	public class Point
 	{

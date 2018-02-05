@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.Filtering
 {
@@ -30,7 +31,7 @@ namespace SmearsMaker.Filtering
 				}
 			}
 		}
-		private List<Pixel> GetMask(List<Point> units, int x, int y)
+		private List<Pixel> GetMask(IList<Point> units, int x, int y)
 		{
 			var mask = new List<Pixel>();
 

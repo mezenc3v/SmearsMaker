@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-namespace SmearsMaker.Model
+namespace SmearsMaker.Common.BaseTypes
 {
 	public class PixelCollection : IEnumerable
 	{

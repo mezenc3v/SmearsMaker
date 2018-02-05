@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
-using SmearTracer.Concatenation;
-using SmearTracer.Segmentation;
+using GradientTracer.Model;
+using SmearsMaker.Common.BaseTypes;
 
 namespace GradientTracer.Analyzer
 {
@@ -18,7 +17,7 @@ namespace GradientTracer.Analyzer
 			_maxDistance = maxDistance;
 		}
 
-		public List<BrushStroke> Execute(List<IObject> objs)
+		public List<BrushStroke> Execute(List<BaseObject> objs)
 		{
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
@@ -217,7 +216,7 @@ namespace GradientTracer.Analyzer
 			return index;
 		}
 
-		private static BrushStroke Combine(BrushStroke first, IObject second)
+		private static BrushStroke Combine(BrushStroke first, BaseObject second)
 		{
 			var newSequence = new BrushStroke();
 
@@ -238,35 +237,38 @@ namespace GradientTracer.Analyzer
 			return newSequence;
 		}
 
-		private System.Windows.Point GetCenter(IReadOnlyCollection<IObject> objs)
+		private static System.Windows.Point GetCenter(IReadOnlyCollection<BaseObject> objs)
 		{
-			var x = 0d;
-			var y = 0d;
+			var center = new System.Windows.Point();
+	
 			foreach (var obj in objs)
 			{
-				x += obj.Centroid.Position.X;
-				y += obj.Centroid.Position.Y;
+				center.X += obj.Centroid.Position.X;
+				center.Y += obj.Centroid.Position.Y;
 			}
 
-			return new System.Windows.Point(x / objs.Count, y / objs.Count);
+			center.X /= objs.Count;
+			center.Y /= objs.Count;
+
+			return center;
 		}
-		private List<BrushStroke> Pairing(IReadOnlyCollection<IObject> objs)
+		private List<BrushStroke> Pairing(IReadOnlyCollection<BaseObject> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<IObject>();
+			var points = new List<BaseObject>();
 			points.AddRange(objs);
 
 			if (objs.Count > 1)
 			{
-				var center = GetCenter(objs);
+				//var center = GetCenter(objs);
 
-				var startPoint = objs.OrderBy(p => Distance(center, p.Centroid.Position)).First();
+				//var startPoint = objs.OrderBy(p => Distance(center, p.Centroid.Position)).First();
 
 				while (points.Count > 0)
 				{
 					if (points.Count > 1)
 					{
-						var list = new List<IObject>();
+						var list = new List<BaseObject>();
 						var main = points.Last();
 
 						list.Add(main);
@@ -302,7 +304,7 @@ namespace GradientTracer.Analyzer
 
 						brushStrokes.RemoveAt(index);
 						brushStrokes.Add(newSequence);
-						points = new List<IObject>();
+						points = new List<BaseObject>();
 					}
 				}
 			}
@@ -316,24 +318,24 @@ namespace GradientTracer.Analyzer
 			return brushStrokes;
 		}
 
-		private bool ToLerance(IObject next, IObject main)
+		private bool ToLerance(BaseObject next, BaseObject main)
 		{
-			//return Math.Abs(Math.Abs(next.Centroid.Pixels[FeatureDetection.Consts.Gradient].Data[0]) -
-			                //Math.Abs(main.Centroid.Pixels[FeatureDetection.Consts.Gradient].Data[0])) < 30
-			return Math.Abs(Distance(next.Centroid.Pixels[Consts.Original].Data, main.Centroid.Pixels[Consts.Original].Data)) <= _tolerance;
-			//return Math.Abs(next.Centroid.Pixels[Consts.SuperPixelsGrad].Data[0] - main.Centroid.Pixels[Consts.SuperPixelsGrad].Data[0]) <= _tolerance;
+			//return Math.Abs(Math.Abs(next.Centroid.Pixels[FeatureDetection.BaseConsts.Gradient].Data[0]) -
+			                //Math.Abs(main.Centroid.Pixels[FeatureDetection.BaseConsts.Gradient].Data[0])) < 30
+			return Math.Abs(Distance(next.Centroid.Pixels[GtConsts.Original].Data, main.Centroid.Pixels[GtConsts.Original].Data)) <= _tolerance;
+			//return Math.Abs(next.Centroid.Pixels[BaseConsts.SuperPixelsGrad].Data[0] - main.Centroid.Pixels[BaseConsts.SuperPixelsGrad].Data[0]) <= _tolerance;
 		}
 
-		private static IObject FindByGradient(IObject obj, List<IObject> objs)
+		private static BaseObject FindByGradient(BaseObject obj, List<BaseObject> objs)
 		{		
 			if (objs.Count == 1)
 			{
 				return objs.Single();
 			}
 
-			IEnumerable<IObject> result;
+			IEnumerable<BaseObject> result;
 
-			var grad = obj.Centroid.Pixels[GradientTracer.FeatureDetection.Consts.SuperPixelsGrad].Data[0];
+			var grad = obj.Centroid.Pixels[GtConsts.SuperPixelsGrad].Data[0];
 			if (grad > -22.5 && grad <= 22.5)
 			{
 				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X).OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));

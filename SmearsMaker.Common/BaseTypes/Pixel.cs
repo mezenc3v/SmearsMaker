@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq;
 
-namespace SmearsMaker.Model
+namespace SmearsMaker.Common.BaseTypes
 {
 	public class Pixel
 	{
-		public float Sum => _colorData.Sum();
-		public float[] Data => _colorData.Clone() as float[];
-		public int Length => _colorData.Length;
+		public float Sum => Data.Sum();
+		public float[] Data { get; }
+
+		public int Length => Data.Length;
 
 		public float GrayScale
 		{
@@ -15,17 +16,15 @@ namespace SmearsMaker.Model
 			{
 				{
 					//var grayscale = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
-					var grayscale = (float)(0.299 * _colorData[0] + 0.587 * _colorData[1] + 0.114 * _colorData[2]);
+					var grayscale = (float)(0.299 * Data[0] + 0.587 * Data[1] + 0.114 * Data[2]);
 					return grayscale;
 				};
 			}
 		}
 
-		private readonly float[] _colorData;
-
 		public Pixel(float[] data)
 		{
-			_colorData = (float[])data?.Clone() ?? throw new ArgumentNullException(nameof(data));
+			Data = (float[])data?.Clone() ?? throw new ArgumentNullException(nameof(data));
 		}
 
 		public Pixel(Pixel pixel)
@@ -34,8 +33,8 @@ namespace SmearsMaker.Model
 			{
 				throw new ArgumentNullException(nameof(pixel));
 			}
-			var data = pixel._colorData;
-			_colorData = (float[])data?.Clone();
+			var data = pixel.Data;
+			Data = (float[])data?.Clone();
 		}
 
 		public double Distance(Pixel pixel)
@@ -45,9 +44,9 @@ namespace SmearsMaker.Model
 			//return _colorData.Select((t, i) => Distance(t, pixel._colorData[i])).Sum();
 
 			var dist = 0d;
-			for (int i = 0; i < _colorData.Length; i++)
+			for (int i = 0; i < Data.Length; i++)
 			{
-				dist += Distance(_colorData[i], pixel._colorData[i]);
+				dist += Distance(Data[i], pixel.Data[i]);
 			}
 
 			return dist;

@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.Model;
+using GradientTracer.Model;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
+
 
 namespace GradientTracer.FeatureDetection
 {
@@ -19,7 +22,7 @@ namespace GradientTracer.FeatureDetection
 		{
 			var result = new List<Point>();
 			var units = model.Points;
-			var arrLength = model.Points.First().Pixels[SmearsMaker.Model.Consts.Original].Length;
+			var arrLength = model.Points.First().Pixels[GtConsts.Original].Length;
 			for (int coordX = 0; coordX < _width; coordX++)
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
@@ -45,18 +48,14 @@ namespace GradientTracer.FeatureDetection
 					for (int i = 0; i < gradient.Length - 1; i++)
 					{
 						gradient[i] = tetta;
-						if (Single.IsInfinity(tetta) || Single.IsNaN(tetta))
-						{
-							
-						}
 						curve[i] = norm;
 					}
 					gradient[3] = 255;
 					curve[3] = 255;
 
 					var p = new Point(units[pos]);
-					p.Pixels[Consts.Gradient] = new Pixel(gradient);
-					p.Pixels[Consts.Curves] = new Pixel(curve);
+					p.Pixels[GtConsts.Gradient] = new Pixel(gradient);
+					p.Pixels[GtConsts.Curves] = new Pixel(curve);
 					result.Add(p);
 				}
 			}
@@ -64,10 +63,10 @@ namespace GradientTracer.FeatureDetection
 			return result;
 		}
 
-		private List<Pixel> GetMask(List<Point> units, int x, int y)
+		private List<Pixel> GetMask(IList<Point> units, int x, int y)
 		{
 			var mask = new List<Pixel>();
-			var size = units.First().Pixels[SmearsMaker.Model.Consts.Original].Length;
+			var size = units.First().Pixels[Consts.Original].Length;
 
 			for (int coordMaskX = x - 1; coordMaskX <= x + 1; coordMaskX++)
 			{
@@ -76,7 +75,7 @@ namespace GradientTracer.FeatureDetection
 					var idx = coordMaskX * _height + coordMaskY;
 					if (idx < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
 					{
-						mask.Add(units[idx].Pixels[SmearsMaker.Model.Consts.Filtered]);
+						mask.Add(units[idx].Pixels[Consts.Filtered]);
 					}
 					else
 					{

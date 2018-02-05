@@ -1,6 +1,6 @@
-﻿namespace SmearsMaker.Model
+﻿namespace SmearsMaker.Common
 {
-	public static class Consts
+	public class Consts
 	{
 		public static string Original = "Original";
 		public static string Filtered = "Filtered";
