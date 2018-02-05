@@ -19,9 +19,9 @@ using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace GradientTracer.Analyzer
 {
-	public class Tracer : ITracer
+	public class Tracer : TracerBase
 	{
-		public List<ImageSetting> Settings => _model.Settings;
+		public override List<ImageSetting> Settings => _model.Settings;
 
 		private readonly ImageModel _model;
 		private List<Point> _sobelPoints;
@@ -38,7 +38,7 @@ namespace GradientTracer.Analyzer
 			_model = new ImageModel(image);
 		}
 
-		public Task Execute()
+		public override Task Execute()
 		{
 			_data = SmearsMaker.Common.ImageModel.ConvertBitmapToImage(_model.Image);
 			var filter = new MedianFilter((int)_model.FilterRank.Value, _model.Width, _model.Height);
@@ -107,7 +107,7 @@ namespace GradientTracer.Analyzer
 			});
 		}
 
-		public List<ImageViewModel> Views => new List<ImageViewModel>
+		public override List<ImageViewModel> Views => new List<ImageViewModel>
 		{
 			new ImageViewModel(_model.Image, "Оригинал"),
 			new ImageViewModel(Antialiasing(), "Размытое изображение"),
@@ -117,7 +117,7 @@ namespace GradientTracer.Analyzer
 			new ImageViewModel(SuperPixelsGrad(), "Суперпиксели-градиенты"),
 			new ImageViewModel(Smears(), "Мазки"),
 		};
-		public static List<float> GetGandomData(uint length)
+		private static List<float> GetGandomData(uint length)
 		{
 			var c = new RNGCryptoServiceProvider();
 			var randomNumber = new byte[length];
@@ -228,7 +228,7 @@ namespace GradientTracer.Analyzer
 			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _sobelPoints, GtConsts.Curves);
 		}
 
-		public string GetPlt()
+		public override string GetPlt()
 		{
 			throw new NotImplementedException();
 		}

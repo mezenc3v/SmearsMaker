@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Imaging;
-using NLog;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Helpers;
@@ -21,15 +20,11 @@ using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearTracer.Analyzer
 {
-	public class Analyzer : ITracer
+	public class Analyzer : TracerBase
 	{
-		public List<ImageSetting> Settings => _imageModel.Settings;
+		public override List<ImageSetting> Settings => _imageModel.Settings;
 
-		private SmearsMaker.Common.ImageModel _data;
 		private readonly ImageModel _imageModel;
-		private readonly List<Smear> _smears;
-		private readonly Progress _progress;
-		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
 		public Analyzer(BitmapSource image, Progress progress)
 		{
@@ -38,7 +33,7 @@ namespace SmearTracer.Analyzer
 			_smears = new List<Smear>();
 		}
 
-		public Task Execute()
+		public override Task Execute()
 		{
 			_data = SmearsMaker.Common.ImageModel.ConvertBitmapToImage(_imageModel.Image);
 			var filter = new MedianFilter((int)_imageModel.FilterRank.Value, _imageModel.Width, _imageModel.Height);
@@ -127,7 +122,7 @@ namespace SmearTracer.Analyzer
 			});
 		}
 
-		public List<ImageViewModel> Views => new List<ImageViewModel>
+		public override List<ImageViewModel> Views => new List<ImageViewModel>
 			{
 				new ImageViewModel(_imageModel.Image, "Оригинал"),
 				new ImageViewModel(SuperPixels(), "Суперпиксели"),
@@ -270,7 +265,7 @@ namespace SmearTracer.Analyzer
 			return bmp;
 		}
 
-		public string GetPlt()
+		public override string GetPlt()
 		{
 			var height = _imageModel.HeightPlt;
 
