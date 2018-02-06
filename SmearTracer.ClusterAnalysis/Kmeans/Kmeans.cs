@@ -8,15 +8,14 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 {
 	public abstract class Kmeans
 	{
-		protected readonly ImageModel Model;
-		protected readonly List<Cluster> Clusters;
 		protected readonly List<Point> Points;
+		protected readonly List<Cluster> Clusters;
 		private readonly double _precision;
 		private readonly int _maxIteration;
 
-		protected Kmeans(int clustersCount, double precision, ImageModel model, int maxIteration)
+		protected Kmeans(int clustersCount, double precision, List<Point> points, int maxIteration)
 		{
-			Model = model;
+			Points = points;
 			Clusters = new List<Cluster>();
 			for (int i = 0; i < clustersCount; i++)
 			{
@@ -24,7 +23,6 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 			}
 			_precision = precision;
 			_maxIteration = maxIteration;
-			Points = model.Points;
 		}
 		public List<Cluster> Clustering()
 		{

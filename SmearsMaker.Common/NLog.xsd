@@ -114,7 +114,7 @@
   </xs:complexType>
   <xs:complexType name="NLogLoggerRule">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element name="filters" type="NLogComputes" />
+      <xs:element name="filters" type="NLogFilters" />
     </xs:choice>
     <xs:attribute name="name" use="optional">
       <xs:annotation>
@@ -157,7 +157,7 @@
       </xs:annotation>
     </xs:attribute>
   </xs:complexType>
-  <xs:complexType name="NLogComputes">
+  <xs:complexType name="NLogFilters">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="when" type="when" />
       <xs:element name="whenContains" type="whenContains" />
@@ -253,7 +253,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="Compute" abstract="true"></xs:complexType>
+  <xs:complexType name="Filter" abstract="true"></xs:complexType>
   <xs:complexType name="TimeSource" abstract="true"></xs:complexType>
   <xs:simpleType name="SimpleLayoutAttribute">
     <xs:restriction base="xs:string">
@@ -1402,7 +1402,7 @@
       <xs:enumeration value="PosixSemantics" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:complexType name="ComputeingWrapper">
+  <xs:complexType name="FilteringWrapper">
     <xs:complexContent>
       <xs:extension base="WrapperTargetBase">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -2320,13 +2320,13 @@
       <xs:enumeration value="CounterDelta64" />
     </xs:restriction>
   </xs:simpleType>
-  <xs:complexType name="PostComputeingWrapper">
+  <xs:complexType name="PostFilteringWrapper">
     <xs:complexContent>
       <xs:extension base="WrapperTargetBase">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element name="name" minOccurs="0" maxOccurs="1" type="xs:string" />
-          <xs:element name="defaultCompute" minOccurs="0" maxOccurs="1" type="Condition" />
-          <xs:element name="when" minOccurs="0" maxOccurs="unbounded" type="NLog.Targets.Wrappers.ComputeingRule" />
+          <xs:element name="defaultFilter" minOccurs="0" maxOccurs="1" type="Condition" />
+          <xs:element name="when" minOccurs="0" maxOccurs="unbounded" type="NLog.Targets.Wrappers.FilteringRule" />
           <xs:element name="optimizeBufferReuse" minOccurs="0" maxOccurs="1" type="xs:boolean" />
         </xs:choice>
         <xs:attribute name="name" type="xs:string">
@@ -2334,7 +2334,7 @@
             <xs:documentation>Name of the target.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="defaultCompute" type="Condition">
+        <xs:attribute name="defaultFilter" type="Condition">
           <xs:annotation>
             <xs:documentation>Default filter to be applied when no specific rule matches.</xs:documentation>
           </xs:annotation>
@@ -2347,7 +2347,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:complexType name="NLog.Targets.Wrappers.ComputeingRule">
+  <xs:complexType name="NLog.Targets.Wrappers.FilteringRule">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element name="exists" minOccurs="0" maxOccurs="1" type="Condition" />
       <xs:element name="filter" minOccurs="0" maxOccurs="1" type="Condition" />
@@ -2716,7 +2716,7 @@
           <xs:element name="excludeProperties" minOccurs="0" maxOccurs="1" type="xs:string" />
           <xs:element name="includeAllProperties" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="includeMdc" minOccurs="0" maxOccurs="1" type="xs:boolean" />
-          <xs:element name="renderEmptyBaseObject" minOccurs="0" maxOccurs="1" type="xs:boolean" />
+          <xs:element name="renderEmptyObject" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="suppressSpaces" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="includeMdlc" minOccurs="0" maxOccurs="1" type="xs:boolean" />
         </xs:choice>
@@ -2735,7 +2735,7 @@
             <xs:documentation>Indicates whether to include contents of the  dictionary.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="renderEmptyBaseObject" type="xs:boolean">
+        <xs:attribute name="renderEmptyObject" type="xs:boolean">
           <xs:annotation>
             <xs:documentation>Option to render the empty object value {}</xs:documentation>
           </xs:annotation>
@@ -2849,12 +2849,12 @@
   </xs:complexType>
   <xs:complexType name="when">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="condition" minOccurs="0" maxOccurs="1" type="Condition" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -2867,7 +2867,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-  <xs:simpleType name="ComputeResult">
+  <xs:simpleType name="FilterResult">
     <xs:restriction base="xs:string">
       <xs:enumeration value="Neutral" />
       <xs:enumeration value="Log" />
@@ -2878,14 +2878,14 @@
   </xs:simpleType>
   <xs:complexType name="whenContains">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="ignoreCase" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="layout" minOccurs="0" maxOccurs="1" type="Layout" />
           <xs:element name="substring" minOccurs="0" maxOccurs="1" type="xs:string" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -2910,14 +2910,14 @@
   </xs:complexType>
   <xs:complexType name="whenEqual">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="compareTo" minOccurs="0" maxOccurs="1" type="xs:string" />
           <xs:element name="ignoreCase" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="layout" minOccurs="0" maxOccurs="1" type="Layout" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -2942,14 +2942,14 @@
   </xs:complexType>
   <xs:complexType name="whenNotContains">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="ignoreCase" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="layout" minOccurs="0" maxOccurs="1" type="Layout" />
           <xs:element name="substring" minOccurs="0" maxOccurs="1" type="xs:string" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -2974,14 +2974,14 @@
   </xs:complexType>
   <xs:complexType name="whenNotEqual">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="compareTo" minOccurs="0" maxOccurs="1" type="xs:string" />
           <xs:element name="ignoreCase" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="layout" minOccurs="0" maxOccurs="1" type="Layout" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -3006,20 +3006,20 @@
   </xs:complexType>
   <xs:complexType name="whenRepeated">
     <xs:complexContent>
-      <xs:extension base="Compute">
+      <xs:extension base="Filter">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="action" minOccurs="0" maxOccurs="1" type="ComputeResult" />
+          <xs:element name="action" minOccurs="0" maxOccurs="1" type="FilterResult" />
           <xs:element name="layout" minOccurs="0" maxOccurs="1" type="Layout" />
-          <xs:element name="defaultComputeCacheSize" minOccurs="0" maxOccurs="1" type="xs:integer" />
+          <xs:element name="defaultFilterCacheSize" minOccurs="0" maxOccurs="1" type="xs:integer" />
           <xs:element name="filterCountMessageAppendFormat" minOccurs="0" maxOccurs="1" type="xs:string" />
           <xs:element name="filterCountPropertyName" minOccurs="0" maxOccurs="1" type="xs:string" />
-          <xs:element name="maxComputeCacheSize" minOccurs="0" maxOccurs="1" type="xs:integer" />
+          <xs:element name="maxFilterCacheSize" minOccurs="0" maxOccurs="1" type="xs:integer" />
           <xs:element name="maxLength" minOccurs="0" maxOccurs="1" type="xs:integer" />
           <xs:element name="optimizeBufferDefaultLength" minOccurs="0" maxOccurs="1" type="xs:integer" />
           <xs:element name="optimizeBufferReuse" minOccurs="0" maxOccurs="1" type="xs:boolean" />
           <xs:element name="timeoutSeconds" minOccurs="0" maxOccurs="1" type="xs:integer" />
         </xs:choice>
-        <xs:attribute name="action" type="ComputeResult">
+        <xs:attribute name="action" type="FilterResult">
           <xs:annotation>
             <xs:documentation>Action to be taken when filter matches.</xs:documentation>
           </xs:annotation>
@@ -3029,22 +3029,22 @@
             <xs:documentation>Layout to be used to filter log messages.</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="defaultComputeCacheSize" type="xs:integer">
+        <xs:attribute name="defaultFilterCacheSize" type="xs:integer">
           <xs:annotation>
             <xs:documentation>Default number of unique filter values to expect, will automatically increase if needed</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="filterCountMessageAppendFormat" type="xs:string">
           <xs:annotation>
-            <xs:documentation>Append ComputeCount to the  when an event is no longer filtered</xs:documentation>
+            <xs:documentation>Append FilterCount to the  when an event is no longer filtered</xs:documentation>
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="filterCountPropertyName" type="xs:string">
           <xs:annotation>
-            <xs:documentation>Insert ComputeCount value into  when an event is no longer filtered</xs:documentation>
+            <xs:documentation>Insert FilterCount value into  when an event is no longer filtered</xs:documentation>
           </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="maxComputeCacheSize" type="xs:integer">
+        <xs:attribute name="maxFilterCacheSize" type="xs:integer">
           <xs:annotation>
             <xs:documentation>Max number of unique filter values to expect simultaneously</xs:documentation>
           </xs:annotation>

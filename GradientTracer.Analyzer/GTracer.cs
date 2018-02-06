@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NLog;
 using SmearsMaker.Common;
 using SmearsMaker.Filtering;
 using System.Diagnostics;
@@ -15,32 +14,27 @@ using GradientTracer.FeatureDetection;
 using GradientTracer.Model;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Helpers;
+using SmearsMaker.Common.Image;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace GradientTracer.Analyzer
 {
-	public class Tracer : TracerBase
+	public class GTracer : TracerBase
 	{
 		public override List<ImageSetting> Settings => _model.Settings;
 
-		private readonly ImageModel _model;
+		private readonly GTImageModel _model;
 		private List<Point> _sobelPoints;
-		private SmearsMaker.Common.ImageModel _data;
-		private readonly Progress _progress;
-		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
-
 		private List<SuperPixel> _superPixels;
-		private List<BrushStroke> _smears;
+		private List<BrushStroke> _strokes;
 
-		public Tracer(BitmapSource image, Progress progress)
+		public GTracer(BitmapSource image) : base(image)
 		{
-			_progress = progress ?? throw new NullReferenceException(nameof(progress));
-			_model = new ImageModel(image);
+			_model = new GTImageModel(image);
 		}
 
 		public override Task Execute()
 		{
-			_data = SmearsMaker.Common.ImageModel.ConvertBitmapToImage(_model.Image);
 			var filter = new MedianFilter((int)_model.FilterRank.Value, _model.Width, _model.Height);
 			var sobel = new Sobel(_model.Width, _model.Height);
 			var bsm = new BsmPair(Math.Sqrt(_model.SizeSuperPixel.Value) + 1, (float)_model.Tolerance.Value);
@@ -58,13 +52,13 @@ namespace GradientTracer.Analyzer
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
-				_progress.NewProgress("Фильтрация");
+				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				filter.Filter(_data);
+				filter.Filter(Points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
-				_progress.NewProgress("Вычисление градиентов");
-				_sobelPoints = sobel.Compute(_data);
+				Progress.NewProgress("Вычисление градиентов");
+				_sobelPoints = sobel.Compute(Points);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 
 				segment.Data = _sobelPoints;
@@ -98,11 +92,11 @@ namespace GradientTracer.Analyzer
 					superPixel.Centroid.Pixels.AddPixel(GtConsts.Gradient, new Pixel(averGrad));
 					superPixel.Centroid.Pixels[GtConsts.Original] = new Pixel(averData);
 				}
-				_progress.NewProgress("Создание мазков");
-				_smears = bsm.Execute(_superPixels.ToList<BaseObject>());
+				Progress.NewProgress("Создание мазков");
+				_strokes = bsm.Execute(_superPixels.ToList<BaseObject>());
 
 				Log.Trace("Обработка изображения завершена");
-				_progress.NewProgress("Готово");
+				Progress.NewProgress("Готово");
 				//Log.Trace($"Сформировано {clusters.Count} кластеров, {segmentsCount} сегментов, {smearsCount} мазков");
 			});
 		}
@@ -115,7 +109,7 @@ namespace GradientTracer.Analyzer
 			new ImageViewModel(SobelCurves(), "Границы"),
 			new ImageViewModel(SuperPixels(), "Суперпиксели"),
 			new ImageViewModel(SuperPixelsGrad(), "Суперпиксели-градиенты"),
-			new ImageViewModel(Smears(), "Мазки"),
+			new ImageViewModel(SmearsMap(), "Мазки"),
 		};
 		private static List<float> GetGandomData(uint length)
 		{
@@ -128,7 +122,7 @@ namespace GradientTracer.Analyzer
 
 		private BitmapSource SuperPixels()
 		{
-			_progress.NewProgress("Вычисление суперпикселей");
+			Progress.NewProgress("Вычисление суперпикселей");
 			var data = new List<Point>();
 			foreach (var superPixel in _superPixels)
 			{
@@ -144,7 +138,7 @@ namespace GradientTracer.Analyzer
 
 		private BitmapSource SuperPixelsGrad()
 		{
-			_progress.NewProgress("Вычисление градиентов суперпикселей");
+			Progress.NewProgress("Вычисление градиентов суперпикселей");
 			var data = new List<Point>();
 			foreach (var superPixel in _superPixels)
 			{
@@ -152,10 +146,10 @@ namespace GradientTracer.Analyzer
 			}
 			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, GtConsts.Gradient);
 		}
-		private BitmapSource Smears()
+		private BitmapSource SmearsMap()
 		{
-			_progress.NewProgress("Вычисление мазков");
-			_progress.NewProgress("Вычисление мазков (линии)");
+			Progress.NewProgress("Вычисление мазков");
+			Progress.NewProgress("Вычисление мазков (линии)");
 			Bitmap bitmap;
 			using (var outStream = new MemoryStream())
 			{
@@ -168,7 +162,7 @@ namespace GradientTracer.Analyzer
 			var g = Graphics.FromImage(bitmap);
 			g.Clear(Color.White);
 
-			foreach (var smear in _smears.OrderByDescending(s => s.Objects.Count))
+			foreach (var smear in _strokes.OrderByDescending(s => s.Objects.Count))
 			{
 				var center = smear.Objects.OrderBy(p => p.Centroid.Pixels[GtConsts.Original].Sum).ToList()[smear.Objects.Count / 2].Centroid;
 
@@ -212,19 +206,19 @@ namespace GradientTracer.Analyzer
 
 		private BitmapSource Antialiasing()
 		{
-			_progress.NewProgress("Вычисление размытия");
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _data.Points.ToList(), GtConsts.Filtered);
+			Progress.NewProgress("Вычисление размытия");
+			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, Points.ToList(), GtConsts.Filtered);
 		}
 
 		private BitmapSource SobelGradients()
 		{
-			_progress.NewProgress("Вычисление градиентов");
+			Progress.NewProgress("Вычисление градиентов");
 			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _sobelPoints, GtConsts.Gradient);
 		}
 
 		private BitmapSource SobelCurves()
 		{
-			_progress.NewProgress("Вычисление границ");
+			Progress.NewProgress("Вычисление границ");
 			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _sobelPoints, GtConsts.Curves);
 		}
 

@@ -13,6 +13,7 @@ using GradientTracer.Analyzer;
 using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
+using SmearsMaker.Common.Image;
 using SmearsMaker.HPGL;
 using SmearTracer.Analyzer;
 
@@ -73,21 +74,20 @@ namespace SmearsMaker.Wpf
 		{
 			if (_image != null)
 			{
-				var progressBar = new Progress();
-				progressBar.UpdateProgress += UpdateProgress;
 				_currentAlg = alg;
 				switch (alg)
 				{
 					case Algorithms.SmearTracer:
-						_tracer = new Analyzer(_image, progressBar);
+						_tracer = new STracer(_image);
 						break;
 					case Algorithms.GradientTracer:
-						_tracer = new Tracer(_image, progressBar);
+						_tracer = new GTracer(_image);
 						break;
 					default:
-						_tracer = new Analyzer(_image, progressBar);
+						_tracer = new STracer(_image);
 						break;
 				}
+				_tracer.Progress.UpdateProgress += UpdateProgress;
 				Settings = _tracer.Settings;
 			}
 		}

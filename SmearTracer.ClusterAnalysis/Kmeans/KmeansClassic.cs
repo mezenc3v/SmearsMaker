@@ -7,7 +7,7 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 {
 	public sealed class KmeansClassic : Kmeans
 	{
-		public KmeansClassic(int clustersCount, double precision, ImageModel model, int maxIteration) : base(clustersCount, precision, model, maxIteration)
+		public KmeansClassic(int clustersCount, double precision, List<Point> points, int maxIteration) : base(clustersCount, precision, points, maxIteration)
 		{
 		}
 

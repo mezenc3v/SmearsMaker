@@ -1,41 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
-using SmearsMaker.Common;
+using SmearsMaker.Common.Image;
 
 namespace SmearTracer.Analyzer
 {
-	public class ImageModel : INotifyPropertyChanged
+	public class STImageModel : ImageModel
 	{
 		#region properties
-		public event PropertyChangedEventHandler PropertyChanged;
-		public BitmapSource Image { get; }
-
-		public List<ImageSetting> Settings { get; }
-
-		public int Width => Image.PixelWidth;
-		public int Height => Image.PixelHeight;
-
-		public ImageSetting FilterRank { get; set; }
-		public ImageSetting ClustersCount { get; set; }
-		public ImageSetting MaxSmearDistance { get; set; }
-		public ImageSetting MinSizeSuperpixel { get; set; }
-		public ImageSetting MaxSizeSuperpixel { get; set; }
-		public ImageSetting ClustersPrecision { get; set; }
-		public ImageSetting ClusterMaxIteration { get; set; }
-		public ImageSetting HeightPlt { get; set; }
-		public ImageSetting WidthPlt { get; set; }
+		public ImageSetting FilterRank { get; }
+		public ImageSetting ClustersCount { get; }
+		public ImageSetting MaxSmearDistance { get; }
+		public ImageSetting MinSizeSuperpixel { get; }
+		public ImageSetting MaxSizeSuperpixel { get; }
+		public ImageSetting ClustersPrecision { get; }
+		public ImageSetting ClusterMaxIteration { get; }
+		public ImageSetting HeightPlt { get; }
+		public ImageSetting WidthPlt { get; }
 		#endregion
 
-		public ImageModel(BitmapSource image)
+		public STImageModel(BitmapSource image) : base(image)
 		{
-			Image = image ?? throw new NullReferenceException("image");
-
 			ClustersCount = new ImageSetting
 			{
-				Value = (int) (Math.Sqrt(Width + Height) + Math.Sqrt(Width + Height) / 2) + 3,
+				Value = (int)(Math.Sqrt(Width + Height) + Math.Sqrt(Width + Height) / 2) + 3,
 				Name = "Кол-во кластеров"
 			};
 			ClusterMaxIteration = new ImageSetting
@@ -79,8 +67,8 @@ namespace SmearTracer.Analyzer
 				Name = "Высота plt"
 			};
 
-			Settings = new List<ImageSetting>
-			{
+			Settings.AddRange(
+				new List<ImageSetting> {
 				ClustersCount,
 				ClusterMaxIteration,
 				MinSizeSuperpixel,
@@ -89,13 +77,7 @@ namespace SmearTracer.Analyzer
 				FilterRank,
 				ClustersPrecision,
 				HeightPlt,
-				WidthPlt
-			};
-		}
-
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+				WidthPlt});
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace SmearsMaker.Common
+﻿namespace SmearsMaker.Common.Image
 {
 	public class ImageSetting
 	{

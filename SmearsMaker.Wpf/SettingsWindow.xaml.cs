@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Windows;
-using SmearsMaker.Common;
+using SmearsMaker.Common.Image;
 
 namespace SmearsMaker.Wpf
 {

@@ -18,16 +18,15 @@ namespace GradientTracer.FeatureDetection
 			_height = height;
 		}
 
-		public List<Point> Compute(ImageModel model)
+		public List<Point> Compute(List<Point> points)
 		{
 			var result = new List<Point>();
-			var units = model.Points;
-			var arrLength = model.Points.First().Pixels[GtConsts.Original].Length;
+			var arrLength = points.First().Pixels[GtConsts.Original].Length;
 			for (int coordX = 0; coordX < _width; coordX++)
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
-					var mask = GetMask(units, coordX, coordY);
+					var mask = GetMask(points, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var gradient = new float[arrLength];
 					var curve = new float[arrLength];
@@ -53,7 +52,7 @@ namespace GradientTracer.FeatureDetection
 					gradient[3] = 255;
 					curve[3] = 255;
 
-					var p = new Point(units[pos]);
+					var p = new Point(points[pos]);
 					p.Pixels[GtConsts.Gradient] = new Pixel(gradient);
 					p.Pixels[GtConsts.Curves] = new Pixel(curve);
 					result.Add(p);

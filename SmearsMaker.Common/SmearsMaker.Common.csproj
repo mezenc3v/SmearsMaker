@@ -56,15 +56,21 @@
     <Compile Include="BaseTypes\Smear.cs" />
     <Compile Include="BaseTypes\SuperPixel.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
-    <Compile Include="ImageModel.cs" />
-    <Compile Include="ImageSetting.cs" />
-    <Compile Include="ImageViewModel.cs" />
+    <Compile Include="Image\ImageModel.cs" />
+    <Compile Include="Image\ImageSetting.cs" />
+    <Compile Include="Image\ImageViewModel.cs" />
     <Compile Include="ITracer.cs" />
     <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TracerBase.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="NLog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <None Include="NLog.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

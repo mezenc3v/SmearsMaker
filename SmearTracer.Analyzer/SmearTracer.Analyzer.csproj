@@ -52,8 +52,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ImageHelper.cs" />
-    <Compile Include="ImageModel.cs" />
-    <Compile Include="Tracer.cs" />
+    <Compile Include="STImageModel.cs" />
+    <Compile Include="STracer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

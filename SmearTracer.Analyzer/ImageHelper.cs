@@ -2,15 +2,12 @@
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using NLog;
 using SmearsMaker.Common.BaseTypes;
 
 namespace SmearTracer.Analyzer
 {
 	public static class Helper
 	{
-		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
-		
 		public static void Concat(List<Smear> smears, List<Point> points)
 		{
 			foreach (var point in points)

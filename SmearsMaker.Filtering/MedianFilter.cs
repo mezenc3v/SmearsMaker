@@ -17,17 +17,16 @@ namespace SmearsMaker.Filtering
 			_height = height;
 		}
 
-		public void Filter(ImageModel model)
+		public void Filter(List<Point> points)
 		{
-			var units = model.Points;
 			for (int coordX = 0; coordX < _width; coordX++)
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
-					var mask = GetMask(units, coordX, coordY);
+					var mask = GetMask(points, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
-					units[pos].Pixels[Consts.Filtered] = new Pixel(median);
+					points[pos].Pixels[Consts.Filtered] = new Pixel(median);
 				}
 			}
 		}
