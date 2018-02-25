@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media.Imaging;
 using SmearsMaker.Common.Image;
 
 namespace SmearTracer.Analyzer
 {
-	public class STImageModel : ImageModel
+	public class STImageSettings
 	{
 		#region properties
+		public List<ImageSetting> Settings { get; }
 		public ImageSetting FilterRank { get; }
 		public ImageSetting ClustersCount { get; }
 		public ImageSetting MaxSmearDistance { get; }
@@ -19,11 +19,11 @@ namespace SmearTracer.Analyzer
 		public ImageSetting WidthPlt { get; }
 		#endregion
 
-		public STImageModel(BitmapSource image) : base(image)
+		public STImageSettings(int width, int height)
 		{
 			ClustersCount = new ImageSetting
 			{
-				Value = (int)(Math.Sqrt(Width + Height) + Math.Sqrt(Width + Height) / 2) + 3,
+				Value = (int)(Math.Sqrt(width + height) + Math.Sqrt(width + height) / 2) + 3,
 				Name = "Кол-во кластеров"
 			};
 			ClusterMaxIteration = new ImageSetting
@@ -33,22 +33,22 @@ namespace SmearTracer.Analyzer
 			};
 			MinSizeSuperpixel = new ImageSetting
 			{
-				Value = (int)(Width * Height / 1000),
+				Value = (int)(width * height / 1000),
 				Name = "Мин. размер суперпикселя"
 			};
 			MaxSizeSuperpixel = new ImageSetting
 			{
-				Value = (int)(Width * Height / 500),
+				Value = (int)(width * height / 500),
 				Name = "Мaкс. размер суперпикселя"
 			};
 			MaxSmearDistance = new ImageSetting
 			{
-				Value = Width * Height,
+				Value = width * height,
 				Name = "Максимальная длина мазка"
 			};
 			FilterRank = new ImageSetting
 			{
-				Value = (int)Math.Sqrt((double)(Width + Height) / 80 / 2),
+				Value = (int)Math.Sqrt((double)(width + height) / 80 / 2),
 				Name = "Ранг фильтра"
 			};
 			ClustersPrecision = new ImageSetting
@@ -67,8 +67,8 @@ namespace SmearTracer.Analyzer
 				Name = "Высота plt"
 			};
 
-			Settings.AddRange(
-				new List<ImageSetting> {
+			Settings = new List<ImageSetting>
+			{
 				ClustersCount,
 				ClusterMaxIteration,
 				MinSizeSuperpixel,
@@ -77,7 +77,8 @@ namespace SmearTracer.Analyzer
 				FilterRank,
 				ClustersPrecision,
 				HeightPlt,
-				WidthPlt});
+				WidthPlt
+			};
 		}
 	}
 }

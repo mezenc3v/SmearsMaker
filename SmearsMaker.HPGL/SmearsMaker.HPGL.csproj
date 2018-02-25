@@ -46,6 +46,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PltHelper.cs" />
     <Compile Include="PltReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

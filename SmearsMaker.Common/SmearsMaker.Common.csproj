@@ -45,20 +45,18 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BaseConsts.cs" />
+    <Compile Include="Layers.cs" />
     <Compile Include="BaseTypes\BrushStroke.cs" />
     <Compile Include="BaseTypes\Cluster.cs" />
-    <Compile Include="BaseTypes\BaseObject.cs" />
+    <Compile Include="BaseTypes\Segment.cs" />
     <Compile Include="BaseTypes\Pixel.cs" />
     <Compile Include="BaseTypes\PixelCollection.cs" />
     <Compile Include="BaseTypes\Point.cs" />
-    <Compile Include="BaseTypes\Segment.cs" />
     <Compile Include="BaseTypes\Smear.cs" />
-    <Compile Include="BaseTypes\SuperPixel.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Image\ImageModel.cs" />
     <Compile Include="Image\ImageSetting.cs" />
-    <Compile Include="Image\ImageViewModel.cs" />
+    <Compile Include="Image\ImageView.cs" />
     <Compile Include="ITracer.cs" />
     <Compile Include="Progress.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

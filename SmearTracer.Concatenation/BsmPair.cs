@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearTracer.Model;
 
 namespace SmearTracer.Concatenation
 {
@@ -14,7 +15,7 @@ namespace SmearTracer.Concatenation
 			_maxDistance = maxDistance;
 		}
 
-		public List<BrushStroke> Execute(List<BaseObject> objs)
+		public List<BrushStroke> Execute(List<Segment> objs)
 		{
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
@@ -52,7 +53,7 @@ namespace SmearTracer.Concatenation
 
 		private static BrushStroke Combine(BrushStroke first, BrushStroke second)
 		{
-			var newSequence = new BrushStroke();
+			var newSequence = new BrushStrokeImpl();
 
 			var a = Distance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
 			var b = Distance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
@@ -203,9 +204,9 @@ namespace SmearTracer.Concatenation
 			return index;
 		}
 
-		private static BrushStroke Combine(BrushStroke first, BaseObject second)
+		private static BrushStroke Combine(BrushStroke first, Segment second)
 		{
-			var newSequence = new BrushStroke();
+			var newSequence = new BrushStrokeImpl();
 
 			var distanceHead = Distance(first.Objects.First().Centroid.Position, second.Centroid.Position);
 			var distanceTail = Distance(first.Objects.Last().Centroid.Position, second.Centroid.Position);
@@ -224,7 +225,7 @@ namespace SmearTracer.Concatenation
 			return newSequence;
 		}
 
-		private System.Windows.Point GetCenter(IReadOnlyCollection<BaseObject> objs)
+		private System.Windows.Point GetCenter(IReadOnlyCollection<Segment> objs)
 		{
 			var x = 0d;
 			var y = 0d;
@@ -236,10 +237,10 @@ namespace SmearTracer.Concatenation
 
 			return new System.Windows.Point(x / objs.Count, y / objs.Count);
 		}
-		private List<BrushStroke> Pairing(IReadOnlyCollection<BaseObject> objs)
+		private List<BrushStroke> Pairing(IReadOnlyCollection<Segment> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<BaseObject>();
+			var points = new List<Segment>();
 			points.AddRange(objs);
 
 			if (objs.Count > 1)
@@ -252,7 +253,7 @@ namespace SmearTracer.Concatenation
 				{
 					if (points.Count > 1)
 					{
-						var list = new List<BaseObject>();
+						var list = new List<Segment>();
 						var main = points.OrderBy(p => Distance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
 
 						list.Add(main);
@@ -264,7 +265,7 @@ namespace SmearTracer.Concatenation
 						{
 							list.Add(next);
 							points.Remove(next);
-							brushStrokes.Add(new BrushStroke { Objects = list });
+							brushStrokes.Add(new BrushStrokeImpl(list));
 						}
 						else
 						{
@@ -282,13 +283,13 @@ namespace SmearTracer.Concatenation
 
 						brushStrokes.RemoveAt(index);
 						brushStrokes.Add(newSequence);
-						points = new List<BaseObject>();
+						points = new List<Segment>();
 					}
 				}
 			}
 			else
 			{
-				var brushStroke = new BrushStroke();
+				var brushStroke = new BrushStrokeImpl();
 				brushStroke.Objects.Add(objs.First());
 				brushStrokes.Add(brushStroke);
 			}

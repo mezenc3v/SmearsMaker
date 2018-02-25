@@ -4,27 +4,17 @@ using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.Common.Helpers
 {
-	public class ImageHelper
+	internal class ImageHelper
 	{
 		private const int DataFormatSize = 4;
-		public static byte ConvertToGrayScale(byte r, byte g, byte b)
+		internal static byte ConvertToGrayScale(byte r, byte g, byte b)
 		{
 			//var grayscale = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
 			var grayscale = (byte)(0.299 * r + 0.587 * g + 0.114 * b);
 			return grayscale;
 		}
 
-		public static float[] ConvertGrayScaleToRgb(float oldGrsc, float newGrsc, float[] argb)
-		{
-			var newArgb = new float[argb.Length];
-			var ratio = newGrsc / oldGrsc;
-			newArgb[0] = ratio * argb[0];
-			newArgb[1] = ratio * argb[1];
-			newArgb[2] = ratio * argb[2];
-
-			return newArgb;
-		}
-		public static List<Point> ConvertToPixels(BitmapSource source)
+		internal static List<Point> ConvertToPixels(BitmapSource source)
 		{
 			var inputData = new List<Point>();
 			var stride = source.PixelWidth * DataFormatSize;
@@ -42,37 +32,14 @@ namespace SmearsMaker.Common.Helpers
 					var rgbArray = new float[] { data[idx], data[idx + 1], data[idx + 2], data[idx + 3] };
 					//var rgbArray = new float[] { data[idx + 1], data[idx + 2], data[idx + 3] };
 					var point = new Point(x, y);
-					point.Pixels.AddPixel(Consts.Original, new Pixel(rgbArray));
+					point.Pixels.AddPixel(Layers.Original, new Pixel(rgbArray));
 					inputData.Add(point);
 				}
 			}
 			return inputData;
 		}
 
-		public static BitmapSource ConvertGrayScaleToRgbBitmap(BitmapSource source, List<Point> points)
-		{
-			var stride = source.PixelWidth * DataFormatSize;
-			var size = source.PixelHeight * stride;
-			var data = new byte[size];
-
-			foreach (var pixel in points)
-			{
-				var indexPixel = (int)(pixel.Position.Y * stride + DataFormatSize * pixel.Position.X);
-				var orig = pixel.Pixels[Consts.Original].Data;
-				var dataArray = pixel.Pixels[Consts.Filtered].Data;
-				var newArray = ConvertGrayScaleToRgb(ConvertToGrayScale((byte)orig[0], (byte)orig[1], (byte)orig[2]),
-					dataArray[0], orig);
-				data[indexPixel] = (byte)newArray[0];
-				data[indexPixel + 1] = (byte)newArray[1];
-				data[indexPixel + 2] = (byte)newArray[2];
-				data[indexPixel + 3] = 255;
-			}
-			var image = BitmapSource.Create(source.PixelWidth, source.PixelHeight, source.DpiX,
-				source.DpiY, source.Format, source.Palette, data, stride);
-
-			return image;
-		}
-		public static BitmapSource ConvertRgbToRgbBitmap(BitmapSource source, List<Point> points, string name)
+		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, List<Point> points, string name)
 		{
 			var stride = source.PixelWidth * DataFormatSize;
 			var size = source.PixelHeight * stride;

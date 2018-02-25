@@ -1,230 +1,139 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using SmearsMaker.Common;
-using SmearsMaker.Filtering;
-using System.Diagnostics;
-using System.Drawing;
-using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Windows;
-using System.Windows.Media.Imaging;
-using GradientTracer.FeatureDetection;
+﻿using GradientTracer.FeatureDetection;
 using GradientTracer.Model;
+using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.Common.Helpers;
 using SmearsMaker.Common.Image;
+using SmearsMaker.Filtering;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace GradientTracer.Analyzer
 {
 	public class GTracer : TracerBase
 	{
-		public override List<ImageSetting> Settings => _model.Settings;
+		public override List<ImageSetting> Settings => _settings.Settings;
+		public override List<ImageView> Views => CreateViews();
 
-		private readonly GTImageModel _model;
+		private readonly GTImageSettings _settings;
 		private List<Point> _sobelPoints;
-		private List<SuperPixel> _superPixels;
+		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
 		public GTracer(BitmapSource image) : base(image)
 		{
-			_model = new GTImageModel(image);
+			_settings = new GTImageSettings(Model.Width, Model.Height);
 		}
 
 		public override Task Execute()
 		{
-			var filter = new MedianFilter((int)_model.FilterRank.Value, _model.Width, _model.Height);
-			var sobel = new Sobel(_model.Width, _model.Height);
-			var bsm = new BsmPair(Math.Sqrt(_model.SizeSuperPixel.Value) + 1, (float)_model.Tolerance.Value);
-			var centroid = new Point(_model.Width / 2, _model.Height / 2);
-			centroid.Pixels.AddPixel(GtConsts.Original, null);
-			var segment = new Segment
-			{
-				Centroid = centroid,
-				MaxX = new System.Windows.Point(_model.Width, _model.Height),
-				MaxY = new System.Windows.Point(_model.Width, _model.Height),
-				MinX = new System.Windows.Point(0, 0),
-				MinY = new System.Windows.Point(0, 0)
-			};
+			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
+			var sobel = new Sobel(Model.Width, Model.Height);
+			var bsm = new GradientBsm(Math.Sqrt(_settings.SizeSuperPixel.Value) * 2 - 2, (float)_settings.Tolerance.Value);
+			var centroid = new Point(Model.Width / 2, Model.Height / 2);
+			centroid.Pixels.AddPixel(Layers.Original, null);
+			var segment = new SegmentImpl(centroid, Model.Width, Model.Height);
 
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				filter.Filter(Points);
+				filter.Filter(Model.Points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Вычисление градиентов");
-				_sobelPoints = sobel.Compute(Points);
+				_sobelPoints = sobel.Compute(Model.Points);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 
 				segment.Data = _sobelPoints;
-				var splitter = new SuperpixelSplitter((int)_model.SizeSuperPixel.Value, (int)_model.SizeSuperPixel.Value, 1);
+				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value, (int)_settings.SizeSuperPixel.Value, 1);
 				_superPixels = splitter.Splitting(segment);
 
-				foreach (var superPixel in _superPixels)
-				{
-					var averGrad = new float[4];
-					var averData = new float[4];
-					superPixel.Data.ForEach(d =>
-					{
-						for (int i = 0; i < averGrad.Length; i++)
-						{
-							averGrad[i] += d.Pixels[GtConsts.Gradient].Data[i];
-							averData[i] += d.Pixels[GtConsts.Original].Data[i];
-						}
-					});
+				GTHelper.UpdateCenter(Layers.Original, _superPixels);
+				GTHelper.UpdateCenter(GtLayers.Gradient, _superPixels);
 
-					for (int i = 0; i < averGrad.Length; i++)
-					{
-						averGrad[i] /= superPixel.Data.Count;
-						averData[i] /= superPixel.Data.Count;
-					}
-
-					superPixel.Data.ForEach(d =>
-					{
-						d.Pixels.AddPixel(GtConsts.SuperPixelsGrad, new Pixel(averGrad));
-					});
-					superPixel.Centroid.Pixels.AddPixel(GtConsts.SuperPixelsGrad, new Pixel(averGrad));
-					superPixel.Centroid.Pixels.AddPixel(GtConsts.Gradient, new Pixel(averGrad));
-					superPixel.Centroid.Pixels[GtConsts.Original] = new Pixel(averData);
-				}
+				sw.Restart();
 				Progress.NewProgress("Создание мазков");
-				_strokes = bsm.Execute(_superPixels.ToList<BaseObject>());
-
+				_strokes = bsm.Execute(_superPixels);
+				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
+				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes} мазков");
 				Log.Trace("Обработка изображения завершена");
 				Progress.NewProgress("Готово");
-				//Log.Trace($"Сформировано {clusters.Count} кластеров, {segmentsCount} сегментов, {smearsCount} мазков");
 			});
+			
 		}
 
-		public override List<ImageViewModel> Views => new List<ImageViewModel>
-		{
-			new ImageViewModel(_model.Image, "Оригинал"),
-			new ImageViewModel(Antialiasing(), "Размытое изображение"),
-			new ImageViewModel(SobelGradients(), "Поле градиентов"),
-			new ImageViewModel(SobelCurves(), "Границы"),
-			new ImageViewModel(SuperPixels(), "Суперпиксели"),
-			new ImageViewModel(SuperPixelsGrad(), "Суперпиксели-градиенты"),
-			new ImageViewModel(SmearsMap(), "Мазки"),
-		};
-		private static List<float> GetGandomData(uint length)
-		{
-			var c = new RNGCryptoServiceProvider();
-			var randomNumber = new byte[length];
-			c.GetBytes(randomNumber);
-
-			return randomNumber.Select(b => (float)b).ToList();
-		}
-
-		private BitmapSource SuperPixels()
+		private List<ImageView> CreateViews()
 		{
 			Progress.NewProgress("Вычисление суперпикселей");
-			var data = new List<Point>();
-			foreach (var superPixel in _superPixels)
-			{
-				var rand = GetGandomData(3).ToArray();
-				superPixel.Data.ForEach(d =>
-				{
-					d.Pixels.AddPixel(GtConsts.SuperPixels, new Pixel(rand));
-				});
-				data.AddRange(superPixel.Data);
-			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, GtConsts.SuperPixels);
-		}
+			var spixels = GTHelper.CreateRandomImage(_superPixels, Layers.SuperPixels, Model);
 
-		private BitmapSource SuperPixelsGrad()
-		{
 			Progress.NewProgress("Вычисление градиентов суперпикселей");
-			var data = new List<Point>();
-			foreach (var superPixel in _superPixels)
-			{
-				data.AddRange(superPixel.Data);
-			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, GtConsts.Gradient);
-		}
-		private BitmapSource SmearsMap()
-		{
-			Progress.NewProgress("Вычисление мазков");
+			var spixelsGrad = GTHelper.CreateImage(_superPixels, GtLayers.Gradient, Model);
+
 			Progress.NewProgress("Вычисление мазков (линии)");
-			Bitmap bitmap;
-			using (var outStream = new MemoryStream())
-			{
-				BitmapEncoder enc = new BmpBitmapEncoder();
-				enc.Frames.Add(BitmapFrame.Create(_model.Image));
-				enc.Save(outStream);
-				bitmap = new Bitmap(outStream);
-			}
+			var smearsMap = GTHelper.PaintImage(Model.Image, _strokes, (float)_settings.WidthSmearUI.Value);
 
-			var g = Graphics.FromImage(bitmap);
-			g.Clear(Color.White);
-
-			foreach (var smear in _strokes.OrderByDescending(s => s.Objects.Count))
-			{
-				var center = smear.Objects.OrderBy(p => p.Centroid.Pixels[GtConsts.Original].Sum).ToList()[smear.Objects.Count / 2].Centroid;
-
-				var pen = new Pen(Color.FromArgb((byte)center.Pixels[GtConsts.Original].Data[3], (byte)center.Pixels[GtConsts.Original].Data[2],
-					(byte)center.Pixels[GtConsts.Original].Data[1], (byte)center.Pixels[GtConsts.Original].Data[0]));
-
-				var brush = new SolidBrush(System.Drawing.Color.FromArgb((byte)center.Pixels[GtConsts.Original].Data[3], (byte)center.Pixels[GtConsts.Original].Data[2],
-					(byte)center.Pixels[GtConsts.Original].Data[1], (byte)center.Pixels[GtConsts.Original].Data[0]));
-				//var random = GetGandomData(4);
-				//var pen = new System.Drawing.Pen(System.Drawing.Color.FromArgb((byte)random[0], (byte)random[1],
-				//	(byte)random[2], (byte)random[3]));
-
-				//var brush = new SolidBrush(System.Drawing.Color.FromArgb((byte)random[0], (byte)random[1],
-				//	(byte)random[2], (byte)random[3]));
-
-				var pointsF = smear.Objects.Select(point => new PointF((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
-				pen.Width = (float)_model.HeightSmear.Value;
-				if (pointsF.Length > 1)
-				{
-					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
-					g.FillEllipse(brush, pointsF.Last().X, pointsF.Last().Y, pen.Width, pen.Width);
-					g.DrawLines(pen, pointsF);
-				}
-				else
-				{
-					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
-				}
-			}
-
-			g.Dispose();
-
-			var bmp = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-				bitmap.GetHbitmap(),
-				IntPtr.Zero,
-				Int32Rect.Empty,
-				BitmapSizeOptions.FromEmptyOptions());
-
-			return bmp;
-		}
-
-
-		private BitmapSource Antialiasing()
-		{
 			Progress.NewProgress("Вычисление размытия");
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, Points.ToList(), GtConsts.Filtered);
-		}
+			var blurredImage = Model.ConvertToBitmapSource(Model.Points, Layers.Filtered);
 
-		private BitmapSource SobelGradients()
-		{
 			Progress.NewProgress("Вычисление градиентов");
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _sobelPoints, GtConsts.Gradient);
-		}
+			var sobelGradients = Model.ConvertToBitmapSource(_sobelPoints, GtLayers.Gradient);
 
-		private BitmapSource SobelCurves()
-		{
 			Progress.NewProgress("Вычисление границ");
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, _sobelPoints, GtConsts.Curves);
+			var sobelCurves = Model.ConvertToBitmapSource(_sobelPoints, GtLayers.Curves);
+
+			return new List<ImageView>
+			{
+				new ImageView(Model.Image, "Оригинал"),
+				new ImageView(blurredImage, "Размытое изображение"),
+				new ImageView(sobelGradients, "Поле градиентов"),
+				new ImageView(sobelCurves, "Границы"),
+				new ImageView(spixels, "Суперпиксели"),
+				new ImageView(spixelsGrad, "Суперпиксели-градиенты"),
+				new ImageView(smearsMap, "Мазки"),
+			};
 		}
 
 		public override string GetPlt()
 		{
-			throw new NotImplementedException();
+			var height = _settings.HeightPlt;
+
+			var width = _settings.WidthPlt;
+
+			var delta = (float)height.Value / Model.Height;
+			var widthImage = Model.Width * delta;
+			if (widthImage > width.Value)
+			{
+				delta *= (float)width.Value / widthImage;
+			}
+			var smearWidth = (int)(_settings.WidthSmear.Value * delta);
+			const int index = 1;
+			//building string
+			var plt = new StringBuilder().Append("IN;");
+			
+			foreach (var brushStroke in _strokes.OrderByDescending(bs => bs.AverageData.Sum()).ThenBy(b => b.Objects.Count))
+			{
+				var averageData = brushStroke.AverageData;
+				plt.Append($"PC{index},{(uint)averageData[2]},{(uint)averageData[1]},{(uint)averageData[0]};");
+				plt.Append($"PW{smearWidth},{index};");
+				plt.Append($"PU{(uint)(brushStroke.Head.X * delta)},{(uint)(height.Value - brushStroke.Head.Y * delta)};");
+
+				for (int i = 1; i < brushStroke.Objects.Count - 1; i++)
+				{
+					plt.Append($"PD{(uint)(brushStroke.Objects[i].Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Objects[i].Centroid.Position.Y * delta)};");
+				}
+
+				plt.Append($"PU{(uint)(brushStroke.Tail.X * delta)},{(uint)(height.Value - brushStroke.Tail.Y * delta)};");
+			}
+
+			return plt.ToString();
 		}
 	}
 }

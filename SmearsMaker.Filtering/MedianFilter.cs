@@ -26,7 +26,7 @@ namespace SmearsMaker.Filtering
 					var mask = GetMask(points, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
-					points[pos].Pixels[Consts.Filtered] = new Pixel(median);
+					points[pos].Pixels[Layers.Filtered] = new Pixel(median);
 				}
 			}
 		}
@@ -41,7 +41,7 @@ namespace SmearsMaker.Filtering
 					var idx = coordMaskX * _height + coordMaskY;
 					if (idx < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
 					{
-						mask.Add(units[idx].Pixels[Consts.Original]);
+						mask.Add(units[idx].Pixels[Layers.Original]);
 					}
 				}
 			}

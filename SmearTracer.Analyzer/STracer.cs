@@ -10,7 +10,6 @@ using System.Windows;
 using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.Common.Helpers;
 using SmearsMaker.Common.Image;
 using SmearsMaker.Filtering;
 using SmearTracer.ClusterAnalysis.Kmeans;
@@ -23,35 +22,36 @@ namespace SmearTracer.Analyzer
 {
 	public class STracer : TracerBase
 	{
-		public override List<ImageSetting> Settings => _model.Settings;
+		public override List<ImageSetting> Settings => _settings.Settings;
+		public override List<ImageView> Views => CreateViews();
 
-		private readonly STImageModel _model;
-		private readonly List<Smear> _smears;
+		private readonly STImageSettings _settings;
+		private List<Smear> _smears;
 
 		public STracer(BitmapSource image) : base(image)
 		{
-			_model = new STImageModel(image);
-			_smears = new List<Smear>();
+			_settings = new STImageSettings(Model.Width, Model.Height);
 		}
 
 		public override Task Execute()
 		{
-			var filter = new MedianFilter((int)_model.FilterRank.Value, _model.Width, _model.Height);
+			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
 
-			var kmeans = new KmeansClassic((int)_model.ClustersCount.Value, _model.ClustersPrecision.Value, Points, (int)_model.ClusterMaxIteration.Value);
+			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, Model.Points, (int)_settings.ClusterMaxIteration.Value);
 			var splitter = new SimpleSegmentsSplitter();
-			var supPixSplitter = new SuperpixelSplitter((int)_model.MinSizeSuperpixel.Value, (int)_model.MaxSizeSuperpixel.Value, _model.ClustersPrecision.Value);
-			var bsm = new BsmPair((int)_model.MaxSmearDistance.Value);
+			var supPixSplitter = new SuperpixelSplitter((int)_settings.MinSizeSuperpixel.Value, (int)_settings.MaxSizeSuperpixel.Value, _settings.ClustersPrecision.Value);
+			var bsm = new BsmPair((int)_settings.MaxSmearDistance.Value);
 
 			var segmentsCount = 0;
 			var smearsCount = 0;
 
 			return Task.Run(() =>
 			{
+				_smears = new List<Smear>();
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				filter.Filter(Points);
+				filter.Filter(Model.Points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Кластеризация");
@@ -73,7 +73,7 @@ namespace SmearTracer.Analyzer
 
 						Parallel.ForEach(superPixels, (supPix) =>
 						{
-							if (supPix.Data.Count < _model.MinSizeSuperpixel.Value)
+							if (supPix.Data.Count < _settings.MinSizeSuperpixel.Value)
 							{
 								lock (defectedPixels)
 								{
@@ -84,7 +84,7 @@ namespace SmearTracer.Analyzer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList<BaseObject>());
+							var smears = bsm.Execute(superPixels.ToList<Segment>());
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{
@@ -113,24 +113,28 @@ namespace SmearTracer.Analyzer
 					}
 				}
 				Progress.NewProgress("Распределение удаленных точек");
-				Helper.Concat(_smears, defectedPixels);
+				STHelper.Concat(_smears, defectedPixels);
 
 				Log.Trace("Обработка изображения завершена");
 				Progress.NewProgress("Готово");
 				Log.Trace($"Сформировано {clusters.Count} кластеров, {segmentsCount} сегментов, {smearsCount} мазков");
 			});
+			
 		}
 
-		public override List<ImageViewModel> Views => new List<ImageViewModel>
+		private List<ImageView> CreateViews()
+		{
+			return new List<ImageView>
 			{
-				new ImageViewModel(_model.Image, "Оригинал"),
-				new ImageViewModel(SuperPixels(), "Суперпиксели"),
-				new ImageViewModel(Clusters(), "Кластеры"),
-				new ImageViewModel(Segments(), "Сегменты"),
-				new ImageViewModel(BrushStrokes(), "Мазки"),
-				new ImageViewModel(RandomBrushStrokes(), "Мазки(рандом)"),
-				new ImageViewModel(BrushStrokesLines(), "Мазки(линии)")
+				new ImageView(Model.Image, "Оригинал"),
+				new ImageView(SuperPixels(), "Суперпиксели"),
+				new ImageView(Clusters(), "Кластеры"),
+				new ImageView(Segments(), "Сегменты"),
+				new ImageView(BrushStrokes(), "Мазки"),
+				new ImageView(RandomBrushStrokes(), "Мазки(рандом)"),
+				new ImageView(BrushStrokesLines(), "Мазки(линии)")
 			};
+		}
 
 		private BitmapSource SuperPixels()
 		{
@@ -140,13 +144,13 @@ namespace SmearTracer.Analyzer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					var color = Helper.GetGandomData(3);
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(color.ToArray()));
-					//obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(obj.Centroid.Pixels[Consts.Original].Data));
+					var color = STHelper.GetGandomData(3);
+					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(color.ToArray()));
+					//obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(obj.Centroid.Pixels[Layers.Original].Data));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, Consts.Filtered);
+			return Model.ConvertToBitmapSource(data, Layers.Filtered);
 		}
 
 		private BitmapSource Clusters()
@@ -157,11 +161,11 @@ namespace SmearTracer.Analyzer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(smear.Cluster.Centroid.Data));
+					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(smear.Cluster.Centroid.Data));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, Consts.Filtered);
+			return Model.ConvertToBitmapSource(data, Layers.Filtered);
 		}
 
 		private BitmapSource Segments()
@@ -172,11 +176,11 @@ namespace SmearTracer.Analyzer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(obj.Centroid.Pixels[Consts.Original].Data));
+					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(obj.Centroid.Pixels[Layers.Original].Data));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, Consts.Filtered);
+			return Model.ConvertToBitmapSource(data, Layers.Filtered);
 		}
 
 		private BitmapSource BrushStrokes()
@@ -186,14 +190,14 @@ namespace SmearTracer.Analyzer
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;
-				var center = objs.OrderBy(p => p.Centroid.Pixels[Consts.Original].Sum).ToList()[objs.Count / 2].Centroid.Pixels[Consts.Original].Data;
+				var center = objs.OrderBy(p => p.Centroid.Pixels[Layers.Original].Sum).ToList()[objs.Count / 2].Centroid.Pixels[Layers.Original].Data;
 				foreach (var obj in objs)
 				{
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(center));
+					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(center));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, Consts.Filtered);
+			return Model.ConvertToBitmapSource(data, Layers.Filtered);
 		}
 
 		private BitmapSource RandomBrushStrokes()
@@ -203,15 +207,15 @@ namespace SmearTracer.Analyzer
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;
-				var color = Helper.GetGandomData(3);
+				var color = STHelper.GetGandomData(3);
 				color.Add(255);
 				foreach (var obj in objs)
 				{
-					obj.Data.ForEach(d => d.Pixels[Consts.Filtered] = new Pixel(color.ToArray()));
+					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(color.ToArray()));
 					data.AddRange(obj.Data);
 				}
 			}
-			return ImageHelper.ConvertRgbToRgbBitmap(_model.Image, data, Consts.Filtered);
+			return Model.ConvertToBitmapSource(data, Layers.Filtered);
 		}
 
 		private BitmapSource BrushStrokesLines()
@@ -221,7 +225,7 @@ namespace SmearTracer.Analyzer
 			using (var outStream = new MemoryStream())
 			{
 				BitmapEncoder enc = new BmpBitmapEncoder();
-				enc.Frames.Add(BitmapFrame.Create(_model.Image));
+				enc.Frames.Add(BitmapFrame.Create(Model.Image));
 				enc.Save(outStream);
 				bitmap = new Bitmap(outStream);
 			}
@@ -231,16 +235,16 @@ namespace SmearTracer.Analyzer
 
 			foreach (var smear in _smears.OrderByDescending(s => s.BrushStroke.Objects.Count))
 			{
-				var center = smear.BrushStroke.Objects.OrderBy(p => p.Centroid.Pixels[Consts.Original].Sum).ToList()[smear.BrushStroke.Objects.Count / 2].Centroid;
+				var center = smear.BrushStroke.Objects.OrderBy(p => p.Centroid.Pixels[Layers.Original].Sum).ToList()[smear.BrushStroke.Objects.Count / 2].Centroid;
 
-				var pen = new Pen(Color.FromArgb((byte)center.Pixels[Consts.Original].Data[3], (byte)center.Pixels[Consts.Original].Data[2],
-					(byte)center.Pixels[Consts.Original].Data[1], (byte)center.Pixels[Consts.Original].Data[0]));
+				var pen = new Pen(Color.FromArgb((byte)center.Pixels[Layers.Original].Data[3], (byte)center.Pixels[Layers.Original].Data[2],
+					(byte)center.Pixels[Layers.Original].Data[1], (byte)center.Pixels[Layers.Original].Data[0]));
 
-				var brush = new SolidBrush(Color.FromArgb((byte)center.Pixels[Consts.Original].Data[3], (byte)center.Pixels[Consts.Original].Data[2],
-					(byte)center.Pixels[Consts.Original].Data[1], (byte)center.Pixels[Consts.Original].Data[0]));
+				var brush = new SolidBrush(Color.FromArgb((byte)center.Pixels[Layers.Original].Data[3], (byte)center.Pixels[Layers.Original].Data[2],
+					(byte)center.Pixels[Layers.Original].Data[1], (byte)center.Pixels[Layers.Original].Data[0]));
 
 				var pointsF = smear.BrushStroke.Objects.Select(point => new PointF((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
-				pen.Width = ((int)_model.MinSizeSuperpixel.Value) / 20 + 1;
+				pen.Width = ((int)_settings.MinSizeSuperpixel.Value) / 20 + 1;
 				if (pointsF.Length > 1)
 				{
 					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
@@ -266,17 +270,17 @@ namespace SmearTracer.Analyzer
 
 		public override string GetPlt()
 		{
-			var height = _model.HeightPlt;
+			var height = _settings.HeightPlt;
 
-			var width = _model.WidthPlt;
+			var width = _settings.WidthPlt;
 
-			var delta = ((float)height.Value / _model.Height);
-			var widthImage = _model.Width * delta;
+			var delta = ((float)height.Value / Model.Height);
+			var widthImage = Model.Width * delta;
 			if (widthImage > width.Value)
 			{
 				delta *= (float)width.Value / widthImage;
 			}
-			var smearWidth = (int)((_model.MinSizeSuperpixel.Value / 20 + 1) * delta);
+			var smearWidth = (int)((_settings.MinSizeSuperpixel.Value / 20 + 1) * delta);
 			var index = 1;
 			//building string
 			var plt = new StringBuilder().Append("IN;");
@@ -287,7 +291,7 @@ namespace SmearTracer.Analyzer
 				plt.Append($"PC{index},{(uint)cluster.Key.Centroid.Data[2]},{(uint)cluster.Key.Centroid.Data[1]},{(uint)cluster.Key.Centroid.Data[0]};");
 				var segmentsGroups = cluster.GroupBy(c => c.Segment);
 
-				foreach (var segment in segmentsGroups.OrderByDescending(s => s.Key.Centroid.Pixels[Consts.Original].Sum))
+				foreach (var segment in segmentsGroups.OrderByDescending(s => s.Key.Centroid.Pixels[Layers.Original].Sum))
 				{
 					var brushstrokeGroup = segment.GroupBy(b => b.BrushStroke);
 

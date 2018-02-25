@@ -21,7 +21,7 @@ namespace GradientTracer.FeatureDetection
 		public List<Point> Compute(List<Point> points)
 		{
 			var result = new List<Point>();
-			var arrLength = points.First().Pixels[GtConsts.Original].Length;
+			var arrLength = points.First().Pixels[GtLayers.Original].Length;
 			for (int coordX = 0; coordX < _width; coordX++)
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
@@ -30,16 +30,15 @@ namespace GradientTracer.FeatureDetection
 					var pos = coordX * _height + coordY;
 					var gradient = new float[arrLength];
 					var curve = new float[arrLength];
-					var gx = (mask[6].GrayScale + mask[7].GrayScale * 2 + mask[8].GrayScale) - (mask[0].GrayScale + mask[1].GrayScale * 2 + mask[2].GrayScale);
+					var gx = (int)((mask[6].GrayScale + mask[7].GrayScale * 2 + mask[8].GrayScale) - (mask[0].GrayScale + mask[1].GrayScale * 2 + mask[2].GrayScale));
 					var gy = (mask[2].GrayScale + mask[5].GrayScale * 2 + mask[8].GrayScale) - (mask[0].GrayScale + mask[3].GrayScale * 2 + mask[6].GrayScale);
-					var norm = (float) Math.Sqrt(gx * gx + gy * gy);
-					var tetta = (float)(Math.Atan(gy / gx) * 180 / 3.14);
-					if (gx<0)
+					var norm = (float)Math.Sqrt(gx * gx + gy * gy);
+					var tetta = (float)(Math.Atan(gy / gx) * 180 / Math.PI);
+					if (gx < 0)
 					{
 						tetta += 180;
 					}
-
-					if (gx == 0)
+					else if (gx == 0)
 					{
 						tetta = 0;
 					}
@@ -49,12 +48,10 @@ namespace GradientTracer.FeatureDetection
 						gradient[i] = tetta;
 						curve[i] = norm;
 					}
-					gradient[3] = 255;
-					curve[3] = 255;
 
 					var p = new Point(points[pos]);
-					p.Pixels[GtConsts.Gradient] = new Pixel(gradient);
-					p.Pixels[GtConsts.Curves] = new Pixel(curve);
+					p.Pixels[GtLayers.Gradient] = new Pixel(gradient);
+					p.Pixels[GtLayers.Curves] = new Pixel(curve);
 					result.Add(p);
 				}
 			}
@@ -65,7 +62,7 @@ namespace GradientTracer.FeatureDetection
 		private List<Pixel> GetMask(IList<Point> units, int x, int y)
 		{
 			var mask = new List<Pixel>();
-			var size = units.First().Pixels[Consts.Original].Length;
+			var size = units.First().Pixels[Layers.Original].Length;
 
 			for (int coordMaskX = x - 1; coordMaskX <= x + 1; coordMaskX++)
 			{
@@ -74,7 +71,7 @@ namespace GradientTracer.FeatureDetection
 					var idx = coordMaskX * _height + coordMaskY;
 					if (idx < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
 					{
-						mask.Add(units[idx].Pixels[Consts.Filtered]);
+						mask.Add(units[idx].Pixels[Layers.Filtered]);
 					}
 					else
 					{

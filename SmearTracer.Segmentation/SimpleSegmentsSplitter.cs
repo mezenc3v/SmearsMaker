@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearTracer.Model;
 
 namespace SmearTracer.Segmentation
 {
@@ -21,7 +22,7 @@ namespace SmearTracer.Segmentation
 			while (data.Count > 0)
 			{
 				int countPrevious, countNext;
-				var segment = new Segment();
+				var segment = new SegmentImpl();
 				segment.Data.Add(data[0]);
 				data.RemoveAt(0);
 
@@ -44,14 +45,14 @@ namespace SmearTracer.Segmentation
 					countNext = segmentData.Count;
 				} while (countPrevious != countNext);
 
-				var dataArr = new float[segment.Data.First().Pixels[Consts.Original].Length];
+				var dataArr = new float[segment.Data.First().Pixels[Layers.Original].Length];
 				var x = 0d;
 				var y = 0d;
 				foreach (var point in segment.Data)
 				{
 					x += point.Position.X;
 					y += point.Position.Y;
-					var currData = point.Pixels[Consts.Filtered].Data;
+					var currData = point.Pixels[Layers.Filtered].Data;
 					for (int i = 0; i < dataArr.Length; i++)
 					{
 						dataArr[i] += currData[i];
@@ -66,7 +67,7 @@ namespace SmearTracer.Segmentation
 					dataArr[i] /= segment.Data.Count;
 				}
 				segment.Centroid = new Point(x, y);
-				segment.Centroid.Pixels.AddPixel(Consts.Original, new Pixel(dataArr));
+				segment.Centroid.Pixels.AddPixel(Layers.Original, new Pixel(dataArr));
 				segments.Add(segment);
 			}
 

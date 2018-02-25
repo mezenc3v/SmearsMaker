@@ -17,11 +17,11 @@ namespace GradientTracer.Analyzer
 			_maxDistance = maxDistance;
 		}
 
-		public List<BrushStroke> Execute(List<BaseObject> objs)
+		public List<BrushStroke> Execute(List<Segment> objs)
 		{
 			var pairs = Pairing(objs);
-			var brushStrokes = Combining(pairs);
-			return brushStrokes;
+			//var brushStrokes = Combining(pairs);
+			return pairs;
 		}
 
 		private List<BrushStroke> Combining(List<BrushStroke> sequences)
@@ -31,41 +31,39 @@ namespace GradientTracer.Analyzer
 			do
 			{
 				distanceCheck = false;
-				if (sequences.Count > 1)
+				for (int i = 0; i < sequences.Count; i++)
 				{
-					for (int i = 0; i < sequences.Count && sequences.Count > 1; i++)
+					var head = sequences[i].Objects.First();
+					var tail = sequences[i].Objects.Last();
+
+					var trueSequenses = sequences.FindAll(
+						s => ToLerance(s.Objects.First(), head) || ToLerance(s.Objects.First(), tail)
+						     || ToLerance(s.Objects.Last(), head) || ToLerance(s.Objects.Last(), tail));
+					if (trueSequenses.Any())
 					{
-						var head = sequences[i].Objects.First();
-						var tail = sequences[i].Objects.Last();
+						var index = NearestPart(trueSequenses, sequences[i]);
+						//var index1 = FindByGradient(sequences[i], trueSequenses);
 
-						var trueSequenses = sequences.FindAll(
-							s => ToLerance(s.Objects.First(), head) || ToLerance(s.Objects.First(), tail)
-							     || ToLerance(s.Objects.Last(), head) || ToLerance(s.Objects.Last(), tail));
-						if (trueSequenses.Any())
+						if (Distance(sequences[i], sequences[index]) < _maxDistance)
 						{
-							var index = NearestPart(trueSequenses, sequences[i]);
-
-							if (Distance(sequences[i], sequences[index]) < _maxDistance)
-							{
-								distanceCheck = true;
-								var combinedSequence = Combine(sequences[i], sequences[index]);
-								var segmentToBeDeleted = sequences[index];
-								sequences.RemoveAt(i);
-								sequences.Remove(segmentToBeDeleted);
-								sequences.Add(combinedSequence);
-							}
+							distanceCheck = true;
+							var combinedSequence = Combine(sequences[i], sequences[index]);
+							var segmentToBeDeleted = sequences[index];
+							sequences.RemoveAt(i);
+							sequences.Remove(segmentToBeDeleted);
+							sequences.Add(combinedSequence);
 						}
-						
 					}
+
 				}
-			} while (distanceCheck);
+			} while (distanceCheck && sequences.Count > 1);
 
 			return sequences;
 		}
 
 		private static BrushStroke Combine(BrushStroke first, BrushStroke second)
 		{
-			var newSequence = new BrushStroke();
+			var newSequence = new BrushStrokeImpl();
 
 			var a = Distance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
 			var b = Distance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
@@ -216,9 +214,9 @@ namespace GradientTracer.Analyzer
 			return index;
 		}
 
-		private static BrushStroke Combine(BrushStroke first, BaseObject second)
+		private static BrushStroke Combine(BrushStroke first, Segment second)
 		{
-			var newSequence = new BrushStroke();
+			var newSequence = new BrushStrokeImpl();
 
 			var distanceHead = Distance(first.Objects.First().Centroid.Position, second.Centroid.Position);
 			var distanceTail = Distance(first.Objects.Last().Centroid.Position, second.Centroid.Position);
@@ -237,52 +235,40 @@ namespace GradientTracer.Analyzer
 			return newSequence;
 		}
 
-		private static System.Windows.Point GetCenter(IReadOnlyCollection<BaseObject> objs)
-		{
-			var center = new System.Windows.Point();
-	
-			foreach (var obj in objs)
-			{
-				center.X += obj.Centroid.Position.X;
-				center.Y += obj.Centroid.Position.Y;
-			}
-
-			center.X /= objs.Count;
-			center.Y /= objs.Count;
-
-			return center;
-		}
-		private List<BrushStroke> Pairing(IReadOnlyCollection<BaseObject> objs)
+		private List<BrushStroke> Pairing(IReadOnlyCollection<Segment> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<BaseObject>();
+			var points = new List<Segment>();
 			points.AddRange(objs);
 
 			if (objs.Count > 1)
 			{
-				//var center = GetCenter(objs);
-
-				//var startPoint = objs.OrderBy(p => Distance(center, p.Centroid.Position)).First();
-
 				while (points.Count > 0)
 				{
 					if (points.Count > 1)
 					{
-						var list = new List<BaseObject>();
+						var list = new List<Segment>();
 						var main = points.Last();
 
 						list.Add(main);
 						points.Remove(main);
 
-						var truePoints = points.FindAll(p => ToLerance(p, main) && Distance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
+						var truePoints = points.FindAll(p => Distance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
 						if (truePoints.Any())
 						{
 							var next = FindByGradient(main, truePoints);
 							//var next = truePoints.OrderBy(p => Distance(main.Centroid.Position, p.Centroid.Position)).First();
+							if (next != null)
+							{
+								list.Add(next);
+								points.Remove(next);
+								brushStrokes.Add(new BrushStrokeImpl(list));
+							}
+							else
+							{
+								brushStrokes.Add(new BrushStrokeImpl(list));
+							}
 
-							list.Add(next);
-							points.Remove(next);
-							brushStrokes.Add(new BrushStroke { Objects = list });
 						}
 						else if (brushStrokes.Any())
 						{
@@ -294,7 +280,7 @@ namespace GradientTracer.Analyzer
 						}
 						else
 						{
-							brushStrokes.Add(new BrushStroke { Objects = list });
+							brushStrokes.Add(new BrushStrokeImpl(list));
 						}
 					}
 					else
@@ -304,13 +290,13 @@ namespace GradientTracer.Analyzer
 
 						brushStrokes.RemoveAt(index);
 						brushStrokes.Add(newSequence);
-						points = new List<BaseObject>();
+						points = new List<Segment>();
 					}
 				}
 			}
 			else
 			{
-				var brushStroke = new BrushStroke();
+				var brushStroke = new BrushStrokeImpl();
 				brushStroke.Objects.Add(objs.First());
 				brushStrokes.Add(brushStroke);
 			}
@@ -318,62 +304,56 @@ namespace GradientTracer.Analyzer
 			return brushStrokes;
 		}
 
-		private bool ToLerance(BaseObject next, BaseObject main)
+		private bool ToLerance(Segment next, Segment main)
 		{
 			//return Math.Abs(Math.Abs(next.Centroid.Pixels[FeatureDetection.BaseConsts.Gradient].Data[0]) -
 			                //Math.Abs(main.Centroid.Pixels[FeatureDetection.BaseConsts.Gradient].Data[0])) < 30
-			return Math.Abs(Distance(next.Centroid.Pixels[GtConsts.Original].Data, main.Centroid.Pixels[GtConsts.Original].Data)) <= _tolerance;
-			//return Math.Abs(next.Centroid.Pixels[BaseConsts.SuperPixelsGrad].Data[0] - main.Centroid.Pixels[BaseConsts.SuperPixelsGrad].Data[0]) <= _tolerance;
+			//return Math.Abs(Distance(next.Centroid.Pixels[GtLayers.Original].Data, main.Centroid.Pixels[GtLayers.Original].Data)) <= _tolerance;
+			return Math.Abs(next.Centroid.Pixels[GtLayers.Gradient].Data[0] - main.Centroid.Pixels[GtLayers.Gradient].Data[0]) <= _tolerance;
 		}
 
-		private static BaseObject FindByGradient(BaseObject obj, List<BaseObject> objs)
+		private static Segment FindByGradient(Segment obj, List<Segment> objs)
 		{		
 			if (objs.Count == 1)
 			{
 				return objs.Single();
 			}
 
-			IEnumerable<BaseObject> result;
+			IEnumerable<Segment> result;
 
-			var grad = obj.Centroid.Pixels[GtConsts.SuperPixelsGrad].Data[0];
-			if (grad > -22.5 && grad <= 22.5)
+			var grad = obj.Centroid.Pixels[GtLayers.Gradient].Data[0];
+
+			if (grad <= -22.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X).OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y);
 			}
-			else if (grad > 22.5 && grad <= 67.5)
+			else if (grad <= 22.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X);
 			}
-			else if (grad > 67.5 && grad <= 112.5)
+			else if (grad <= 67.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.Y > obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y);
 			}
-			else if (grad > 112.5 && grad <= 157.5)
+			else if (grad <= 112.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.Y > obj.Centroid.Position.Y);
 			}
-			else if (grad > 157.5 && grad <= 202.5)
+			else if (grad <= 157.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y > obj.Centroid.Position.Y);
 			}
-			else if (grad > 202.5 && grad <= 247.5)
+			else if (grad <= 202.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X);
 			}
-			else if (grad > 247.5 && grad <= 292.5)
+			else if (grad <= 247.5)
 			{
-				result = objs.FindAll(o => o.Centroid.Position.Y < obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.X > obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y);
 			}
 			else
 			{
-				result = objs.FindAll(o => o.Centroid.Position.X < obj.Centroid.Position.X && o.Centroid.Position.Y < obj.Centroid.Position.Y)
-					.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+				result = objs.FindAll(o => o.Centroid.Position.Y < obj.Centroid.Position.Y);
 			}
 
 			if (!result.Any())
@@ -381,22 +361,9 @@ namespace GradientTracer.Analyzer
 				return objs.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position)).First();
 			}
 
+			result = result.OrderBy(ob => Distance(obj.Centroid.Position, ob.Centroid.Position));
+			
 			return result.First();
-		}
-
-		private static double Distance(float[] first, float[] second)
-		{
-			var dist = first.Select((t, i) => Math.Pow(2, t - second[i])).Sum();
-
-			return Math.Sqrt(dist);
-		}
-
-		private bool ToLerance(BrushStroke first, BrushStroke second)
-		{
-			return ToLerance(first.Objects.First(), second.Objects.First()) ||
-			ToLerance(first.Objects.First(), second.Objects.Last()) ||
-			ToLerance(first.Objects.Last(), second.Objects.Last()) ||
-			ToLerance(first.Objects.Last(), second.Objects.First());
 		}
 
 		private static double Distance(System.Windows.Point first, System.Windows.Point second)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GradientTracer.Model;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
@@ -16,21 +17,21 @@ namespace GradientTracer.Analyzer
 			_maxSize = maxSize;
 		}
 
-		public List<SuperPixel> Splitting(Segment segment)
+		public List<Segment> Splitting(Segment segment)
 		{
 			var maxDiameter = Math.Sqrt(_maxSize);
 			var minDiameter = Math.Sqrt(_minSize);
 
 			//spliting complex segment into superPixels
 			var data = segment.Data;
-			var superPixelsList = new List<SuperPixel>();
+			var superPixelsList = new List<Segment>();
 
 			var samples = InitilalCentroids(maxDiameter, segment);
 			var superPixels = samples.Select(centroid =>
 			{
 				var p = new Point(centroid.X, centroid.Y);
-				p.Pixels.AddPixel(Consts.Original, segment.Centroid.Pixels[Consts.Original]);
-				return new SuperPixel(p);
+				p.Pixels.AddPixel(Layers.Original, segment.Centroid.Pixels[Layers.Original]);
+				return new SegmentImpl(p);
 			}).ToList();
 			//Search for winners and distribution of data
 			foreach (var unit in data)
@@ -52,14 +53,14 @@ namespace GradientTracer.Analyzer
 			return superPixelsList;
 		}
 
-		private static Point GetCentroid(SuperPixel superPixel)
+		private static Point GetCentroid(Segment superPixel)
 		{
 			var points = superPixel.Data;
 
 			//coorditates for compute centroid
 			int x = 0;
 			int y = 0;
-			var averageData = new float[points.First().Pixels[Consts.Original].Length];
+			var averageData = new float[points.First().Pixels[Layers.Original].Length];
 
 			foreach (var point in points)
 			{
@@ -67,7 +68,7 @@ namespace GradientTracer.Analyzer
 				y += (int)point.Position.Y;
 				for (int i = 0; i < averageData.Length; i++)
 				{
-					averageData[i] += point.Pixels[Consts.Original].Data[i];
+					averageData[i] += point.Pixels[Layers.Original].Data[i];
 				}
 			}
 
@@ -80,7 +81,7 @@ namespace GradientTracer.Analyzer
 			}
 
 			var p = new Point(x, y);
-			p.Pixels.AddPixel(Consts.Original, new Pixel(averageData));
+			p.Pixels.AddPixel(Layers.Original, new Pixel(averageData));
 			return p;
 		}
 		private static (System.Windows.Point minx, System.Windows.Point miny, System.Windows.Point maxx, System.Windows.Point maxy) GetExtremums(Segment segment)
@@ -154,7 +155,7 @@ namespace GradientTracer.Analyzer
 			return samplesData;
 		}
 
-		private static double Distance(SuperPixel superPixel, Point pixel)
+		private static double Distance(Segment superPixel, Point pixel)
 		{
 			//var sum = Math.Pow(pixel.Position.X - superPixel.Centroid.Position.X, 2);
 			//sum += Math.Pow(pixel.Position.Y - superPixel.Centroid.Position.Y, 2);
@@ -186,7 +187,7 @@ namespace GradientTracer.Analyzer
 			return dictance;
 		}
 
-		private static int NearestCentroid(Point pixel, IReadOnlyList<SuperPixel> superPixels)
+		private static int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
 		{
 			var index = 0;
 			var min = Distance(superPixels[0], pixel);

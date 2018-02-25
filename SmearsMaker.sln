@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer.Segmentation", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTracer.Model", "GradientTracer.Model\GradientTracer.Model.csproj", "{AB17CBF0-D80F-4905-8144-B5C86AB1FE06}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer.Model", "SmearTracer.Model\SmearTracer.Model.csproj", "{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -79,6 +81,10 @@ Global
 		{AB17CBF0-D80F-4905-8144-B5C86AB1FE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB17CBF0-D80F-4905-8144-B5C86AB1FE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AB17CBF0-D80F-4905-8144-B5C86AB1FE06}.Release|Any CPU.Build.0 = Release|Any CPU
+		{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,6 +97,7 @@ Global
 		{A7DEE711-0CE6-47EB-A37E-5D42E4F58074} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 		{C4319B4E-7456-42D3-BE22-5291D4E7A831} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 		{AB17CBF0-D80F-4905-8144-B5C86AB1FE06} = {943B6384-7767-45E3-A1E4-B761A2D7E67E}
+		{57F8CE0A-32FD-4EA7-AF1D-A84C8F6EF469} = {E41629F3-0454-4A79-8783-DC694E87CED8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B853E930-5CCE-4D69-800C-05202171F662}

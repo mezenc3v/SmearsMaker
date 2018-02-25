@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Media.Imaging;
 using SmearsMaker.Common.Image;
 
 namespace GradientTracer.Analyzer
 {
-	public class GTImageModel : ImageModel
+	public class GTImageSettings
 	{
 		#region properties
+		public List<ImageSetting> Settings { get; }
 		public ImageSetting FilterRank { get; }
 		public ImageSetting HeightPlt { get; }
 		public ImageSetting WidthPlt { get; }
 		public ImageSetting SizeSuperPixel { get; }
-		public ImageSetting HeightSmear { get; }
+		public ImageSetting WidthSmearUI { get; }
+		public ImageSetting WidthSmear { get; }
 		public ImageSetting Tolerance { get; }
 		#endregion
 
-		public GTImageModel(BitmapSource image) : base(image)
+		public GTImageSettings(int width, int height)
 		{
 			FilterRank = new ImageSetting
 			{
-				Value = (int)Math.Sqrt((double)(Width + Height) / 80 / 2),
+				Value = (int)Math.Sqrt((double)(width + height) / 80 / 2),
 				Name = "Ранг фильтра"
 			};
 
@@ -37,12 +38,17 @@ namespace GradientTracer.Analyzer
 
 			SizeSuperPixel = new ImageSetting
 			{
-				Value = (int)(Width * Height / 500),
+				Value = (int)(width * height / 500),
 				Name = "Размер суперпикселя"
 			};
-			HeightSmear = new ImageSetting
+			WidthSmear = new ImageSetting
 			{
-				Value = Width * Height / 5000 + 1,
+				Value = width * height / 5000 + 1,
+				Name = "Ширина мазка в plt"
+			};
+			WidthSmearUI = new ImageSetting
+			{
+				Value = width * height / 5000 + 1,
 				Name = "Ширина мазка"
 			};
 			Tolerance = new ImageSetting
@@ -51,14 +57,16 @@ namespace GradientTracer.Analyzer
 				Name = "Погрешность в rgb"
 			};
 
-			Settings.AddRange(
-				new List<ImageSetting>{
+			Settings = new List<ImageSetting>
+			{
 				FilterRank,
 				HeightPlt,
 				WidthPlt,
 				SizeSuperPixel,
-				HeightSmear,
-				Tolerance});
+				WidthSmearUI,
+				WidthSmear,
+				Tolerance
+			};
 		}
 	}
 }

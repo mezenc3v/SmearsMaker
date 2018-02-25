@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Media;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using NLog;
 using Color = System.Drawing.Color;
@@ -22,7 +22,7 @@ namespace SmearsMaker.HPGL
 
 		public PltReader()
 		{
-			
+
 		}
 
 		public BitmapSource Read(string path)
@@ -35,27 +35,9 @@ namespace SmearsMaker.HPGL
 			var file = File.ReadAllText(path);
 			var matches = Regex.Matches(file, _pattern);
 
-			int width = 0;
-			int height = 0;
+			var (width, height) = GetDimensions(file);
 
-			foreach (Match position in Regex.Matches(file, _positionsPattern))
-			{
-				foreach (Capture capture in position.Groups["Position"].Captures)
-				{
-					var posArr = capture.Value.Split(',').Select(p => Convert.ToInt32(p)).ToArray();
-
-					if (posArr[0] > width)
-					{
-						width = posArr[0];
-					}
-					if (posArr[1] > height)
-					{
-						height = posArr[1];
-					}
-				}
-			}
-
-			var bitmap = CreateBitmap(width, height);
+			var bitmap = PltHelper.CreateBitmap(width, height);
 			var g = Graphics.FromImage(bitmap);
 			g.Clear(Color.White);
 
@@ -116,36 +98,37 @@ namespace SmearsMaker.HPGL
 
 			g.Dispose();
 
-			return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+			return Imaging.CreateBitmapSourceFromHBitmap(
 				bitmap.GetHbitmap(),
 				IntPtr.Zero,
 				Int32Rect.Empty,
 				BitmapSizeOptions.FromEmptyOptions());
 		}
 
-		private static Bitmap CreateBitmap(int width, int height)
+		private static (int width, int height) GetDimensions(string file)
 		{
-			using (var outStream = new MemoryStream())
+
+			int width = 0;
+			int height = 0;
+
+			foreach (Match position in Regex.Matches(file, _positionsPattern))
 			{
-				var enc = new BmpBitmapEncoder();
-
-				// Try creating a new image with a custom palette.
-				var colors = new List<System.Windows.Media.Color>
+				foreach (Capture capture in position.Groups["Position"].Captures)
 				{
-					Colors.Red,
-					Colors.Blue,
-					Colors.Green
-				};
+					var posArr = capture.Value.Split(',').Select(p => Convert.ToInt32(p)).ToArray();
 
-				var pf = PixelFormats.Rgb24;
-				int rawStride = (width * pf.BitsPerPixel + 7) / 8;
-				var pixels = new byte[rawStride * height];
-				var myPalette = new BitmapPalette(colors);
-
-				enc.Frames.Add(BitmapFrame.Create(BitmapSource.Create(width, height, 96, 96, pf, myPalette, pixels, rawStride)));
-				enc.Save(outStream);
-				return new Bitmap(outStream);
+					if (posArr[0] > width)
+					{
+						width = posArr[0];
+					}
+					if (posArr[1] > height)
+					{
+						height = posArr[1];
+					}
+				}
 			}
+
+			return (width, height);
 		}
 	}
 }

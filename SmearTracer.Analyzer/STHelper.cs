@@ -6,9 +6,9 @@ using SmearsMaker.Common.BaseTypes;
 
 namespace SmearTracer.Analyzer
 {
-	public static class Helper
+	internal static class STHelper
 	{
-		public static void Concat(List<Smear> smears, List<Point> points)
+		internal static void Concat(List<Smear> smears, List<Point> points)
 		{
 			foreach (var point in points)
 			{
@@ -34,7 +34,7 @@ namespace SmearTracer.Analyzer
 			}
 		}
 
-		public static List<float> GetGandomData(uint length)
+		internal static List<float> GetGandomData(uint length)
 		{
 			var c = new RNGCryptoServiceProvider();
 			var randomNumber = new byte[length];

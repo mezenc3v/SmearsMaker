@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearTracer.Model;
 using Point = System.Windows.Point;
 
 namespace SmearTracer.Concatenation
@@ -16,18 +17,18 @@ namespace SmearTracer.Concatenation
 		    _maxLemgth = maxLemgth;
 	    }
 
-	    public List<BrushStroke> Execute(List<BaseObject> objs)
+	    public List<BrushStroke> Execute(List<Segment> objs)
 	    {
 		    FindPoints(objs);
 		    if (objs.Count > 0)
 		    {
 			    var size = Math.Sqrt(objs.First().Data.Count);
 			    var brushStrokes = new List<BrushStroke>();
-			    var points = new List<BaseObject>();
+			    var points = new List<Segment>();
 				points.AddRange(objs);
 
 			    double length = 0;
-			    var list = new List<BaseObject>();
+			    var list = new List<Segment>();
 
 			    while (points.Count > 0)
 			    {
@@ -56,17 +57,17 @@ namespace SmearTracer.Concatenation
 						    }
 					    } while (length <= _maxLemgth && points.Count > 0);
 
-					    brushStrokes.Add(new BrushStroke { Objects = list });
+						brushStrokes.Add(new BrushStrokeImpl(list));
 
-					    if (length <= _maxLemgth)
+						if (length <= _maxLemgth)
 					    {
 						    length = 0;
-						    list = new List<BaseObject>();
+						    list = new List<Segment>();
 					    }
 					    else
 					    {
 						    length = 0;
-						    list = new List<BaseObject>
+						    list = new List<Segment>
 						    {
 							    brushStrokes.Last().Objects.Last()
 						    };
@@ -74,7 +75,7 @@ namespace SmearTracer.Concatenation
 				    }
 				    else
 				    {
-					    brushStrokes.Add(new BrushStroke { Objects = list });
+					    brushStrokes.Add(new BrushStrokeImpl(list));
 				    }
 
 			    }
@@ -84,7 +85,7 @@ namespace SmearTracer.Concatenation
 		    return new List<BrushStroke>();
 	    }
 
-	    private void FindPoints(IEnumerable<BaseObject> objs)
+	    private void FindPoints(IEnumerable<Segment> objs)
 	    {
 		    var finish = objs.First().MinX;
 		    double maxDistance = 0;

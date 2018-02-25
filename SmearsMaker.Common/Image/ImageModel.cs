@@ -1,27 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
+using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Common.Helpers;
 
 namespace SmearsMaker.Common.Image
 {
-	public abstract class ImageModel : INotifyPropertyChanged
+	public class ImageModel
 	{
-		public event PropertyChangedEventHandler PropertyChanged;
-		public BitmapSource Image { get; }
 		public int Width => Image.PixelWidth;
 		public int Height => Image.PixelHeight;
-		public List<ImageSetting> Settings { get; }
-		protected ImageModel(BitmapSource image)
+		public List<Point> Points { get; }
+		public BitmapSource Image { get; }
+		internal ImageModel(BitmapSource image)
 		{
 			Image = image ?? throw new NullReferenceException("image");
-			Settings = new List<ImageSetting>();
+			Points = Points = ImageHelper.ConvertToPixels(image);
 		}
 
-		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		public BitmapSource ConvertToBitmapSource(List<Point> points, string layer)
 		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+			return ImageHelper.ConvertRgbToBitmap(Image, points, layer);
 		}
 	}
 }

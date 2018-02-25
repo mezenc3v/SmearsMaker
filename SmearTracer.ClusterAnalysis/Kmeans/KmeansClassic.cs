@@ -23,8 +23,8 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 				{
 					var pixel = new Pixel(centr);
 					var point = new Point(data.Position.X, data.Position.Y);
-					point.Pixels.AddPixel(Consts.Original, data.Pixels[Consts.Original]);
-					point.Pixels[Consts.Filtered] = new Pixel(pixel.Data);
+					point.Pixels.AddPixel(Layers.Original, data.Pixels[Layers.Original]);
+					point.Pixels[Layers.Filtered] = new Pixel(pixel.Data);
 					clusteringPoints.Add(point);
 				}
 			}
@@ -38,16 +38,16 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 
 			foreach (var cluster in Clusters)
 			{
-				var average = new float[cluster.Data[0].Pixels[Consts.Original].Length];
+				var average = new float[cluster.Data[0].Pixels[Layers.Original].Length];
 				foreach (var point in cluster.Data)
 				{
-					var data = point.Pixels[Consts.Original].Data;
-					for (int i = 0; i < point.Pixels[Consts.Original].Length; i++)
+					var data = point.Pixels[Layers.Original].Data;
+					for (int i = 0; i < point.Pixels[Layers.Original].Length; i++)
 					{
 						average[i] += data[i];
 					}
 				}
-				for (int i = 0; i < cluster.Data[0].Pixels[Consts.Original].Length; i++)
+				for (int i = 0; i < cluster.Data[0].Pixels[Layers.Original].Length; i++)
 				{
 					average[i] /= cluster.Data.Count;
 				}
@@ -55,8 +55,8 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 				foreach (var data in cluster.Data)
 				{
 					var point = new Point(data.Position.X, data.Position.Y);
-					point.Pixels.AddPixel(Consts.Original, data.Pixels[Consts.Original]);
-					point.Pixels[Consts.Filtered] = new Pixel(average);
+					point.Pixels.AddPixel(Layers.Original, data.Pixels[Layers.Original]);
+					point.Pixels[Layers.Filtered] = new Pixel(average);
 					clusteringPoints.Add(point);
 				}
 			}
@@ -86,14 +86,14 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 
 		protected override void FillCentroidsWithInitialValues()
 		{
-			var sortedArray = Points.OrderBy(p => p.Pixels[Consts.Filtered].Sum).ToArray();
+			var sortedArray = Points.OrderBy(p => p.Pixels[Layers.Filtered].Sum).ToArray();
 			var step = Points.Count / Clusters.Count;
 
 			for (int i = 0; i < Clusters.Count; i++)
 			{
 				var point = sortedArray[i * step / 2];
 
-				Clusters[i].Centroid = point.Pixels[Consts.Filtered];
+				Clusters[i].Centroid = point.Pixels[Layers.Filtered];
 			}
 		}
 		protected override void UpdateCentroid(Cluster cluster)
@@ -102,7 +102,7 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 
 			foreach (var data in cluster.Data)
 			{
-				var dataArray = data.Pixels[Consts.Filtered].Data;
+				var dataArray = data.Pixels[Layers.Filtered].Data;
 				for (int i = 0; i < newCentroid.Length; i++)
 				{
 					newCentroid[i] += dataArray[i];

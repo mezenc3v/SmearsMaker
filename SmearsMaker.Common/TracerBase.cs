@@ -2,8 +2,6 @@
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using NLog;
-using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.Common.Helpers;
 using SmearsMaker.Common.Image;
 
 namespace SmearsMaker.Common
@@ -11,15 +9,16 @@ namespace SmearsMaker.Common
 	public abstract class TracerBase : ITracer
 	{
 		public Progress Progress { get; }
-		public abstract List<ImageSetting> Settings { get; }
-		public abstract List<ImageViewModel> Views { get; }
+		public ImageModel Model { get; }
 
-		protected readonly List<Point> Points;
+		public abstract List<ImageSetting> Settings { get; }
+		public abstract List<ImageView> Views { get; }
+
 		protected static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
 		protected TracerBase(BitmapSource image)
 		{
-			Points = Points = ImageHelper.ConvertToPixels(image);
+			Model = new ImageModel(image);
 			Progress = new Progress();
 		}
 

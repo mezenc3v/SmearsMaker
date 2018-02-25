@@ -50,6 +50,10 @@
       <Project>{9425d82a-b2e0-4718-a7aa-7a8177b87696}</Project>
       <Name>SmearsMaker.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SmearTracer.Model\SmearTracer.Model.csproj">
+      <Project>{57f8ce0a-32fd-4ea7-af1d-a84c8f6ef469}</Project>
+      <Name>SmearTracer.Model</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SmearTracer.Segmentation\SmearTracer.Segmentation.csproj">
       <Project>{c4319b4e-7456-42d3-be22-5291d4e7a831}</Project>
       <Name>SmearTracer.Segmentation</Name>

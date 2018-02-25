@@ -43,7 +43,7 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 
 			return Clusters;
 		}
-		private void MergingSmallClusters()
+		protected virtual void MergingSmallClusters()
 		{
 			var smallData = new List<Point>();
 
@@ -55,7 +55,7 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 			}
 			Parallel.ForEach(smallData, d =>
 			{
-				var index = NearestCentroid(d.Pixels[Consts.Filtered]);
+				var index = NearestCentroid(d.Pixels[Layers.Filtered]);
 				lock (smallData)
 				{
 					Clusters[index].Data.Add(d);
@@ -70,7 +70,7 @@ namespace SmearTracer.ClusterAnalysis.Kmeans
 			}
 			Parallel.ForEach(Points, d =>
 			{
-				var index = NearestCentroid(d.Pixels[Consts.Original]);
+				var index = NearestCentroid(d.Pixels[Layers.Original]);
 				lock (Points)
 				{
 					Clusters[index].Data.Add(d);

@@ -2,10 +2,9 @@
 
 namespace GradientTracer.Model
 {
-	public class GtConsts : Consts
+	public class GtLayers : Layers
 	{
 		public static string Gradient = "Gradient";
 		public static string Curves = "Curves";
-		public static string SuperPixelsGrad = "SuperPixelsGrad";
 	}
 }

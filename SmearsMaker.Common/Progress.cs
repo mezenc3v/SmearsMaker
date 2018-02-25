@@ -11,6 +11,7 @@ namespace SmearsMaker.Common
 		public int Minimum;
 		public int Maximum;
 		public int Step;
+		private int CurrPercent => Minimum - Maximum != 0 ? (Minimum + Position) * 100 / (Maximum - Minimum) : 0;
 
 		public void NewProgress(string msg, int minimum, int maximum)
 		{
@@ -35,8 +36,6 @@ namespace SmearsMaker.Common
 
 			UpdateProgress?.Invoke(this, new ProgressBarEventArgs(Message, CurrPercent));
 		}
-
-		private int CurrPercent => Minimum - Maximum != 0 ? (Minimum + Position) * 100 / (Maximum - Minimum) : 0;
 	}
 
 	public class ProgressBarEventArgs : EventArgs

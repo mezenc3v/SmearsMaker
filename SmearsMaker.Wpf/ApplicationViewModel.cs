@@ -54,7 +54,7 @@ namespace SmearsMaker.Wpf
 
 		private string _label;
 		private ImageSource _currentImage;
-		private List<ImageViewModel> _images;
+		private List<ImageView> _images;
 		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 		private int _currentImageIndex;
 		private ITracer _tracer;
@@ -65,7 +65,7 @@ namespace SmearsMaker.Wpf
 			OpenImage = new Command(OpenFile);
 			SavePlt = new Command(SavePtl);
 			SaveImages = new Command(SaveImagesInFolder);
-			_images = new List<ImageViewModel>();
+			_images = new List<ImageView>();
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
 		}
@@ -104,7 +104,7 @@ namespace SmearsMaker.Wpf
 				await _tracer.Execute();
 
 				var views = _tracer.Views;
-				_images = new List<ImageViewModel>();
+				_images = new List<ImageView>();
 				_images.AddRange(views);
 
 				CurrentImage = _images[_currentImageIndex].Source;

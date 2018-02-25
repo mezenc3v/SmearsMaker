@@ -6,6 +6,8 @@ namespace SmearsMaker.Common.BaseTypes
 	public class Pixel
 	{
 		public float Sum => Data.Sum();
+		public float Average => Data.Average();
+
 		public float[] Data { get; }
 
 		public int Length => Data.Length;

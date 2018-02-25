@@ -47,7 +47,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BsmPair.cs" />
-    <Compile Include="GTImageModel.cs" />
+    <Compile Include="GradientBsm.cs" />
+    <Compile Include="GTHelper.cs" />
+    <Compile Include="GTImageSettings.cs" />
     <Compile Include="SuperpixelSplitter.cs" />
     <Compile Include="GTracer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -8,8 +8,8 @@ namespace SmearsMaker.Common
 	{
 		Progress Progress { get; }
 		List<ImageSetting> Settings { get;}
+		List<ImageView> Views { get; }
 		Task Execute();
-		List<ImageViewModel> Views { get; }
 		string GetPlt();
 	}
 }
