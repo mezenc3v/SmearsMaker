@@ -9,13 +9,13 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using GradientTracer.Analyzer;
+using GradientTracer;
 using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
 using SmearsMaker.Common.Image;
 using SmearsMaker.HPGL;
-using SmearTracer.Analyzer;
+using SmearTracer;
 
 namespace SmearsMaker.Wpf
 {
