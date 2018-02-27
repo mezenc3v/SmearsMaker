@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using NLog;
 using Color = System.Drawing.Color;
 using Pen = System.Drawing.Pen;
 
@@ -15,10 +14,9 @@ namespace SmearsMaker.HPGL
 {
 	public class PltReader
 	{
-		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
-		private static readonly string _pattern = @"PC\d*,(?<Color>(\d*,*)*);(PW(?<Height>\d*),\d*;(PU[\d,]*;(PD[\d,]*;)*)*)*";
-		private static readonly string _smearPattern = @"PU(?<Start>[\d,]*);(PD(?<Point>[\d,]*);)*";
-		private static readonly string _positionsPattern = @"(PU|PD)(?<Position>\d*,\d*)";
+		private static readonly string _pattern = @"PW(?<Width>\d*),\d*;(PC\d*,(?<Color>(\d*,*)*);(PU[\d,]*;(PD[\d,]*);*)*)*";
+		private static readonly string _smearPattern = @"PC\d*,(?<Color>(\d*,*)*);PU(?<Start>[\d,]*);PD(?<Points>[\d,]*);";
+		private static readonly string _positionsPattern = @"(PD|PU)((?<Position>\d*,\d*)(,|;))*";
 
 		public PltReader()
 		{
@@ -45,53 +43,46 @@ namespace SmearsMaker.HPGL
 			{
 				try
 				{
-					var smearHeight = Convert.ToInt32(match.Groups["Height"].Value);
-					var strColor = match.Groups["Color"].Value;
-					var colorArr = strColor.Split(',');
-					var color = colorArr.Select(p => Convert.ToByte(p)).ToArray();
+					var smearwidth = Convert.ToInt32(match.Groups["Width"].Value);
+					var pens = Regex.Matches(match.Value, _smearPattern);
 
-					var pen = new Pen(Color.FromArgb(color[0], color[1], color[2]), smearHeight);
-					var brush = new SolidBrush(Color.FromArgb(color[0], color[1], color[2]));
-
-					var smearsMatches = Regex.Matches(match.Value, _smearPattern);
-
-					foreach (Match smearMatch in smearsMatches)
+					foreach (Match smearPen in pens)
 					{
+						var colorArr = smearPen.Groups["Color"].Value.Split(',');
+						var color = colorArr.Select(p => Convert.ToByte(p)).ToArray();
+						var pen = new Pen(Color.FromArgb(color[0], color[1], color[2]), smearwidth);
+						var brush = new SolidBrush(Color.FromArgb(color[0], color[1], color[2]));
+
 						var points = new List<PointF>();
 
-						var startPointStr = smearMatch.Groups["Start"].Value;
-						var startArr = startPointStr.Split(',');
+						var startArr = smearPen.Groups["Start"].Value.Split(',');
 						var startPointArr = startArr.Select(Convert.ToSingle).ToArray();
 						var startPoint = new PointF(startPointArr[0], height - startPointArr[1]);
 						points.Add(startPoint);
 
-						var group = smearMatch.Groups["Point"];
+						var pointsGroup = smearPen.Groups["Points"];
 
-						foreach (Capture capture in group.Captures)
+						foreach (Capture capture in pointsGroup.Captures)
 						{
-							var captureArr = capture.Value.Split(',');
-							var pointArr = captureArr.Select(Convert.ToSingle).ToArray();
-							var point = new PointF(pointArr[0], height - pointArr[1]);
-							points.Add(point);
+							var pointArr = capture.Value.Split(',').Select(Convert.ToSingle).ToArray();
+							for(int i = 0; i < pointArr.Length - 1; i+=2)
+							{
+								var point = new PointF(pointArr[i], height - pointArr[i + 1]);
+								points.Add(point);
+							}						
 						}
+
+						g.FillEllipse(brush, points.First().X, points.First().Y, pen.Width, pen.Width);
 
 						if (points.Count > 1)
 						{
-							g.FillEllipse(brush, points.First().X, points.First().Y, pen.Width, pen.Width);
-							g.FillEllipse(brush, points.Last().X, points.Last().Y, pen.Width, pen.Width);
-
 							g.DrawLines(pen, points.ToArray());
-						}
-
-						if (points.Count == 1)
-						{
-							g.FillEllipse(brush, points.First().X, points.First().Y, pen.Width, pen.Width);
+							g.FillEllipse(brush, points.Last().X, points.Last().Y, pen.Width, pen.Width);
 						}
 					}
 				}
 				catch (Exception ex)
 				{
-					Log.Error(ex, "Ошибка анализа plt файла");
 					throw new Exception($"Ошибка анализа plt файла!\n{ex.Message}", ex);
 				}
 			}
@@ -107,7 +98,6 @@ namespace SmearsMaker.HPGL
 
 		private static (int width, int height) GetDimensions(string file)
 		{
-
 			int width = 0;
 			int height = 0;
 

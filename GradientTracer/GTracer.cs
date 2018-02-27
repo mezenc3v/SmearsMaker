@@ -105,7 +105,6 @@ namespace GradientTracer
 		public override string GetPlt()
 		{
 			var height = _settings.HeightPlt;
-
 			var width = _settings.WidthPlt;
 
 			var delta = (float)height.Value / Model.Height;
@@ -116,24 +115,41 @@ namespace GradientTracer
 			}
 			var smearWidth = (int)(_settings.WidthSmear.Value * delta);
 			const int index = 1;
-			//building string
-			var plt = new StringBuilder().Append("IN;");
-			
-			foreach (var brushStroke in _strokes.OrderByDescending(bs => bs.AverageData.Sum()).ThenBy(b => b.Objects.Count))
+			//start plt and add pen
+			var plt = new StringBuilder().Append($"IN;SP{index};");
+			//add pen width
+			plt.Append($"PW{smearWidth},{index};");
+			//group strokes by color
+			var bsGroups = _strokes.GroupBy(s => s.AverageData.GrayScale);
+
+			foreach (var bsGroup in bsGroups.OrderBy(group => group.Key))
 			{
-				var averageData = brushStroke.AverageData;
-				plt.Append($"PC{index},{(uint)averageData[2]},{(uint)averageData[1]},{(uint)averageData[0]};");
-				plt.Append($"PW{smearWidth},{index};");
-				plt.Append($"PU{(uint)(brushStroke.Head.X * delta)},{(uint)(height.Value - brushStroke.Head.Y * delta)};");
-
-				for (int i = 1; i < brushStroke.Objects.Count - 1; i++)
+				var average = bsGroup.First().AverageData.Data;
+				//add pen color
+				plt.Append($"PC{index},{(uint)average[2]},{(uint)average[1]},{(uint)average[0]};");
+				foreach (var stroke in bsGroup.OrderBy(b => b.Objects.Count))
 				{
-					plt.Append($"PD{(uint)(brushStroke.Objects[i].Centroid.Position.X * delta)},{(uint)(height.Value - brushStroke.Objects[i].Centroid.Position.Y * delta)};");
+					//add strokes
+					plt.Append($"PU{(uint)(stroke.Head.X * delta)},{(uint)(height.Value - stroke.Head.Y * delta)};");
+					plt.Append("PD");
+
+					for (int i = 1; i < stroke.Objects.Count - 1; i++)
+					{
+						var point = stroke.Objects[i].Centroid.Position;
+						plt.Append($"{(uint)(point.X * delta)},{(uint)(height.Value - point.Y * delta)},");
+					}
+
+					if (stroke.Objects.Count == 1)
+					{
+						plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(height.Value - stroke.Tail.Y * delta)},");
+						plt.Append($"{(uint)(stroke.Tail.X * delta) + 1},{(uint)(height.Value - stroke.Tail.Y * delta) + 1};");
+					}
+					else
+					{
+						plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(height.Value - stroke.Tail.Y * delta)};");
+					}
 				}
-
-				plt.Append($"PU{(uint)(brushStroke.Tail.X * delta)},{(uint)(height.Value - brushStroke.Tail.Y * delta)};");
 			}
-
 			return plt.ToString();
 		}
 	}

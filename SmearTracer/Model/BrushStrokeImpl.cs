@@ -29,7 +29,7 @@ namespace SmearTracer.Model
 			}
 		}
 
-		public override float[] AverageData
+		public override Pixel AverageData
 		{
 			get
 			{
@@ -49,7 +49,7 @@ namespace SmearTracer.Model
 					averageData[i] /= centers.Count;
 				}
 
-				return averageData;
+				return new Pixel(averageData);
 			}
 		}
 

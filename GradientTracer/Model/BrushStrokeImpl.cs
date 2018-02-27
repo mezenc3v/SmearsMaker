@@ -28,7 +28,7 @@ namespace GradientTracer.Model
 			}
 		}
 
-		public override float[] AverageData
+		public override Pixel AverageData
 		{
 			get
 			{
@@ -48,7 +48,7 @@ namespace GradientTracer.Model
 					averageData[i] /= centers.Count;
 				}
 
-				return averageData;
+				return new Pixel(averageData);
 			}
 		}
 
