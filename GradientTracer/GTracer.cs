@@ -52,6 +52,7 @@ namespace GradientTracer
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 
 				segment.Data = _sobelPoints;
+				Progress.NewProgress("Создание суперпикселей");
 				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value, (int)_settings.SizeSuperPixel.Value, 1);
 				_superPixels = splitter.Splitting(segment);
 

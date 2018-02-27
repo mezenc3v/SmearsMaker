@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
@@ -20,7 +21,8 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 		{
 			var result = new List<Point>();
 			var arrLength = points.First().Pixels[Layers.Original].Length;
-			for (int coordX = 0; coordX < _width; coordX++)
+
+			Parallel.For(0, _width, (coordX) =>
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
@@ -50,9 +52,13 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 					var p = new Point(points[pos]);
 					p.Pixels[Layers.Gradient] = new Pixel(gradient);
 					p.Pixels[Layers.Curves] = new Pixel(curve);
-					result.Add(p);
+
+					lock (result)
+					{
+						result.Add(p);
+					}
 				}
-			}
+			});
 
 			return result;
 		}

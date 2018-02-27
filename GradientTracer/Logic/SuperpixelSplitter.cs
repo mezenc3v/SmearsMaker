@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
@@ -33,11 +34,14 @@ namespace GradientTracer.Logic
 				return new Segment(p);
 			}).ToList();
 			//Search for winners and distribution of data
-			foreach (var unit in data)
+			Parallel.ForEach(data, unit =>
 			{
 				var winner = NearestCentroid(unit, superPixels);
-				superPixels[winner].Data.Add(unit);
-			}
+				lock (superPixels)
+				{
+					superPixels[winner].Data.Add(unit);
+				}
+			});
 			//Deleting empty cells and cells with small data count
 			foreach (var superPixel in superPixels)
 			{
@@ -129,12 +133,12 @@ namespace GradientTracer.Logic
 		{
 			var samplesData = new List<System.Windows.Point>();
 
-			var points = GetExtremums(segment);
+			var (minx, miny, maxx, maxy) = GetExtremums(segment);
 
-			var firstPoint = new System.Windows.Point(points.minx.X, points.miny.Y);
-			var secondPoint = new System.Windows.Point(points.maxx.X, points.maxy.Y);
-			var widthCount = (int)(points.maxx.X - points.minx.X);
-			var heightCount = (int)(points.maxy.Y - points.miny.Y);
+			var firstPoint = new System.Windows.Point(minx.X, miny.Y);
+			var secondPoint = new System.Windows.Point(maxx.X, maxy.Y);
+			var widthCount = (int)(maxx.X - minx.X);
+			var heightCount = (int)(maxy.Y - miny.Y);
 
 			if (widthCount > diameter && heightCount > diameter)
 			{
