@@ -8,7 +8,7 @@ namespace SmearsMaker.Common
 {
 	public abstract class TracerBase : ITracer
 	{
-		public Progress Progress { get; }
+		public IProgress Progress { get; }
 		public ImageModel Model { get; }
 
 		public abstract List<ImageSetting> Settings { get; }
@@ -16,10 +16,10 @@ namespace SmearsMaker.Common
 
 		protected static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
-		protected TracerBase(BitmapSource image)
+		protected TracerBase(BitmapSource image, IProgress progress)
 		{
 			Model = new ImageModel(image);
-			Progress = new Progress();
+			Progress = progress;
 		}
 
 		public abstract Task Execute();

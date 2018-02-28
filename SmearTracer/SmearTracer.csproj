@@ -55,6 +55,7 @@
     <Compile Include="Logic\BsmPair.cs" />
     <Compile Include="Model\BrushStrokeImpl.cs" />
     <Compile Include="Logic\SimpleSegmentsSplitter.cs" />
+    <Compile Include="Model\Smear.cs" />
     <Compile Include="STHelper.cs" />
     <Compile Include="STImageSettings.cs" />
     <Compile Include="STracer.cs" />

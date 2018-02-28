@@ -5,11 +5,11 @@ namespace SmearsMaker.Common.BaseTypes
 {
 	public abstract class BrushStroke
 	{
+		public List<Segment> Objects { get; }
 		public virtual System.Windows.Point Head => Objects.First().Centroid.Position;
 		public virtual System.Windows.Point Tail => Objects.Last().Centroid.Position;
 		public abstract Pixel AverageData { get; }
-
-		public List<Segment> Objects { get; }
+		
 		public abstract int Width { get; }
 
 		public abstract int Length { get; }

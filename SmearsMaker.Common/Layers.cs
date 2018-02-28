@@ -1,6 +1,6 @@
 ﻿namespace SmearsMaker.Common
 {
-	public class Layers
+	public struct Layers
 	{
 		public static string Original = "Original";
 		public static string Filtered = "Filtered";

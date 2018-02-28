@@ -7,12 +7,6 @@ namespace SmearsMaker.Common.Helpers
 	internal class ImageHelper
 	{
 		private const int DataFormatSize = 4;
-		internal static byte ConvertToGrayScale(byte r, byte g, byte b)
-		{
-			//var grayscale = (byte)(0.2126 * r + 0.7152 * g + 0.0722 * b);
-			var grayscale = (byte)(0.299 * r + 0.587 * g + 0.114 * b);
-			return grayscale;
-		}
 
 		internal static List<Point> ConvertToPixels(BitmapSource source)
 		{
@@ -26,11 +20,7 @@ namespace SmearsMaker.Common.Helpers
 				for (int y = 0; y < source.PixelHeight; y++)
 				{
 					var idx = y * stride + DataFormatSize * x;
-
-					//var rgbArray = new float[] {  ConvertToGrayScale(data[idx], data[idx + 1], data[idx + 2]) };
-					//var rgbArray = new float[] { data[idx], data[idx + 1], data[idx + 2]};
 					var rgbArray = new float[] { data[idx], data[idx + 1], data[idx + 2], data[idx + 3] };
-					//var rgbArray = new float[] { data[idx + 1], data[idx + 2], data[idx + 3] };
 					var point = new Point(x, y);
 					point.Pixels.AddPixel(Layers.Original, new Pixel(rgbArray));
 					inputData.Add(point);

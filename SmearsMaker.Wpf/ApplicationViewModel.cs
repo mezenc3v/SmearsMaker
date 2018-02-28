@@ -78,13 +78,13 @@ namespace SmearsMaker.Wpf
 				switch (alg)
 				{
 					case Algorithms.SmearTracer:
-						_tracer = new STracer(_image);
+						_tracer = new STracer(_image, new Progress());
 						break;
 					case Algorithms.GradientTracer:
-						_tracer = new GTracer(_image);
+						_tracer = new GTracer(_image, new Progress());
 						break;
 					default:
-						_tracer = new STracer(_image);
+						_tracer = new STracer(_image, new Progress());
 						break;
 				}
 				_tracer.Progress.UpdateProgress += UpdateProgress;

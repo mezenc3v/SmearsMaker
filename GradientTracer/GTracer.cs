@@ -25,7 +25,7 @@ namespace GradientTracer
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
-		public GTracer(BitmapSource image) : base(image)
+		public GTracer(BitmapSource image, IProgress progress) : base(image, progress)
 		{
 			_settings = new GTImageSettings(Model.Width, Model.Height);
 		}

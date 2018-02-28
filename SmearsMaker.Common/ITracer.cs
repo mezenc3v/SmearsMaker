@@ -6,7 +6,7 @@ namespace SmearsMaker.Common
 {
 	public interface ITracer
 	{
-		Progress Progress { get; }
+		IProgress Progress { get; }
 		List<ImageSetting> Settings { get;}
 		List<ImageView> Views { get; }
 		Task Execute();

@@ -14,6 +14,7 @@ using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.Clustering;
 using SmearsMaker.ImageProcessing.Filtering;
 using SmearTracer.Logic;
+using SmearTracer.Model;
 using Color = System.Drawing.Color;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
@@ -27,7 +28,7 @@ namespace SmearTracer
 		private readonly STImageSettings _settings;
 		private List<Smear> _smears;
 
-		public STracer(BitmapSource image) : base(image)
+		public STracer(BitmapSource image, IProgress progress) : base(image, progress)
 		{
 			_settings = new STImageSettings(Model.Width, Model.Height);
 		}
@@ -35,7 +36,6 @@ namespace SmearTracer
 		public override Task Execute()
 		{
 			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
-
 			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, Model.Points, (int)_settings.ClusterMaxIteration.Value);
 			var splitter = new SimpleSegmentsSplitter();
 			var supPixSplitter = new SuperpixelSplitter((int)_settings.MinSizeSuperpixel.Value, (int)_settings.MaxSizeSuperpixel.Value, _settings.ClustersPrecision.Value);

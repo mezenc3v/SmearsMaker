@@ -1,4 +1,6 @@
-﻿namespace SmearsMaker.Common.BaseTypes
+﻿using SmearsMaker.Common.BaseTypes;
+
+namespace SmearTracer.Model
 {
 	public class Smear
 	{
