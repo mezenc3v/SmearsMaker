@@ -1,29 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using GradientTracer;
-using Microsoft.Win32;
 using NLog;
 using SmearsMaker.Common;
 using SmearsMaker.Common.Image;
 using SmearsMaker.HPGL;
-using SmearTracer;
 
 namespace SmearsMaker.Wpf
 {
 	public class ApplicationViewModel : INotifyPropertyChanged
 	{
-		public enum Algorithms { SmearTracer, GradientTracer }
-
-		private Algorithms _currentAlg;
+		public List<Type> Libraries { get; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		public List<ImageSetting> Settings { get; set; }
@@ -59,6 +52,7 @@ namespace SmearsMaker.Wpf
 		private int _currentImageIndex;
 		private ITracer _tracer;
 		private BitmapImage _image;
+		private readonly PltReader _reader;
 
 		public ApplicationViewModel()
 		{
@@ -68,25 +62,15 @@ namespace SmearsMaker.Wpf
 			_images = new List<ImageView>();
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
+			Libraries = Helper.LoadLibraries();
+			_reader = new PltReader();
 		}
 
-		public void SetAlgorithm(Algorithms alg)
+		public void SetAlgorithm(Type tracer)
 		{
-			if (_image != null)
+			if (_image != null && tracer != null)
 			{
-				_currentAlg = alg;
-				switch (alg)
-				{
-					case Algorithms.SmearTracer:
-						_tracer = new STracer(_image, new Progress());
-						break;
-					case Algorithms.GradientTracer:
-						_tracer = new GTracer(_image, new Progress());
-						break;
-					default:
-						_tracer = new STracer(_image, new Progress());
-						break;
-				}
+				_tracer = Activator.CreateInstance(tracer, _image, new Progress()) as ITracer;
 				_tracer.Progress.UpdateProgress += UpdateProgress;
 				Settings = _tracer.Settings;
 			}
@@ -97,18 +81,14 @@ namespace SmearsMaker.Wpf
 			try
 			{
 				if (_image == null) return;
-				if (_tracer == null)
-				{
-					SetAlgorithm(_currentAlg);
-				}
+				if (_tracer == null) return;
+
 				await _tracer.Execute();
 
-				var views = _tracer.Views;
 				_images = new List<ImageView>();
-				_images.AddRange(views);
-
-				CurrentImage = _images[_currentImageIndex].Source;
+				_images.AddRange(_tracer.Views);
 				Label = _images[_currentImageIndex].Name;
+				CurrentImage = _images[_currentImageIndex].Source;
 			}
 			catch (Exception ex)
 			{
@@ -117,126 +97,71 @@ namespace SmearsMaker.Wpf
 			}
 		}
 
+		private void SavePtl()
+		{
+			if (_tracer == null) return;
+
+			try
+			{
+				var plt = _tracer.GetPlt();
+				Helper.SavePlt(plt);
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show($"Ошибка! {ex.Message}");
+			}
+		}
+		public void ChangeImage(KeyEventArgs e)
+		{
+			if (_images.Count <= 0) return;
+
+			switch (e.Key)
+			{
+				case Key.Right:
+					_currentImageIndex = _currentImageIndex < _images.Count - 1 ? _currentImageIndex + 1 : 0;
+					break;
+				case Key.Left:
+					_currentImageIndex = _currentImageIndex > 0 ? _currentImageIndex - 1 : _images.Count - 1;
+					break;
+				default:
+					return;
+			}
+			CurrentImage = _images[_currentImageIndex].Source;
+			Label = _images[_currentImageIndex].Name;
+		}
+
+		public void OpenPlt()
+		{
+			var name = Helper.OpenPlt();
+			if (name != null)
+			{
+				CurrentImage = _reader.Read(name);
+			}
+		}
+
 		private void UpdateProgress(object sender, ProgressBarEventArgs args)
 		{
 			Label = args.Percentage != 0 ? $"{args.Msg} {args.Percentage}%" : args.Msg;
 		}
-		public void SavePtl()
-		{
-			if (_tracer != null)
-			{
-				try
-				{
-					var plt = _tracer.GetPlt();
-
-					var fileDialog = new SaveFileDialog
-					{
-						FileName = "pltFile",
-						DefaultExt = ".plt",
-						Filter = "Plt Files (*.plt)|*.plt|All files (*.*)|*.*",
-						RestoreDirectory = true
-					};
-
-					if (fileDialog.ShowDialog() == true)
-					{
-						File.WriteAllText(fileDialog.FileName, plt, Encoding.ASCII);
-					}
-				}
-				catch (Exception ex)
-				{
-					MessageBox.Show($"Ошибка! {ex.Message}");
-				}
-			}
-		}
 
 		private void OpenFile()
 		{
-			//считывание с файла
-			var fileDialog = new OpenFileDialog
+			var imageUri = Helper.OpenImage();
+			if (imageUri != null)
 			{
-				Filter =
-					"JPG Files (*.jpg)|*.jpg|bmp files (*.bmp)|*.bmp|JPEG Files (*.jpeg)|*.jpeg|PNG Files (*.png)" +
-					"|*.png|GIF Files (*.gif)|*.gif|All files (*.*)|*.*",
-				RestoreDirectory = true
-			};
-			if (fileDialog.ShowDialog() == true)
-			{
-				_image = new BitmapImage(new Uri(fileDialog.FileName));
+				_image = new BitmapImage(imageUri);
 				CurrentImage = _image;
 				Label = "Нажмите кнопку старт";
-				
-				SetAlgorithm(_currentAlg);
 			}
-		}
-
-		internal void OpenPlt()
-		{
-			//считывание с файла
-			var fileDialog = new OpenFileDialog
-			{
-				Filter =
-					"Plt Files (*.plt)|*.plt|All files (*.*)|*.*",
-				RestoreDirectory = true
-			};
-			if (fileDialog.ShowDialog() != true) return;
-			var reader = new PltReader();
-			CurrentImage = reader.Read(fileDialog.FileName);
 		}
 
 		private void SaveImagesInFolder()
 		{
-			var sf = new SaveFileDialog()
-			{
-				FileName = "select folder"
-			};
+			var path = Helper.GetFolder();
 
-			if (sf.ShowDialog() != true) return;
-			var path = Path.GetDirectoryName(sf.FileName);
 			foreach (var image in _images)
 			{
-				var encoder = new PngBitmapEncoder();
-				encoder.Frames.Add(BitmapFrame.Create(image.Source));
-				if (path == null) continue;
-				using (var filestream = new FileStream(Path.Combine(path, $"{image.Name}.bmp"), FileMode.Create))
-				{
-					encoder.Save(filestream);
-				}
-			}
-		}
-
-		public void ChangeImage(KeyEventArgs e)
-		{
-			if (_images.Count <= 0)
-			{
-				return;
-			}
-			switch (e.Key)
-			{
-				case Key.Right:
-					if (_currentImageIndex < _images.Count - 1)
-					{
-						CurrentImage = _images[++_currentImageIndex].Source;
-					}
-					else
-					{
-						_currentImageIndex = 0;
-						CurrentImage = _images[_currentImageIndex].Source;
-					}
-					Label = _images[_currentImageIndex].Name;
-					break;
-				case Key.Left:
-					if (_currentImageIndex > 0)
-					{
-						CurrentImage = _images[--_currentImageIndex].Source;
-					}
-					else
-					{
-						_currentImageIndex = _images.Count - 1;
-						CurrentImage = _images[_currentImageIndex].Source;
-					}
-					Label = _images[_currentImageIndex].Name;
-					break;
-				default: return;
+				Helper.SaveBitmapSource(path, image.Name, image.Source);
 			}
 		}
 

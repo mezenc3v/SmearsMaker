@@ -29,6 +29,7 @@ namespace SmearsMaker.Wpf
 			InitializeComponent();
 			_model = new ApplicationViewModel();
 			DataContext = _model;
+			Algorithms.ItemsSource = _model.Libraries;
 		}
 
 		private async void ButtonRun_Click(object sender, RoutedEventArgs e)
@@ -59,14 +60,10 @@ namespace SmearsMaker.Wpf
 			settingsForm.Show();
 		}
 
-		private void SmearTracerMenuItem_Click(object sender, RoutedEventArgs e)
+		private void TracerMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			_model.SetAlgorithm(ApplicationViewModel.Algorithms.SmearTracer);
-		}
-
-		private void GradientTracerMenuItem_Click(object sender, RoutedEventArgs e)
-		{
-			_model.SetAlgorithm(ApplicationViewModel.Algorithms.GradientTracer);
+			var tracer = (e.OriginalSource as MenuItem)?.DataContext as Type;
+			_model.SetAlgorithm(tracer);
 		}
 
 	private void ClipboardCopyMenuItem_Click(object sender, RoutedEventArgs e)

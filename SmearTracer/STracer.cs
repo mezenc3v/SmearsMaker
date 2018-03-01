@@ -104,12 +104,9 @@ namespace SmearTracer
 					Log.Trace($"Разбиение на мазки кластера размером {cluster.Data.Count} пикселей заняло {swClusters.Elapsed.Seconds} с.");
 				});
 
-				foreach (var point in defectedPixels)
+				if (defectedPixels.Any(point => point == null))
 				{
-					if (point == null)
-					{
-						throw new NullReferenceException("point");
-					}
+					throw new NullReferenceException("point");
 				}
 				Progress.NewProgress("Распределение удаленных точек");
 				STHelper.Concat(_smears, defectedPixels);
