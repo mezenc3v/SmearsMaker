@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
@@ -19,7 +20,7 @@ namespace SmearsMaker.ImageProcessing.Filtering
 
 		public void Filter(List<Point> points)
 		{
-			for (int coordX = 0; coordX < _width; coordX++)
+			Parallel.For(0, _width, (coordX) =>
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
@@ -28,7 +29,7 @@ namespace SmearsMaker.ImageProcessing.Filtering
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
 					points[pos].Pixels[Layers.Filtered] = new Pixel(median);
 				}
-			}
+			});
 		}
 		private List<Pixel> GetMask(IList<Point> units, int x, int y)
 		{

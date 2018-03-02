@@ -21,9 +21,9 @@ namespace SmearsMaker.Common.BaseTypes
 			}
 		}
 
-		public void AddPixel(string name, Pixel value)
+		public void AddPixel(string layer, Pixel value)
 		{
-			_pixels.Add(name, value);
+			_pixels.Add(layer, value);
 		}
 		public Pixel this[string index]
 		{

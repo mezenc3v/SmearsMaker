@@ -17,53 +17,17 @@ namespace SmearsMaker.ImageProcessing.Clustering
 
 			foreach (var cluster in Clusters)
 			{
-				var centr = cluster.Centroid;
-
+				var centr = cluster.Centroid.Data;
 				foreach (var data in cluster.Data)
 				{
-					var pixel = new Pixel(centr);
-					var point = new Point(data.Position.X, data.Position.Y);
-					point.Pixels.AddPixel(Layers.Original, data.Pixels[Layers.Original]);
-					point.Pixels[Layers.Filtered] = new Pixel(pixel.Data);
+					var point = new Point(data);
+					point.Pixels[Layers.Filtered] = new Pixel(centr);
 					clusteringPoints.Add(point);
 				}
 			}
 
 			return clusteringPoints;
 		}
-
-		public List<Point> GetAveragePoints()
-		{
-			var clusteringPoints = new List<Point>();
-
-			foreach (var cluster in Clusters)
-			{
-				var average = new float[cluster.Data[0].Pixels[Layers.Original].Length];
-				foreach (var point in cluster.Data)
-				{
-					var data = point.Pixels[Layers.Original].Data;
-					for (int i = 0; i < point.Pixels[Layers.Original].Length; i++)
-					{
-						average[i] += data[i];
-					}
-				}
-				for (int i = 0; i < cluster.Data[0].Pixels[Layers.Original].Length; i++)
-				{
-					average[i] /= cluster.Data.Count;
-				}
-
-				foreach (var data in cluster.Data)
-				{
-					var point = new Point(data.Position.X, data.Position.Y);
-					point.Pixels.AddPixel(Layers.Original, data.Pixels[Layers.Original]);
-					point.Pixels[Layers.Filtered] = new Pixel(average);
-					clusteringPoints.Add(point);
-				}
-			}
-
-			return clusteringPoints;
-		}
-
 
 		protected override double Distance(IReadOnlyList<double> left, IReadOnlyList<double> right)
 		{
