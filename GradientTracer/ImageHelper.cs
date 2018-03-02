@@ -13,7 +13,7 @@ using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace GradientTracer
 {
-	internal static class GtHelper
+	internal static class ImageHelper
 	{
 		internal static BitmapSource CreateRandomImage(IEnumerable<Segment> objects, string layer, ImageModel model)
 		{

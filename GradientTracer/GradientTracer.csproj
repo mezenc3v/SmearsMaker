@@ -44,12 +44,13 @@
   <ItemGroup>
     <Compile Include="Logic\BsmPair.cs" />
     <Compile Include="Logic\GradientBsm.cs" />
-    <Compile Include="GtHelper.cs" />
+    <Compile Include="ImageHelper.cs" />
     <Compile Include="GtImageSettings.cs" />
     <Compile Include="Logic\TurboPixelSplitter.cs" />
     <Compile Include="Model\BrushStrokeImpl.cs" />
     <Compile Include="Logic\SuperpixelSplitter.cs" />
     <Compile Include="GTracer.cs" />
+    <Compile Include="PltHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
