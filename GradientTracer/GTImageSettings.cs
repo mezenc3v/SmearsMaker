@@ -4,7 +4,7 @@ using SmearsMaker.Common.Image;
 
 namespace GradientTracer
 {
-	public class GTImageSettings
+	public class GtImageSettings
 	{
 		#region properties
 		public List<ImageSetting> Settings { get; }
@@ -17,7 +17,7 @@ namespace GradientTracer
 		public ImageSetting Tolerance { get; }
 		#endregion
 
-		public GTImageSettings(int width, int height)
+		public GtImageSettings(int width, int height)
 		{
 			FilterRank = new ImageSetting
 			{

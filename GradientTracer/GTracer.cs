@@ -20,14 +20,14 @@ namespace GradientTracer
 		public override List<ImageSetting> Settings => _settings.Settings;
 		public override List<ImageView> Views => CreateViews();
 
-		private readonly GTImageSettings _settings;
+		private readonly GtImageSettings _settings;
 		private List<Point> _sobelPoints;
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
 		public GTracer(BitmapSource image, IProgress progress) : base(image, progress)
 		{
-			_settings = new GTImageSettings(Model.Width, Model.Height);
+			_settings = new GtImageSettings(Model.Width, Model.Height);
 		}
 
 		public override Task Execute()
@@ -38,7 +38,6 @@ namespace GradientTracer
 			var centroid = new Point(Model.Width / 2, Model.Height / 2);
 			centroid.Pixels.AddPixel(Layers.Original, null);
 			var segment = new Segment(centroid, Model.Width, Model.Height);
-
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
@@ -56,8 +55,8 @@ namespace GradientTracer
 				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value, (int)_settings.SizeSuperPixel.Value, 1);
 				_superPixels = splitter.Splitting(segment);
 
-				GTHelper.UpdateCenter(Layers.Original, _superPixels);
-				GTHelper.UpdateCenter(Layers.Gradient, _superPixels);
+				GtHelper.UpdateCenter(Layers.Original, _superPixels);
+				GtHelper.UpdateCenter(Layers.Gradient, _superPixels);
 
 				sw.Restart();
 				Progress.NewProgress("Создание мазков");
@@ -73,13 +72,13 @@ namespace GradientTracer
 		private List<ImageView> CreateViews()
 		{
 			Progress.NewProgress("Вычисление суперпикселей");
-			var spixels = GTHelper.CreateRandomImage(_superPixels, Layers.SuperPixels, Model);
+			var spixels = GtHelper.CreateRandomImage(_superPixels, Layers.SuperPixels, Model);
 
 			Progress.NewProgress("Вычисление градиентов суперпикселей");
-			var spixelsGrad = GTHelper.CreateImage(_superPixels, Layers.Gradient, Model);
+			var spixelsGrad = GtHelper.CreateImage(_superPixels, Layers.Gradient, Model);
 
 			Progress.NewProgress("Вычисление мазков (линии)");
-			var smearsMap = GTHelper.PaintImage(Model.Image, _strokes, (float)_settings.WidthSmearUI.Value);
+			var smearsMap = GtHelper.PaintImage(Model.Image, _strokes, (float)_settings.WidthSmearUI.Value);
 
 			Progress.NewProgress("Вычисление размытия");
 			var blurredImage = Model.ConvertToBitmapSource(Model.Points, Layers.Filtered);

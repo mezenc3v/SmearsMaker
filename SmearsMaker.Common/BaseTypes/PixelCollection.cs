@@ -25,16 +25,15 @@ namespace SmearsMaker.Common.BaseTypes
 		{
 			_pixels.Add(name, value);
 		}
-
-		public IEnumerator GetEnumerator()
-		{
-			return _pixels.GetEnumerator();
-		}
-
 		public Pixel this[string index]
 		{
 			get => _pixels[index];
 			set => _pixels[index] = value;
+		}
+
+		IEnumerator IEnumerable.GetEnumerator()
+		{
+			return _pixels.GetEnumerator();
 		}
 	}
 }

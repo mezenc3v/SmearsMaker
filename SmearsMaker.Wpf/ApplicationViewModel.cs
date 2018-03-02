@@ -16,7 +16,7 @@ namespace SmearsMaker.Wpf
 {
 	public class ApplicationViewModel : INotifyPropertyChanged
 	{
-		public List<Type> Libraries { get; }
+		public List<Type> Tracers { get; }
 
 		public event PropertyChangedEventHandler PropertyChanged;
 		public List<ImageSetting> Settings { get; set; }
@@ -62,27 +62,24 @@ namespace SmearsMaker.Wpf
 			_images = new List<ImageView>();
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
-			Libraries = Helper.LoadLibraries();
+			Tracers = Helper.LoadLibraries();
 			_reader = new PltReader();
 		}
 
 		public void SetAlgorithm(Type tracer)
 		{
-			if (_image != null && tracer != null)
-			{
-				_tracer = Activator.CreateInstance(tracer, _image, new Progress()) as ITracer;
-				_tracer.Progress.UpdateProgress += UpdateProgress;
-				Settings = _tracer.Settings;
-			}
+			if (_image == null || tracer == null) return;
+			_tracer = Activator.CreateInstance(tracer, _image, new Progress()) as ITracer;
+			
+			_tracer.Progress.UpdateProgress += UpdateProgress;
+			Settings = _tracer.Settings;
 		}
 
 		public async Task Run()
 		{
 			try
 			{
-				if (_image == null) return;
-				if (_tracer == null) return;
-
+				if (_image == null || _tracer == null) return;
 				await _tracer.Execute();
 
 				_images = new List<ImageView>();
@@ -113,7 +110,7 @@ namespace SmearsMaker.Wpf
 		}
 		public void ChangeImage(KeyEventArgs e)
 		{
-			if (_images.Count <= 0) return;
+			if (_images.Count == 0) return;
 
 			switch (e.Key)
 			{
@@ -147,11 +144,14 @@ namespace SmearsMaker.Wpf
 		private void OpenFile()
 		{
 			var imageUri = Helper.OpenImage();
-			if (imageUri != null)
+			if (imageUri == null) return;
+			_image = new BitmapImage(imageUri);
+			CurrentImage = _image;
+			Label = "Нажмите кнопку старт";
+
+			if (_tracer != null)
 			{
-				_image = new BitmapImage(imageUri);
-				CurrentImage = _image;
-				Label = "Нажмите кнопку старт";
+				SetAlgorithm(_tracer.GetType());
 			}
 		}
 

@@ -7,11 +7,8 @@ namespace SmearsMaker.Common.BaseTypes
 	{
 		public float Sum => Data.Sum();
 		public float Average => Data.Average();
-
 		public float[] Data { get; }
-
 		public int Length => Data.Length;
-
 		public float GrayScale
 		{
 			get
@@ -23,12 +20,10 @@ namespace SmearsMaker.Common.BaseTypes
 				};
 			}
 		}
-
 		public Pixel(float[] data)
 		{
 			Data = (float[])data?.Clone() ?? throw new ArgumentNullException(nameof(data));
 		}
-
 		public Pixel(Pixel pixel)
 		{
 			if (pixel == null)
@@ -38,13 +33,8 @@ namespace SmearsMaker.Common.BaseTypes
 			var data = pixel.Data;
 			Data = (float[])data?.Clone();
 		}
-
 		public double Distance(Pixel pixel)
 		{
-			//return Math.Sqrt(_colorData.Select((t, i) => Math.Pow(t - pixel._colorData[i], 2)).Sum());
-			//return _colorData.Select((t, i) => Math.Abs(t - pixel._colorData[i])).Sum();
-			//return _colorData.Select((t, i) => Distance(t, pixel._colorData[i])).Sum();
-
 			var dist = 0d;
 			for (int i = 0; i < Data.Length; i++)
 			{
@@ -53,7 +43,6 @@ namespace SmearsMaker.Common.BaseTypes
 
 			return dist;
 		}
-
 		private static float Distance(float first, float second)
 		{
 			var distance = first - second;

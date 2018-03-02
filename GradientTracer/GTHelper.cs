@@ -13,7 +13,7 @@ using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace GradientTracer
 {
-	internal static class GTHelper
+	internal static class GtHelper
 	{
 		internal static BitmapSource CreateRandomImage(IEnumerable<Segment> objects, string layer, ImageModel model)
 		{
@@ -53,45 +53,35 @@ namespace GradientTracer
 			var g = Graphics.FromImage(bitmap);
 			g.Clear(Color.White);
 
-			foreach (var smear in strokes.OrderByDescending(s => s.Objects.Count))
+			foreach (var stroke in strokes.OrderByDescending(s => s.Objects.Count))
 			{
-				var center = smear.Objects.OrderBy(p => p.Centroid.Pixels[Layers.Original].Sum).ToList()[smear.Objects.Count / 2].Centroid;
+				var center = GetAverageData(stroke.Objects, Layers.Original);
+				var color = GetColorFromArgb(center);
+				
+				var brush = new SolidBrush(color);
+				var pen = new Pen(color)
+				{
+					Width = Width
+				};
 
-				var pen = new Pen(Color.FromArgb((byte)center.Pixels[Layers.Original].Data[3], (byte)center.Pixels[Layers.Original].Data[2],
-					(byte)center.Pixels[Layers.Original].Data[1], (byte)center.Pixels[Layers.Original].Data[0]));
+				var pointsF = stroke.Objects.Select(point => new PointF((float) point.Centroid.Position.X, (float) point.Centroid.Position.Y)).ToArray();
 
-				var brush = new SolidBrush(Color.FromArgb((byte)center.Pixels[Layers.Original].Data[3], (byte)center.Pixels[Layers.Original].Data[2],
-					(byte)center.Pixels[Layers.Original].Data[1], (byte)center.Pixels[Layers.Original].Data[0]));
-				//var random = GetGandomData(4);
-				//var pen = new System.Drawing.Pen(System.Drawing.Color.FromArgb((byte)random[0], (byte)random[1],
-				//	(byte)random[2], (byte)random[3]));
+				g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
 
-				//var brush = new SolidBrush(System.Drawing.Color.FromArgb((byte)random[0], (byte)random[1],
-				//	(byte)random[2], (byte)random[3]));
-
-				var pointsF = smear.Objects.Select(point => new PointF((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
-				pen.Width = Width;
 				if (pointsF.Length > 1)
 				{
-					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
 					g.FillEllipse(brush, pointsF.Last().X, pointsF.Last().Y, pen.Width, pen.Width);
 					g.DrawLines(pen, pointsF);
-				}
-				else
-				{
-					g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
 				}
 			}
 
 			g.Dispose();
 
-			var bmp = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
+			return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
 				bitmap.GetHbitmap(),
 				IntPtr.Zero,
 				Int32Rect.Empty,
 				BitmapSizeOptions.FromEmptyOptions());
-
-			return bmp;
 		}
 
 		internal static void UpdateCenter(string layer, List<Segment> superPixels)
@@ -124,23 +114,37 @@ namespace GradientTracer
 			return randomNumber.Select(b => (float)b).ToList();
 		}
 
-		private static float[] GetAverageData(Segment superPixel, string layer)
+		private static float[] GetAverageData(Segment segment, string layer)
+		{
+			return GetAverageData(new List<Segment> {segment}, layer);
+		}
+
+		private static float[] GetAverageData(IReadOnlyCollection<Segment> segments, string layer)
 		{
 			var averData = new float[4];
-			superPixel.Data.ForEach(d =>
-			{
-				for (int i = 0; i < averData.Length; i++)
-				{
-					averData[i] += d.Pixels[layer].Data[i];
-				}
-			});
 
+			foreach (var segment in segments)
+			{
+				segment.Data.ForEach(d =>
+				{
+					for (int i = 0; i < averData.Length; i++)
+					{
+						averData[i] += d.Pixels[layer].Data[i];
+					}
+				});
+			}
+			var count = segments.Sum(s => s.Data.Count);
 			for (int i = 0; i < averData.Length; i++)
 			{
-				averData[i] /= superPixel.Data.Count;
+				averData[i] /= count;
 			}
 
 			return averData;
+		}
+
+		private static Color GetColorFromArgb(IReadOnlyList<float> data)
+		{
+			return Color.FromArgb((byte) data[3], (byte) data[2], (byte) data[1], (byte) data[0]);
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace SmearsMaker.Common.Image
 		public int Height => Image.PixelHeight;
 		public List<Point> Points { get; }
 		public BitmapSource Image { get; }
-		internal ImageModel(BitmapSource image)
+		public ImageModel(BitmapSource image)
 		{
 			Image = image ?? throw new NullReferenceException("image");
 			Points = Points = ImageHelper.ConvertToPixels(image);

@@ -29,7 +29,7 @@ namespace SmearsMaker.Wpf
 			InitializeComponent();
 			_model = new ApplicationViewModel();
 			DataContext = _model;
-			Algorithms.ItemsSource = _model.Libraries;
+			Algorithms.ItemsSource = _model.Tracers;
 		}
 
 		private async void ButtonRun_Click(object sender, RoutedEventArgs e)
