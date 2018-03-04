@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SmearsMaker.Common.Image;
 
-namespace GradientTracer
+namespace SmearsMaker.Tracers.GradientTracer
 {
 	public class GtImageSettings
 	{

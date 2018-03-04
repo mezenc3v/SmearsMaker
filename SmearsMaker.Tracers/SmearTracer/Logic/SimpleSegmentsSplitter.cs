@@ -4,7 +4,7 @@ using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
-namespace SmearTracer.Logic
+namespace SmearsMaker.Tracers.SmearTracer.Logic
 {
 	public class SimpleSegmentsSplitter
 	{

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
-using SmearTracer.Model;
+using SmearsMaker.Tracers.Model;
 using Point = System.Windows.Point;
 
-namespace SmearTracer.Logic
+namespace SmearsMaker.Tracers.SmearTracer.Logic
 {
 	public class Bsm
 	{

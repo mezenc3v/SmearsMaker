@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GradientTracer.Model;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Model;
 
-namespace GradientTracer.Logic
+namespace SmearsMaker.Tracers.GradientTracer
 {
 	public class GradientBsm
 	{

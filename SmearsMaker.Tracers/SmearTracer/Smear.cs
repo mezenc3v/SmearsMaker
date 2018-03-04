@@ -1,6 +1,6 @@
 ﻿using SmearsMaker.Common.BaseTypes;
 
-namespace SmearTracer.Model
+namespace SmearsMaker.Tracers.SmearTracer
 {
 	public class Smear
 	{

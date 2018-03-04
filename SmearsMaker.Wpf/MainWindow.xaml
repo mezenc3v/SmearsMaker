@@ -28,7 +28,14 @@
 				<Separator></Separator>
 				<MenuItem x:Name="SettingsMenuItem" Header="Settings" Click="SettingsMenuItem_Click"></MenuItem>
 			</MenuItem>
-			<MenuItem x:Name="Algorithms" Header="Algorithms" Click="TracerMenuItem_Click" />
+			<MenuItem x:Name="Algorithms" Header="Algorithms" Click="TracerMenuItem_Click">
+				<MenuItem.ItemContainerStyle>
+					<Style TargetType="{x:Type MenuItem}">
+						<Setter Property="Header" Value="{Binding Name}"/>
+					</Style>
+				</MenuItem.ItemContainerStyle>
+			</MenuItem>
+			
 		</Menu>
 		<Image Grid.Row="1" HorizontalAlignment="Center" Margin="5,5,5,30" VerticalAlignment="Top" x:Name="Image" Stretch="Uniform" Source="{Binding CurrentImage}"/>
 

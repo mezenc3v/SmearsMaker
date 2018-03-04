@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
-namespace GradientTracer.Logic
+namespace SmearsMaker.Tracers.Logic
 {
 	public class SuperpixelSplitter
 	{

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SmearsMaker.Common.Image;
 
-namespace SmearTracer
+namespace SmearsMaker.Tracers.SmearTracer
 {
 	public class STImageSettings
 	{

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2027
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Wpf", "SmearsMaker.Wpf\SmearsMaker.Wpf.csproj", "{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}"
 EndProject
@@ -9,11 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Common", "Smear
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "SmearsMaker.HPGL\SmearsMaker.HPGL.csproj", "{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GradientTracer", "GradientTracer\GradientTracer.csproj", "{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearTracer", "SmearTracer\SmearTracer.csproj", "{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.ImageProcessing", "SmearsMaker.ImageProcessing\SmearsMaker.ImageProcessing.csproj", "{47B17174-8236-404B-9D59-BE97B9D8A5B8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Tracers", "SmearsMaker.Tracers\SmearsMaker.Tracers.csproj", "{28937452-0D9B-459F-BB87-E27A89255081}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,18 +31,14 @@ Global
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E0E3EBDE-F8E7-410F-B9EC-B2C9ABA9DE46}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DDC7640-B2D5-4914-8FEC-D0A8D2ECF6D1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{47B17174-8236-404B-9D59-BE97B9D8A5B8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47B17174-8236-404B-9D59-BE97B9D8A5B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47B17174-8236-404B-9D59-BE97B9D8A5B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{47B17174-8236-404B-9D59-BE97B9D8A5B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28937452-0D9B-459F-BB87-E27A89255081}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28937452-0D9B-459F-BB87-E27A89255081}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28937452-0D9B-459F-BB87-E27A89255081}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28937452-0D9B-459F-BB87-E27A89255081}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
-using GradientTracer.Logic;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.FeatureDetection;
 using SmearsMaker.ImageProcessing.Filtering;
+using SmearsMaker.Tracers.Helpers;
+using SmearsMaker.Tracers.Logic;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
-namespace GradientTracer
+namespace SmearsMaker.Tracers.GradientTracer
 {
 	public class GTracer : TracerBase
 	{
@@ -53,8 +54,8 @@ namespace GradientTracer
 				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value, (int)_settings.SizeSuperPixel.Value, 1);
 				_superPixels = splitter.Splitting(segment);
 
-				ImageHelper.UpdateCenter(Layers.Original, _superPixels);
-				ImageHelper.UpdateCenter(Layers.Gradient, _superPixels);
+				Utils.UpdateCenter(Layers.Original, _superPixels);
+				Utils.UpdateCenter(Layers.Gradient, _superPixels);
 
 				sw.Restart();
 				Progress.NewProgress("Создание мазков");

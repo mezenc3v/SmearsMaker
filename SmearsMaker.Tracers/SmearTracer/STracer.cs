@@ -13,12 +13,13 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.Clustering;
 using SmearsMaker.ImageProcessing.Filtering;
-using SmearTracer.Logic;
-using SmearTracer.Model;
+using SmearsMaker.Tracers.Helpers;
+using SmearsMaker.Tracers.Logic;
+using SmearsMaker.Tracers.SmearTracer.Logic;
 using Color = System.Drawing.Color;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
-namespace SmearTracer
+namespace SmearsMaker.Tracers.SmearTracer
 {
 	public class STracer : TracerBase
 	{
@@ -109,7 +110,7 @@ namespace SmearTracer
 					throw new NullReferenceException("point");
 				}
 				Progress.NewProgress("Распределение удаленных точек");
-				STHelper.Concat(_smears, defectedPixels);
+				Utils.Concat(_smears, defectedPixels);
 
 				Log.Trace("Обработка изображения завершена");
 				Progress.NewProgress("Готово");
@@ -140,7 +141,7 @@ namespace SmearTracer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					var color = STHelper.GetGandomData(3);
+					var color = Utils.GetGandomData(3);
 					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(color.ToArray()));
 					//obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(obj.Centroid.Pixels[Layers.Original].Data));
 					data.AddRange(obj.Data);
@@ -203,7 +204,7 @@ namespace SmearTracer
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;
-				var color = STHelper.GetGandomData(3);
+				var color = Utils.GetGandomData(3);
 				color.Add(255);
 				foreach (var obj in objs)
 				{

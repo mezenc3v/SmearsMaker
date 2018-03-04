@@ -4,7 +4,7 @@ using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
-namespace SmearTracer.Model
+namespace SmearsMaker.Tracers.Model
 {
 	public class BrushStrokeImpl : BrushStroke
 	{
@@ -14,7 +14,6 @@ namespace SmearTracer.Model
 		public BrushStrokeImpl(List<Segment> baseObjects) : base(baseObjects)
 		{
 		}
-
 		public override int Width { get; }
 		public override int Length
 		{
