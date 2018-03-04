@@ -51,7 +51,7 @@ namespace SmearsMaker.Tracers.GradientTracer
 
 				segment.Data = _sobelPoints;
 				Progress.NewProgress("Создание суперпикселей");
-				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value, (int)_settings.SizeSuperPixel.Value, 1);
+				var splitter = new SuperpixelSplitter((int)_settings.SizeSuperPixel.Value);
 				_superPixels = splitter.Splitting(segment);
 
 				Utils.UpdateCenter(Layers.Original, _superPixels);

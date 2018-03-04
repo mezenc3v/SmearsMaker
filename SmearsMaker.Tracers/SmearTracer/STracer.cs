@@ -33,7 +33,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		{
 			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
 			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, Model.Points, (int)_settings.ClusterMaxIteration.Value);
-			var supPixSplitter = new SuperpixelSplitter((int)_settings.MinSizeSuperpixel.Value, (int)_settings.MaxSizeSuperpixel.Value, _settings.ClustersPrecision.Value);
+			var supPixSplitter = new SuperpixelSplitter((int)_settings.MinSizeSuperpixel.Value);
 			var bsm = new BsmPair((int)_settings.MaxSmearDistance.Value);
 
 			var segmentsCount = 0;
@@ -56,7 +56,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 				Parallel.ForEach(clusters, (cluster) =>
 				{
 					var swClusters = Stopwatch.StartNew();
-					var segments = Splitter.Split(cluster.Data);
+					var segments = SegmentSplitter.Split(cluster.Data);
 
 					segmentsCount += segments.Count;
 					Log.Trace($"Сегментация кластера размером {cluster.Data.Count} пикселей заняла {swClusters.Elapsed.Seconds} с.");

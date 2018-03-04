@@ -7,7 +7,7 @@ using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.SmearTracer.Logic
 {
-	public static class Splitter
+	public static class SegmentSplitter
 	{
 		public static List<Segment> Split(List<Point> input)
 		{

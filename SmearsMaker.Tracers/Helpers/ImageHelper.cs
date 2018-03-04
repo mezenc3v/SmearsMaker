@@ -12,7 +12,7 @@ using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.Helpers
 {
-	public static class ImageHelper
+	internal static class ImageHelper
 	{
 		internal static BitmapSource CreateRandomImage(IEnumerable<Segment> objects, string layer, ImageModel model)
 		{

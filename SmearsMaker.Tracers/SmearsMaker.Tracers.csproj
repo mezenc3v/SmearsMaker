@@ -47,8 +47,9 @@
     <Compile Include="GradientTracer\GtImageSettings.cs" />
     <Compile Include="GradientTracer\GTracer.cs" />
     <Compile Include="GradientTracer\GradientBsm.cs" />
+    <Compile Include="Logic\Splitter.cs" />
     <Compile Include="Logic\SuperpixelSplitter.cs" />
-    <Compile Include="Logic\TurboPixelSplitter.cs" />
+    <Compile Include="Logic\HexagonSplitter.cs" />
     <Compile Include="Helpers\ImageHelper.cs" />
     <Compile Include="Helpers\Utils.cs" />
     <Compile Include="Helpers\UtilsDistances.cs" />
@@ -59,7 +60,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SmearTracer\Logic\Bsm.cs" />
     <Compile Include="SmearTracer\Logic\BsmPair.cs" />
-    <Compile Include="SmearTracer\Logic\Splitter.cs" />
+    <Compile Include="SmearTracer\Logic\SegmentSplitter.cs" />
     <Compile Include="SmearTracer\STImageSettings.cs" />
     <Compile Include="SmearTracer\STracer.cs" />
   </ItemGroup>

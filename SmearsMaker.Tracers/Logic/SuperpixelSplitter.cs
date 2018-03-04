@@ -1,63 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Logic
 {
-	public class SuperpixelSplitter
+	public class SuperpixelSplitter : Splitter
 	{
-		private readonly int _minSize;
-		private readonly int _maxSize;
-		public SuperpixelSplitter(int minSize, int maxSize, double tolerance)
+		public SuperpixelSplitter(int size) : base(size)
 		{
-			_minSize = minSize;
-			_maxSize = maxSize;
 		}
 
-		public List<Segment> Splitting(Segment segment)
-		{
-			var maxDiameter = Math.Sqrt(_maxSize);
-			var minDiameter = Math.Sqrt(_minSize);
-
-			//spliting complex segment into superPixels
-			var data = segment.Data;
-			var superPixelsList = new List<Segment>();
-
-			var samples = InitilalCentroids(maxDiameter, segment);
-			var superPixels = samples.Select(centroid =>
-			{
-				var p = new Point(centroid.X, centroid.Y);
-				p.Pixels.AddPixel(Layers.Original, segment.Centroid.Pixels[Layers.Original]);
-				return new Segment(p);
-			}).ToList();
-			//Search for winners and distribution of data
-			Parallel.ForEach(data, unit =>
-			{
-				var winner = NearestCentroid(unit, superPixels);
-				lock (superPixels)
-				{
-					superPixels[winner].Data.Add(unit);
-				}
-			});
-			//Deleting empty cells and cells with small data count
-			foreach (var superPixel in superPixels)
-			{
-				if (superPixel.Data.Count > 0)
-				{
-					var newCentroid = GetCentroid(superPixel);
-					superPixel.Centroid = newCentroid;
-					superPixelsList.Add(superPixel);
-				}
-			}
-
-			return superPixelsList;
-		}
-
-		private static Point GetCentroid(Segment superPixel)
+		protected override Point GetCentroid(Segment superPixel)
 		{
 			var points = superPixel.Data;
 
@@ -88,6 +43,7 @@ namespace SmearsMaker.Tracers.Logic
 			p.Pixels.AddPixel(Layers.Original, new Pixel(averageData));
 			return p;
 		}
+
 		private static (System.Windows.Point minx, System.Windows.Point miny, System.Windows.Point maxx, System.Windows.Point maxy) GetExtremums(Segment segment)
 		{
 			var points = segment.Data;
@@ -130,7 +86,7 @@ namespace SmearsMaker.Tracers.Logic
 			return (MinX, MinY, MaxX, MaxY);
 		}
 
-		private static IEnumerable<System.Windows.Point> InitilalCentroids(double diameter, Segment segment)
+		protected override IEnumerable<System.Windows.Point> PlacementCenters(double diameter, Segment segment)
 		{
 			var samplesData = new List<System.Windows.Point>();
 
@@ -159,7 +115,7 @@ namespace SmearsMaker.Tracers.Logic
 			return samplesData;
 		}
 
-		private static int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
+		protected override int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
 		{
 			var index = 0;
 			var min = Utils.ManhattanDistance(superPixels[0].Centroid, pixel);
