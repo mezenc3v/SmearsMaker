@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text;
 using SmearsMaker.Common.BaseTypes;
 
-namespace SmearsMaker.Tracers.GradientTracer
+namespace SmearsMaker.Tracers.Helpers
 {
 	public static class PltHelper
 	{

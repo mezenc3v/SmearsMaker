@@ -38,7 +38,7 @@ namespace SmearsMaker.Tracers.Helpers
 			return model.ConvertToBitmapSource(data, layer);
 		}
 
-		internal static BitmapSource PaintImage(BitmapSource source, IEnumerable<BrushStroke> strokes, float Width)
+		internal static BitmapSource PaintStrokes(BitmapSource source, IEnumerable<BrushStroke> strokes, float width)
 		{
 			Bitmap bitmap;
 			using (var outStream = new MemoryStream())
@@ -60,7 +60,7 @@ namespace SmearsMaker.Tracers.Helpers
 				var brush = new SolidBrush(color);
 				var pen = new Pen(color)
 				{
-					Width = Width
+					Width = width
 				};
 
 				var pointsF = stroke.Objects.Select(point => new PointF((float)point.Centroid.Position.X, (float)point.Centroid.Position.Y)).ToArray();

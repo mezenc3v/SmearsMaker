@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
 namespace SmearsMaker.Tracers.SmearTracer.Logic
@@ -55,10 +55,10 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 		{
 			var newSequence = new BrushStrokeImpl();
 
-			var a = Distance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
-			var b = Distance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var c = Distance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var d = Distance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
+			var a = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
+			var b = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
+			var c = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
+			var d = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
 
 			if (a < b)
 			{
@@ -134,21 +134,21 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 
 			if (sequences.First() != seq)
 			{
-				minDistance = Distance(sequences[0].Objects.First().Centroid.Position, headPosition);
+				minDistance = Utils.SqrtDistance(sequences[0].Objects.First().Centroid.Position, headPosition);
 				index = 0;
 			}
 			else
 			{
-				minDistance = Distance(sequences[1].Objects.First().Centroid.Position, headPosition);
+				minDistance = Utils.SqrtDistance(sequences[1].Objects.First().Centroid.Position, headPosition);
 				index = 1;
 			}
 
 			foreach (var sequence in sequences.Where(s => s != seq))
 			{
-				var hh = Distance(sequence.Objects.First().Centroid.Position, headPosition);
-				var ht = Distance(sequence.Objects.First().Centroid.Position, tailPosition);
-				var tt = Distance(sequence.Objects.Last().Centroid.Position, tailPosition);
-				var th = Distance(sequence.Objects.Last().Centroid.Position, headPosition);
+				var hh = Utils.SqrtDistance(sequence.Objects.First().Centroid.Position, headPosition);
+				var ht = Utils.SqrtDistance(sequence.Objects.First().Centroid.Position, tailPosition);
+				var tt = Utils.SqrtDistance(sequence.Objects.Last().Centroid.Position, tailPosition);
+				var th = Utils.SqrtDistance(sequence.Objects.Last().Centroid.Position, headPosition);
 
 				if (hh > 0 && minDistance > hh)
 				{
@@ -181,12 +181,12 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 		private static int FindNearestSequence(IReadOnlyList<BrushStroke> sequences, Point point)
 		{
 			var index = 0;
-			var minDistance = Distance(sequences.First().Objects.First().Centroid.Position, point.Position);
+			var minDistance = Utils.SqrtDistance(sequences.First().Objects.First().Centroid.Position, point.Position);
 
 			for (int i = 0; i < sequences.Count; i++)
 			{
-				var distanceHead = Distance(sequences[i].Objects.First().Centroid.Position, point.Position);
-				var distanceTail = Distance(sequences[i].Objects.Last().Centroid.Position, point.Position);
+				var distanceHead = Utils.SqrtDistance(sequences[i].Objects.First().Centroid.Position, point.Position);
+				var distanceTail = Utils.SqrtDistance(sequences[i].Objects.Last().Centroid.Position, point.Position);
 
 				if (minDistance > distanceHead)
 				{
@@ -208,8 +208,8 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 		{
 			var newSequence = new BrushStrokeImpl();
 
-			var distanceHead = Distance(first.Objects.First().Centroid.Position, second.Centroid.Position);
-			var distanceTail = Distance(first.Objects.Last().Centroid.Position, second.Centroid.Position);
+			var distanceHead = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Centroid.Position);
+			var distanceTail = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Centroid.Position);
 
 			if (distanceHead > distanceTail)
 			{
@@ -225,7 +225,7 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 			return newSequence;
 		}
 
-		private System.Windows.Point GetCenter(IReadOnlyCollection<Segment> objs)
+		private static System.Windows.Point GetCenter(IReadOnlyCollection<Segment> objs)
 		{
 			var x = 0d;
 			var y = 0d;
@@ -247,21 +247,21 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 			{
 				var center = GetCenter(objs);
 
-				var startPoint = objs.OrderBy(p => Distance(center, p.Centroid.Position)).First();
+				var startPoint = objs.OrderBy(p => Utils.SqrtDistance(center, p.Centroid.Position)).First();
 
 				while (points.Count > 0)
 				{
 					if (points.Count > 1)
 					{
 						var list = new List<Segment>();
-						var main = points.OrderBy(p => Distance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
+						var main = points.OrderBy(p => Utils.SqrtDistance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
 
 						list.Add(main);
 						points.Remove(main);
 
-						var next = points.OrderBy(p => Distance(main.Centroid.Position, p.Centroid.Position)).First();
+						var next = points.OrderBy(p => Utils.SqrtDistance(main.Centroid.Position, p.Centroid.Position)).First();
 
-						if (Distance(next.Centroid.Position, main.Centroid.Position) < _maxDistance)
+						if (Utils.SqrtDistance(next.Centroid.Position, main.Centroid.Position) < _maxDistance)
 						{
 							list.Add(next);
 							points.Remove(next);
@@ -297,19 +297,12 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 			return brushStrokes;
 		}
 
-		private static double Distance(System.Windows.Point first, System.Windows.Point second)
-		{
-			var sum = Math.Pow(first.X - second.X, 2);
-			sum += Math.Pow(first.Y - second.Y, 2);
-			return Math.Sqrt(sum);
-		}
-
 		private static double Distance(BrushStroke first, BrushStroke second)
 		{
-			var hh = Distance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
-			var ht = Distance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var tt = Distance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var th = Distance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
+			var hh = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
+			var ht = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
+			var tt = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
+			var th = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
 			var minDistance = hh;
 
 			if (ht < minDistance)

@@ -77,7 +77,7 @@ namespace SmearsMaker.Tracers.GradientTracer
 			var spixelsGrad = ImageHelper.CreateImage(_superPixels, Layers.Gradient, Model);
 
 			Progress.NewProgress("Вычисление мазков (линии)");
-			var smearsMap = ImageHelper.PaintImage(Model.Image, _strokes, (float)_settings.WidthSmearUI.Value);
+			var smearsMap = ImageHelper.PaintStrokes(Model.Image, _strokes, (float)_settings.WidthSmearUI.Value);
 
 			Progress.NewProgress("Вычисление размытия");
 			var blurredImage = Model.ConvertToBitmapSource(Model.Points, Layers.Filtered);

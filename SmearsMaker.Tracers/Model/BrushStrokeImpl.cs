@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Model
 {
@@ -22,7 +22,7 @@ namespace SmearsMaker.Tracers.Model
 				var length = 0d;
 				for (int i = 1; i < Objects.Count; i++)
 				{
-					length += Distance(Objects[i - 1].Centroid.Position, Objects[i].Centroid.Position);
+					length += Utils.SqrtDistance(Objects[i - 1].Centroid.Position, Objects[i].Centroid.Position);
 				}
 				return (int)length;
 			}
@@ -50,13 +50,6 @@ namespace SmearsMaker.Tracers.Model
 
 				return new Pixel(averageData);
 			}
-		}
-
-		private static double Distance(System.Windows.Point first, System.Windows.Point second)
-		{
-			var sum = Math.Pow(first.X - second.X, 2);
-			sum += Math.Pow(first.Y - second.Y, 2);
-			return Math.Sqrt(sum);
 		}
 	}
 }

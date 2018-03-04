@@ -18,12 +18,5 @@ namespace SmearsMaker.Tracers.Logic
 		{
 			return null;
 		}
-
-		private static double Distance(System.Windows.Point first, System.Windows.Point second)
-		{
-			var sum = Math.Pow(first.X - second.X, 2);
-			sum += Math.Pow(first.Y - second.Y, 2);
-			return Math.Sqrt(sum);
-		}
 	}
 }

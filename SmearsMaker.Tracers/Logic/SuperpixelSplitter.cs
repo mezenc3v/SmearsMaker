@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Logic
 {
@@ -158,45 +159,13 @@ namespace SmearsMaker.Tracers.Logic
 			return samplesData;
 		}
 
-		private static double Distance(Segment superPixel, Point pixel)
-		{
-			//var sum = Math.Pow(pixel.Position.X - superPixel.Centroid.Position.X, 2);
-			//sum += Math.Pow(pixel.Position.Y - superPixel.Centroid.Position.Y, 2);
-			//return Math.Sqrt(sum);
-
-			double dictance = 0;
-
-			var d = pixel.Position.X - superPixel.Centroid.Position.X;
-			if (d < 0)
-			{
-				dictance -= d;
-			}
-			else
-			{
-				dictance += d;
-			}
-
-			d = pixel.Position.Y - superPixel.Centroid.Position.Y;
-
-			if (d < 0)
-			{
-				dictance -= d;
-			}
-			else
-			{
-				dictance += d;
-			}
-
-			return dictance;
-		}
-
 		private static int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
 		{
 			var index = 0;
-			var min = Distance(superPixels[0], pixel);
+			var min = Utils.ManhattanDistance(superPixels[0].Centroid, pixel);
 			for (int i = 0; i < superPixels.Count; i++)
 			{
-				var distance = Distance(superPixels[i], pixel);
+				var distance = Utils.ManhattanDistance(superPixels[i].Centroid, pixel);
 				if (min > distance)
 				{
 					min = distance;

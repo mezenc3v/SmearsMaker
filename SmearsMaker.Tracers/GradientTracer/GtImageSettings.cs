@@ -24,7 +24,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 				Value = (int)Math.Sqrt((double)(width + height) / 80 / 2),
 				Name = "Ранг фильтра"
 			};
-
 			HeightPlt = new ImageSetting
 			{
 				Value = 7600,
@@ -35,7 +34,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 				Value = 5200,
 				Name = "Высота plt"
 			};
-
 			SizeSuperPixel = new ImageSetting
 			{
 				Value = (int)(width * height / 500),

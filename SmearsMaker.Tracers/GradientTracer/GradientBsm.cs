@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
 namespace SmearsMaker.Tracers.GradientTracer
@@ -74,7 +75,7 @@ namespace SmearsMaker.Tracers.GradientTracer
 				list.Add(main);
 				points.Remove(main);
 
-				var nearestPoints = points.FindAll(p => GetDistance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
+				var nearestPoints = points.FindAll(p => Utils.SqrtDistance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
 				if (nearestPoints.Any())
 				{
 					var next = FindByGradient(main, nearestPoints);
@@ -119,10 +120,10 @@ namespace SmearsMaker.Tracers.GradientTracer
 		{
 			var newSequence = new BrushStrokeImpl();
 
-			var a = GetDistance(first.Head, second.Head);
-			var b = GetDistance(first.Tail, second.Tail);
-			var c = GetDistance(first.Head, second.Tail);
-			var d = GetDistance(first.Tail, second.Head);
+			var a = Utils.SqrtDistance(first.Head, second.Head);
+			var b = Utils.SqrtDistance(first.Tail, second.Tail);
+			var c = Utils.SqrtDistance(first.Head, second.Tail);
+			var d = Utils.SqrtDistance(first.Tail, second.Head);
 
 			if (a < b)
 			{
@@ -198,21 +199,21 @@ namespace SmearsMaker.Tracers.GradientTracer
 
 			if (sequences.First() != seq)
 			{
-				minDistance = GetDistance(sequences[0].Head, head);
+				minDistance = Utils.SqrtDistance(sequences[0].Head, head);
 				index = 0;
 			}
 			else
 			{
-				minDistance = GetDistance(sequences[1].Head, head);
+				minDistance = Utils.SqrtDistance(sequences[1].Head, head);
 				index = 1;
 			}
 
 			foreach (var sequence in sequences.Where(s => s != seq))
 			{
-				var hh = GetDistance(sequence.Head, head);
-				var ht = GetDistance(sequence.Head, tail);
-				var tt = GetDistance(sequence.Tail, tail);
-				var th = GetDistance(sequence.Tail, head);
+				var hh = Utils.SqrtDistance(sequence.Head, head);
+				var ht = Utils.SqrtDistance(sequence.Head, tail);
+				var tt = Utils.SqrtDistance(sequence.Tail, tail);
+				var th = Utils.SqrtDistance(sequence.Tail, head);
 
 				if (hh > 0 && minDistance > hh)
 				{
@@ -249,15 +250,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 			return result.First();
 		}
 
-		private static double GetDistance(System.Windows.Point firstPoint, System.Windows.Point secondPoint)
-		{
-			var distance = Math.Pow(firstPoint.X - secondPoint.X, 2);
-			distance += Math.Pow(firstPoint.Y - secondPoint.Y, 2);
-			distance = Math.Sqrt(distance);
-
-			return distance;
-		}
-
 		private bool IsSameColor(Segment firstSegment, Segment secondSegment)
 		{
 			var distance = Math.Abs(firstSegment.Centroid.Pixels[Layers.Original].Average - secondSegment.Centroid.Pixels[Layers.Original].Average);
@@ -266,10 +258,10 @@ namespace SmearsMaker.Tracers.GradientTracer
 
 		private static double GetDistance(BrushStroke first, BrushStroke second)
 		{
-			var hh = GetDistance(first.Head, second.Head);
-			var ht = GetDistance(first.Head, second.Tail);
-			var tt = GetDistance(first.Tail, second.Tail);
-			var th = GetDistance(first.Tail, second.Head);
+			var hh = Utils.SqrtDistance(first.Head, second.Head);
+			var ht = Utils.SqrtDistance(first.Head, second.Tail);
+			var tt = Utils.SqrtDistance(first.Tail, second.Tail);
+			var th = Utils.SqrtDistance(first.Tail, second.Head);
 			var minDistance = hh;
 
 			if (ht < minDistance)

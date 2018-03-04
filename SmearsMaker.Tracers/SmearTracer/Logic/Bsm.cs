@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 using Point = System.Windows.Point;
 
@@ -32,7 +33,7 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 
 				while (points.Count > 0)
 				{
-					var main = points.OrderBy(p => Distance(_finishPoint, p.Centroid.Position)).First();
+					var main = points.OrderBy(p => Utils.SqrtDistance(_finishPoint, p.Centroid.Position)).First();
 					list.Add(main);
 					points.Remove(main);
 
@@ -40,10 +41,10 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 					{
 						do
 						{
-							var next = points.OrderBy(p => Distance(list.Last().Centroid.Position, p.Centroid.Position)).First();
-							if (Distance(list.Last().Centroid.Position, next.Centroid.Position) / 2 < size)
+							var next = points.OrderBy(p => Utils.SqrtDistance(list.Last().Centroid.Position, p.Centroid.Position)).First();
+							if (Utils.SqrtDistance(list.Last().Centroid.Position, next.Centroid.Position) / 2 < size)
 							{
-								length += Distance(list.Last().Centroid.Position, next.Centroid.Position);
+								length += Utils.SqrtDistance(list.Last().Centroid.Position, next.Centroid.Position);
 								if (length <= _maxLemgth)
 								{
 									_finishPoint = next.Centroid.Position;
@@ -94,21 +95,14 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 			{
 				foreach (var objTwo in objs)
 				{
-					if (Distance(objOne.Centroid.Position, objTwo.Centroid.Position) > maxDistance)
+					if (Utils.SqrtDistance(objOne.Centroid.Position, objTwo.Centroid.Position) > maxDistance)
 					{
-						maxDistance = Distance(objOne.Centroid.Position, objTwo.Centroid.Position);
+						maxDistance = Utils.SqrtDistance(objOne.Centroid.Position, objTwo.Centroid.Position);
 						finish = objTwo.Centroid.Position;
 					}
 				}
 			}
 			_finishPoint = finish;
-		}
-
-		private static double Distance(Point first, Point second)
-		{
-			var sum = Math.Pow(first.X - second.X, 2);
-			sum += Math.Pow(first.Y - second.Y, 2);
-			return Math.Sqrt(sum);
 		}
 	}
 }

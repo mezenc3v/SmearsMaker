@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.SmearTracer.Logic
 {
-	public class SimpleSegmentsSplitter
+	public static class Splitter
 	{
-		public SimpleSegmentsSplitter()
-		{
-			
-		}
-
-		public List<Segment> Split(List<Point> input)
+		public static List<Segment> Split(List<Point> input)
 		{
 			var segments = new List<Segment>();
 			var data = input.OrderBy(p => p.Position.X).ToList();
@@ -29,7 +25,7 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 				{
 					var segmentData = new List<Point>();
 					countPrevious = data.Count;
-					foreach (var pixel in data.OrderBy(p => Distance(p, segment.Data.Last())))
+					foreach (var pixel in data.OrderBy(p => Utils.ManhattanDistance(p, segment.Data.Last())))
 					{
 						if (Contains(pixel, segment.Data))
 						{
@@ -75,37 +71,6 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 		private static bool Contains(Point pixel, IEnumerable<Point> units)
 		{
 			return units.Any(unit => Math.Abs(pixel.Position.X - unit.Position.X) < 2 && Math.Abs(pixel.Position.Y - unit.Position.Y) < 2);
-		}
-		private static double Distance(Point left, Point right)
-		{
-			//var sum = Math.Pow(right.Position.X - left.Position.X, 2);
-			//sum += Math.Pow(right.Position.Y - left.Position.Y, 2);
-			//return Math.Sqrt(sum);
-
-			double dictance = 0;
-
-			var d = left.Position.X - right.Position.X;
-			if (d < 0)
-			{
-				dictance -= d;
-			}
-			else
-			{
-				dictance += d;
-			}
-
-			d = left.Position.Y - right.Position.Y;
-
-			if (d < 0)
-			{
-				dictance -= d;
-			}
-			else
-			{
-				dictance += d;
-			}
-
-			return dictance;
 		}
 	}
 }

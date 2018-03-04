@@ -4,7 +4,7 @@ using SmearsMaker.Common.Image;
 
 namespace SmearsMaker.Tracers.SmearTracer
 {
-	public class STImageSettings
+	public class StImageSettings
 	{
 		#region properties
 		public List<ImageSetting> Settings { get; }
@@ -15,11 +15,12 @@ namespace SmearsMaker.Tracers.SmearTracer
 		public ImageSetting MaxSizeSuperpixel { get; }
 		public ImageSetting ClustersPrecision { get; }
 		public ImageSetting ClusterMaxIteration { get; }
+		public ImageSetting WidthSmear { get; }
 		public ImageSetting HeightPlt { get; }
 		public ImageSetting WidthPlt { get; }
 		#endregion
 
-		public STImageSettings(int width, int height)
+		public StImageSettings(int width, int height)
 		{
 			ClustersCount = new ImageSetting
 			{
@@ -56,6 +57,16 @@ namespace SmearsMaker.Tracers.SmearTracer
 				Value = 0.001f,
 				Name = "Точность поиска кластеров"
 			};
+			WidthSmear = new ImageSetting
+			{
+				Value = width * height / 5000 + 1,
+				Name = "Ширина мазка в plt"
+			};
+			WidthSmear = new ImageSetting
+			{
+				Value = width * height / 5000 + 1,
+				Name = "Ширина мазка в plt"
+			};
 			HeightPlt = new ImageSetting
 			{
 				Value = 7600,
@@ -76,6 +87,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 				MaxSmearDistance,
 				FilterRank,
 				ClustersPrecision,
+				WidthSmear,
 				HeightPlt,
 				WidthPlt
 			};

@@ -1,10 +1,11 @@
-﻿using SmearsMaker.Common.BaseTypes;
+﻿using System;
+using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.Tracers.Helpers
 {
 	public partial class Utils
 	{
-		private static double Distance(Point first, Point second)
+		internal static double ManhattanDistance(Point first, Point second)
 		{
 			double dictance = 0;
 
@@ -30,6 +31,13 @@ namespace SmearsMaker.Tracers.Helpers
 			}
 
 			return dictance;
+		}
+
+		internal static double SqrtDistance(System.Windows.Point first, System.Windows.Point second)
+		{
+			var sum = Math.Pow(first.X - second.X, 2);
+			sum += Math.Pow(first.Y - second.Y, 2);
+			return Math.Sqrt(sum);
 		}
 	}
 }
