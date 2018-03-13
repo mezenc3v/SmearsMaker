@@ -1,15 +1,14 @@
 ﻿using System;
-using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.Tracers.Helpers
 {
 	public partial class Utils
 	{
-		internal static double ManhattanDistance(Point first, Point second)
+		internal static double ManhattanDistance(System.Windows.Point first, System.Windows.Point second)
 		{
 			double dictance = 0;
 
-			var d = first.Position.X - second.Position.X;
+			var d = first.X - second.X;
 			if (d < 0)
 			{
 				dictance -= d;
@@ -19,7 +18,7 @@ namespace SmearsMaker.Tracers.Helpers
 				dictance += d;
 			}
 
-			d = first.Position.Y - second.Position.Y;
+			d = first.Y - second.Y;
 
 			if (d < 0)
 			{

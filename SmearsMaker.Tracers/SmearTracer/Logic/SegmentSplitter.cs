@@ -25,7 +25,7 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 				{
 					var segmentData = new List<Point>();
 					countPrevious = data.Count;
-					foreach (var pixel in data.OrderBy(p => Utils.ManhattanDistance(p, segment.Data.Last())))
+					foreach (var pixel in data.OrderBy(p => Utils.ManhattanDistance(p.Position, segment.Data.Last().Position)))
 					{
 						if (Contains(pixel, segment.Data))
 						{

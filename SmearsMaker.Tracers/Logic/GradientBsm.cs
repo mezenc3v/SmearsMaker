@@ -7,25 +7,26 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
-namespace SmearsMaker.Tracers.GradientTracer
+namespace SmearsMaker.Tracers.Logic
 {
-	public class GradientBsm
+	public class GradientBsm : IBsm
 	{
 		private readonly Random _rnd;
-		private readonly double _maxDistance;
-		private readonly double _tolerance;
+		private double _maxDistance;
+		private double _tolerance;
 
-		public GradientBsm(double maxDistance, float toLerance)
+		public GradientBsm()
 		{
-			_tolerance = toLerance;
-			_maxDistance = maxDistance;
 			_rnd = new Random();
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<Segment> objs, double width, float toLerance)
 		{
+			_tolerance = toLerance;
+			_maxDistance = width;
 			var strokesFromGroups = new List<BrushStroke>();
 			var groups = SplitSegmentsByColor(objs);
+
 			Parallel.ForEach(groups, group =>
 			{
 				var pairs = Pairing(group);
@@ -53,7 +54,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 				var searchableSegments = segments.FindAll(s => IsSameColor(s, segment));
 				var group = new List<Segment>();
 				group.AddRange(searchableSegments);
-				group.Add(segment);
 				segments.RemoveAll(p => searchableSegments.Contains(p));
 				segments.Remove(segment);
 				groups.Add(group);
@@ -97,14 +97,13 @@ namespace SmearsMaker.Tracers.GradientTracer
 				segmentsAreMerged = false;
 				for (int i = 0; i < sequences.Count; i++)
 				{
-					var index = NearestPart(sequences, sequences[i]);
-					var distance = GetDistance(sequences[index], sequences[i]);
-					//var index1 = FindByGradient(sequences[i], trueSequenses);
+					var strokes = NearestParts(sequences, sequences[i]);
+					var distance = GetDistance(strokes.First(), sequences[i]);
 
 					if (distance < _maxDistance)
 					{
-						var combinedSequence = Combine(sequences[index], sequences[i]);
-						var segmentToBeDeleted = sequences[index];
+						var segmentToBeDeleted = FindByGradient(sequences[i], strokes);
+						var combinedSequence = Combine(segmentToBeDeleted, sequences[i]);
 						sequences.RemoveAt(i);
 						sequences.Remove(segmentToBeDeleted);
 						sequences.Add(combinedSequence);
@@ -189,58 +188,47 @@ namespace SmearsMaker.Tracers.GradientTracer
 			return newSequence;
 		}
 
-		private static int NearestPart(IList<BrushStroke> sequences, BrushStroke seq)
+		private static List<BrushStroke> NearestParts(IList<BrushStroke> sequences, BrushStroke seq)
 		{
+			var result = new List<BrushStroke>();
 			var head = seq.Head;
 			var tail = seq.Tail;
 
 			double minDistance;
-			int index;
 
 			if (sequences.First() != seq)
 			{
 				minDistance = Utils.SqrtDistance(sequences[0].Head, head);
-				index = 0;
+				result.Add(sequences.First());
 			}
 			else
 			{
 				minDistance = Utils.SqrtDistance(sequences[1].Head, head);
-				index = 1;
+				result.Add(sequences[1]);
 			}
 
 			foreach (var sequence in sequences.Where(s => s != seq))
 			{
-				var hh = Utils.SqrtDistance(sequence.Head, head);
-				var ht = Utils.SqrtDistance(sequence.Head, tail);
-				var tt = Utils.SqrtDistance(sequence.Tail, tail);
-				var th = Utils.SqrtDistance(sequence.Tail, head);
-
-				if (hh > 0 && minDistance > hh)
+				new List<double>{
+					Utils.SqrtDistance(sequence.Head, head),
+					Utils.SqrtDistance(sequence.Head, tail),
+					Utils.SqrtDistance(sequence.Tail, tail),
+					Utils.SqrtDistance(sequence.Tail, head)
+				}.ForEach(dist =>
 				{
-					index = sequences.IndexOf(sequence);
-					minDistance = hh;
-				}
-
-				if (ht > 0 && minDistance > ht)
-				{
-					index = sequences.IndexOf(sequence);
-					minDistance = ht;
-				}
-
-				if (tt > 0 && minDistance > tt)
-				{
-					index = sequences.IndexOf(sequence);
-					minDistance = tt;
-				}
-
-				if (th > 0 && minDistance > th)
-				{
-					index = sequences.IndexOf(sequence);
-					minDistance = th;
-				}
+					if (minDistance > dist)
+					{
+						minDistance = dist;
+						result = new List<BrushStroke> { sequence };
+					}
+					else if (minDistance == dist)
+					{
+						result.Add(sequence);
+					}
+				});
 			}
 
-			return index;
+			return result;
 		}
 
 		private static Segment FindByGradient(Segment obj, IEnumerable<Segment> objs)
@@ -248,6 +236,22 @@ namespace SmearsMaker.Tracers.GradientTracer
 			var grad = obj.Centroid.Pixels[Layers.Gradient].Data[0];
 			var result = objs.OrderBy(p => Math.Abs(grad - p.Centroid.Pixels[Layers.Gradient].Data[0]));
 			return result.First();
+		}
+
+		private static BrushStroke FindByGradient(BrushStroke obj, IEnumerable<BrushStroke> objs)
+		{
+			var gradHead = obj.Objects.First().Centroid.Pixels[Layers.Gradient].Data[0];
+			var gradTail = obj.Objects.Last().Centroid.Pixels[Layers.Gradient].Data[0];
+			var grads = new List<float>();
+
+			return objs.OrderBy(p =>
+				{
+					grads.Add(Math.Abs(gradHead - obj.Objects.First().Centroid.Pixels[Layers.Gradient].Data[0]));
+					grads.Add(Math.Abs(gradTail - obj.Objects.Last().Centroid.Pixels[Layers.Gradient].Data[0]));
+					grads.Add(Math.Abs(gradHead - obj.Objects.Last().Centroid.Pixels[Layers.Gradient].Data[0]));
+					grads.Add(Math.Abs(gradTail - obj.Objects.First().Centroid.Pixels[Layers.Gradient].Data[0]));
+					return grads.Min();
+				}).First();
 		}
 
 		private bool IsSameColor(Segment firstSegment, Segment secondSegment)
@@ -258,28 +262,13 @@ namespace SmearsMaker.Tracers.GradientTracer
 
 		private static double GetDistance(BrushStroke first, BrushStroke second)
 		{
-			var hh = Utils.SqrtDistance(first.Head, second.Head);
-			var ht = Utils.SqrtDistance(first.Head, second.Tail);
-			var tt = Utils.SqrtDistance(first.Tail, second.Tail);
-			var th = Utils.SqrtDistance(first.Tail, second.Head);
-			var minDistance = hh;
-
-			if (ht < minDistance)
+			return new List<double>
 			{
-				minDistance = ht;
-			}
-
-			if (tt < minDistance)
-			{
-				minDistance = tt;
-			}
-
-			if (th < minDistance)
-			{
-				minDistance = th;
-			}
-
-			return minDistance;
+				Utils.SqrtDistance(first.Head, second.Head),
+				Utils.SqrtDistance(first.Head, second.Tail),
+				Utils.SqrtDistance(first.Tail, second.Tail),
+				Utils.SqrtDistance(first.Tail, second.Head)
+			}.Min();
 		}
 	}
 }

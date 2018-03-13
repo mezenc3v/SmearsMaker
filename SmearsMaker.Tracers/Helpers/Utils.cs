@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using SmearsMaker.Common.BaseTypes;
+using Point = System.Windows.Point;
 
 namespace SmearsMaker.Tracers.Helpers
 {
@@ -13,6 +14,17 @@ namespace SmearsMaker.Tracers.Helpers
 			{
 				var averData = GetAverageData(superPixel, layer);
 				superPixel.Centroid.Pixels[layer] = new Pixel(averData);
+				var center = new Point();
+				foreach (var point in superPixel.Data)
+				{
+					center.X += point.Position.X;
+					center.Y += point.Position.Y;
+				}
+
+				center.X /= superPixel.Data.Count;
+				center.Y /= superPixel.Data.Count;
+
+				superPixel.Centroid.Position = center;
 			}
 		}
 

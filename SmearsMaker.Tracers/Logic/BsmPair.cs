@@ -4,19 +4,19 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
-namespace SmearsMaker.Tracers.SmearTracer.Logic
+namespace SmearsMaker.Tracers.Logic
 {
-	public class BsmPair
+	public class BsmPair : IBsm
 	{
-		private readonly double _maxDistance;
+		private double _maxDistance;
 
-		public BsmPair(double maxDistance)
+		public BsmPair()
 		{
-			_maxDistance = maxDistance;
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<Segment> objs, double width, float tolerance)
 		{
+			_maxDistance = width;
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
 			return brushStrokes;

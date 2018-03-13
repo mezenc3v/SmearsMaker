@@ -33,8 +33,8 @@ namespace SmearsMaker.Tracers.SmearTracer
 		{
 			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
 			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, Model.Points, (int)_settings.ClusterMaxIteration.Value);
-			var supPixSplitter = new SuperpixelSplitter((int)_settings.MinSizeSuperpixel.Value);
-			var bsm = new BsmPair((int)_settings.MaxSmearDistance.Value);
+			var supPixSplitter = new SuperpixelSplitter();
+			var bsm = new BsmPair();
 
 			var segmentsCount = 0;
 			var smearsCount = 0;
@@ -63,7 +63,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 					swClusters.Reset();
 					Parallel.ForEach(segments, segment =>
 					{
-						var superPixels = supPixSplitter.Splitting(segment);
+						var superPixels = supPixSplitter.Splitting(segment, (int)_settings.MinSizeSuperpixel.Value);
 
 						Parallel.ForEach(superPixels, (supPix) =>
 						{
@@ -78,7 +78,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList<Segment>());
+							var smears = bsm.Execute(superPixels.ToList(), _settings.MaxSmearDistance.Value, 0);
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{

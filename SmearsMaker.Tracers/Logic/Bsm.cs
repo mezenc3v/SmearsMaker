@@ -6,20 +6,21 @@ using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 using Point = System.Windows.Point;
 
-namespace SmearsMaker.Tracers.SmearTracer.Logic
+namespace SmearsMaker.Tracers.Logic
 {
-	public class Bsm
+	public class Bsm : IBsm
 	{
-		private readonly int _maxLemgth;
+		private double _maxLemgth;
 		private Point _finishPoint;
 
-		public Bsm(int maxLemgth)
+		public Bsm()
 		{
-			_maxLemgth = maxLemgth;
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<Segment> objs, double width, float tolerance)
 		{
+			_maxLemgth = width;
+
 			FindPoints(objs);
 			if (objs.Count > 0)
 			{

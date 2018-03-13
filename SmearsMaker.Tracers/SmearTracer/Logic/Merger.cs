@@ -12,13 +12,13 @@ namespace SmearsMaker.Tracers.SmearTracer.Logic
 		{
 			foreach (var point in points)
 			{
-				var minDist = Utils.ManhattanDistance(smears.First().BrushStroke.Objects.First().Centroid, point);
+				var minDist = Utils.ManhattanDistance(smears.First().BrushStroke.Objects.First().Centroid.Position, point.Position);
 				var nearestObj = smears.First().BrushStroke.Objects.First();
 				Parallel.ForEach(smears, smear =>
 				{
 					foreach (var obj in smear.BrushStroke.Objects)
 					{
-						var dist = Utils.ManhattanDistance(obj.Centroid, point);
+						var dist = Utils.ManhattanDistance(obj.Centroid.Position, point.Position);
 						if (dist < minDist)
 						{
 							lock (nearestObj)

@@ -25,7 +25,7 @@ namespace SmearsMaker.Wpf
 				var assemblyPath = Path.Combine(assemblyFolder, value);
 				if (!File.Exists(assemblyPath)) continue;
 				var assembly = Assembly.LoadFrom(assemblyPath);
-				var tracers = assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(TracerBase)) || t.IsSubclassOf(typeof(ITracer))).ToList();
+				var tracers = assembly.GetTypes().Where(t => typeof(ITracer).IsAssignableFrom(t) && !t.IsAbstract).ToList();
 				libs.AddRange(tracers);
 			}
 			return libs;

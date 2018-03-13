@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using SmearsMaker.Common.Image;
 
-namespace SmearsMaker.Tracers.GradientTracer
+namespace SmearsMaker.Tracers.GradientTracers
 {
 	public class GtImageSettings
 	{
@@ -11,7 +11,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 		public ImageSetting FilterRank { get; }
 		public ImageSetting HeightPlt { get; }
 		public ImageSetting WidthPlt { get; }
-		public ImageSetting SizeSuperPixel { get; }
 		public ImageSetting WidthSmearUI { get; }
 		public ImageSetting WidthSmear { get; }
 		public ImageSetting Tolerance { get; }
@@ -34,11 +33,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 				Value = 5200,
 				Name = "Высота plt"
 			};
-			SizeSuperPixel = new ImageSetting
-			{
-				Value = (int)(width * height / 500),
-				Name = "Размер суперпикселя"
-			};
 			WidthSmear = new ImageSetting
 			{
 				Value = width * height / 5000 + 1,
@@ -60,7 +54,6 @@ namespace SmearsMaker.Tracers.GradientTracer
 				FilterRank,
 				HeightPlt,
 				WidthPlt,
-				SizeSuperPixel,
 				WidthSmearUI,
 				WidthSmear,
 				Tolerance
