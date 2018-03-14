@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Tracers.Helpers;
 
-namespace SmearsMaker.Tracers.SmearTracer.Logic
+namespace SmearsMaker.Tracers.SmearTracer
 {
 	public static class Merger
 	{

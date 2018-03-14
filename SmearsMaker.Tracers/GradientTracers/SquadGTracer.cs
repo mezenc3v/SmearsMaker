@@ -4,17 +4,13 @@ using SmearsMaker.Tracers.Logic;
 
 namespace SmearsMaker.Tracers.GradientTracers
 {
-	public class SquadGTracer : GTracer
+	public sealed class SquadGTracer : GTracer
 	{
-		public SquadGTracer(BitmapSource image, IProgress progress) : base(image, progress)
+		public SquadGTracer(BitmapSource image, IProgress progress) : base(image, progress, new SuperpixelSplitter(), new GradientBsm())
 		{
-			ConfigureServices(new SuperpixelSplitter(), new GradientBsm());
 		}
 
-		protected override void PreExecute()
-		{
-			SplitterLength = (int)_settings.WidthSmear.Value;
-			BsmLength = _settings.WidthSmear.Value * 2 - 2;
-		}
+		internal override int SplitterLength => (int)GtSettings.WidthSmear.Value;
+		internal override double BsmLength => GtSettings.WidthSmear.Value * 2 - 2;
 	}
 }

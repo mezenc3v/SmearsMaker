@@ -8,11 +8,15 @@ namespace SmearsMaker.Common
 {
 	public abstract class TracerBase : ITracer
 	{
+		public override string ToString()
+		{
+			return "У димы угнали машину";
+		}
 		public IProgress Progress { get; }
-		public ImageModel Model { get; }
 
 		public abstract List<ImageSetting> Settings { get; }
 		public abstract List<ImageView> Views { get; }
+		protected ImageModel Model { get; }
 
 		protected static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
@@ -25,5 +29,7 @@ namespace SmearsMaker.Common
 		public abstract Task Execute();
 
 		public abstract string GetPlt();
+
+		
 	}
 }

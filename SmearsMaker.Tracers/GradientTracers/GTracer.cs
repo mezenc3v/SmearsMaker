@@ -15,39 +15,37 @@ namespace SmearsMaker.Tracers.GradientTracers
 {
 	public abstract class GTracer : TracerBase
 	{
-		public override List<ImageSetting> Settings => _settings.Settings;
+		public override string ToString()
+		{
+			return "У димы угнали машину";
+		}
+		public override List<ImageSetting> Settings => GtSettings.Settings;
 		public override List<ImageView> Views => CreateViews();
 
 		private List<Point> _sobelPoints;
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
-		internal readonly GtImageSettings _settings;
-		internal int SplitterLength;
-		internal double BsmLength;
+		internal readonly GtImageSettings GtSettings;
+		internal abstract int SplitterLength { get; }
+		internal abstract double BsmLength { get; }
 		internal ISplitter Splitter;
 		internal IBsm Bsm;
 
-		protected abstract void PreExecute();
-
-		protected void ConfigureServices(ISplitter splitter, IBsm bsm)
+		protected GTracer(BitmapSource image, IProgress progress, ISplitter splitter, IBsm bsm) : base(image, progress)
 		{
+			GtSettings = new GtImageSettings(Model.Width, Model.Height);
 			Splitter = splitter;
 			Bsm = bsm;
-		}
-		protected GTracer(BitmapSource image, IProgress progress) : base(image, progress)
-		{
-			_settings = new GtImageSettings(Model.Width, Model.Height);
 		}
 
 		public override Task Execute()
 		{
-			PreExecute();
-			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
+			var filter = new MedianFilter((int)GtSettings.FilterRank.Value, Model.Width, Model.Height);
 			var sobel = new Sobel(Model.Width, Model.Height);
-			var centroid = new Point(Model.Width / 2, Model.Height / 2);
-			centroid.Pixels.AddPixel(Layers.Original, null);
+			var centroid = new Point((double)Model.Width / 2, (double)Model.Height / 2);	
 			var segment = new Segment(centroid, Model.Width, Model.Height);
+			
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
@@ -59,18 +57,14 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Progress.NewProgress("Вычисление градиентов");
 				_sobelPoints = sobel.Compute(Model.Points);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
-
+				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
 				segment.Data = _sobelPoints;
 				Progress.NewProgress("Создание суперпикселей");
 				_superPixels = Splitter.Splitting(segment, SplitterLength);
-
-				Utils.UpdateCenter(Layers.Original, _superPixels);
-				Utils.UpdateCenter(Layers.Filtered, _superPixels);
 				Utils.UpdateCenter(Layers.Gradient, _superPixels);
-
 				sw.Restart();
 				Progress.NewProgress("Создание мазков");
-				_strokes = Bsm.Execute(_superPixels, BsmLength, (float)_settings.Tolerance.Value);
+				_strokes = Bsm.Execute(_superPixels, BsmLength, (float)GtSettings.Tolerance.Value);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes} мазков");
 				Log.Trace("Обработка изображения завершена");
@@ -86,24 +80,11 @@ namespace SmearsMaker.Tracers.GradientTracers
 			Progress.NewProgress("Вычисление градиентов суперпикселей");
 			var spixelsGrad = ImageHelper.CreateImage(_superPixels, Layers.Gradient, Model);
 
-			Progress.NewProgress("Вычисление мазков");
-			var segments = new List<Segment>();
-			foreach (var stroke in _strokes)
-			{
-				var objects = stroke.Objects;
-				foreach (var o in objects)
-				{
-					foreach (var point in o.Data)
-					{
-						point.Pixels[Layers.Filtered] = stroke.AverageData;
-					}
-				}
-				segments.AddRange(objects);
-			}
-			var smears = ImageHelper.CreateImage(segments, Layers.Filtered, Model);
+			Progress.NewProgress("Вычисление мазков");		
+			var smears = ImageHelper.CreateImageFromStrokes(_strokes, Layers.Filtered, Model);
 
 			Progress.NewProgress("Вычисление мазков (линии)");
-			var smearsMap = ImageHelper.PaintStrokes(Model.Image, _strokes, (int)_settings.WidthSmearUI.Value);
+			var smearsMap = ImageHelper.PaintStrokes(Model.Image, _strokes, (int)GtSettings.WidthSmearUI.Value);
 
 			Progress.NewProgress("Вычисление размытия");
 			var blurredImage = Model.ConvertToBitmapSource(Model.Points, Layers.Filtered);
@@ -133,7 +114,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 
 		public override string GetPlt()
 		{
-			return PltHelper.GetPlt(_strokes, _settings.HeightPlt.Value, _settings.WidthPlt.Value, _settings.WidthSmear.Value, Model.Height, Model.Width);
+			return PltHelper.GetPlt(_strokes, GtSettings.HeightPlt.Value, GtSettings.WidthPlt.Value, GtSettings.WidthSmear.Value, Model.Height, Model.Width);
 		}
 	}
 }

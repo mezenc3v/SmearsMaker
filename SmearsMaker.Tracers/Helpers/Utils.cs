@@ -28,17 +28,22 @@ namespace SmearsMaker.Tracers.Helpers
 			}
 		}
 
-		internal static void AddCenter(string layer, List<Segment> superPixels)
+		internal static void AddCenter(string layer, List<Segment> segments)
 		{
-			foreach (var superPixel in superPixels)
+			foreach (var segment in segments)
 			{
-				var averData = GetAverageData(superPixel, layer);
-				superPixel.Data.ForEach(d =>
-				{
-					d.Pixels.AddPixel(layer, new Pixel(averData));
-				});
-				superPixel.Centroid.Pixels.AddPixel(layer, new Pixel(averData));
+				AddCenter(layer, segment);
 			}
+		}
+
+		internal static void AddCenter(string layer, Segment segment)
+		{
+			var averData = GetAverageData(segment, layer);
+			segment.Data.ForEach(d =>
+			{
+				d.Pixels.AddPixel(layer, new Pixel(averData));
+			});
+			segment.Centroid.Pixels.AddPixel(layer, new Pixel(averData));
 		}
 
 		internal static float[] GetAverageData(IReadOnlyCollection<Segment> segments, string layer)

@@ -11,7 +11,6 @@ using SmearsMaker.ImageProcessing.Clustering;
 using SmearsMaker.ImageProcessing.Filtering;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Logic;
-using SmearsMaker.Tracers.SmearTracer.Logic;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.SmearTracer

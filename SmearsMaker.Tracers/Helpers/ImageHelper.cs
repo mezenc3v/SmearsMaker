@@ -8,7 +8,6 @@ using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
-using FontStyle = System.Drawing.FontStyle;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.Helpers
@@ -35,6 +34,25 @@ namespace SmearsMaker.Tracers.Helpers
 			foreach (var obj in objects)
 			{
 				data.AddRange(obj.Data);
+			}
+			return model.ConvertToBitmapSource(data, layer);
+		}
+
+		internal static BitmapSource CreateImageFromStrokes(IEnumerable<BrushStroke> strokes, string layer, ImageModel model)
+		{
+			var data = new List<Point>();
+			foreach (var stroke in strokes)
+			{
+				var averageData = stroke.AverageData;
+				var objects = stroke.Objects;
+				foreach (var o in objects)
+				{
+					foreach (var point in o.Data)
+					{
+						point.Pixels[layer] = averageData;
+					}
+					data.AddRange(o.Data);
+				}
 			}
 			return model.ConvertToBitmapSource(data, layer);
 		}

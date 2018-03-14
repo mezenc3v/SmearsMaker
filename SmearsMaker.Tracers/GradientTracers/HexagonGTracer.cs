@@ -5,17 +5,18 @@ using SmearsMaker.Tracers.Logic;
 
 namespace SmearsMaker.Tracers.GradientTracers
 {
-	public class HexagonGTracer : GTracer
+	public sealed class HexagonGTracer : GTracer
 	{
-		public HexagonGTracer(BitmapSource image, IProgress progress) : base(image, progress)
+		public HexagonGTracer(BitmapSource image, IProgress progress) : base(image, progress, new HexagonSplitter(), new GradientBsm())
 		{
-			ConfigureServices(new HexagonSplitter(), new GradientBsm());
 		}
 
-		protected override void PreExecute()
+		internal override int SplitterLength => (int)GtSettings.WidthSmear.Value;
+		internal override double BsmLength => GtSettings.WidthSmear.Value * Math.Sqrt(3) / 2 + 3;
+
+		public override string ToString()
 		{
-			SplitterLength = (int)_settings.WidthSmear.Value;
-			BsmLength = _settings.WidthSmear.Value * Math.Sqrt(3) / 2 + 4;
+			return "У димы угнали машину";
 		}
 	}
 }
