@@ -15,10 +15,6 @@ namespace SmearsMaker.Tracers.GradientTracers
 {
 	public abstract class GTracer : TracerBase
 	{
-		public override string ToString()
-		{
-			return "У димы угнали машину";
-		}
 		public override List<ImageSetting> Settings => GtSettings.Settings;
 		public override List<ImageView> Views => CreateViews();
 

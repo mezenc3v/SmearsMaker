@@ -8,10 +8,6 @@ namespace SmearsMaker.Common
 {
 	public abstract class TracerBase : ITracer
 	{
-		public override string ToString()
-		{
-			return "У димы угнали машину";
-		}
 		public IProgress Progress { get; }
 
 		public abstract List<ImageSetting> Settings { get; }

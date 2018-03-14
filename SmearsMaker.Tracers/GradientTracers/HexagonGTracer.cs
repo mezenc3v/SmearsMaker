@@ -13,10 +13,5 @@ namespace SmearsMaker.Tracers.GradientTracers
 
 		internal override int SplitterLength => (int)GtSettings.WidthSmear.Value;
 		internal override double BsmLength => GtSettings.WidthSmear.Value * Math.Sqrt(3) / 2 + 3;
-
-		public override string ToString()
-		{
-			return "У димы угнали машину";
-		}
 	}
 }
