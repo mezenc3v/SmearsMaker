@@ -138,9 +138,9 @@ namespace SmearsMaker.Tracers.Logic
 
 			if (widthCount > diameter && heightCount > diameter)
 			{
-				for (int i = (int)firstPoint.X; i < (int)secondPoint.X; i += (int)diameter)
+				for (double i = firstPoint.X; i < secondPoint.X; i += diameter)
 				{
-					for (int j = (int)firstPoint.Y; j < (int)secondPoint.Y; j += (int)diameter)
+					for (double j = firstPoint.Y; j < secondPoint.Y; j += diameter)
 					{
 						samplesData.Add(new System.Windows.Point(i + diameter / 2, j + diameter / 2));
 					}

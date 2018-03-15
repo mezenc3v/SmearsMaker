@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
@@ -57,49 +55,45 @@ namespace SmearsMaker.Tracers.Helpers
 			return model.ConvertToBitmapSource(data, layer);
 		}
 
+		public static BitmapSource ToBitmapSource(DrawingImage source, int width, int heigth)
+		{
+			var drawingVisual = new DrawingVisual();
+			var drawingContext = drawingVisual.RenderOpen();
+			var bmp = new RenderTargetBitmap(width, heigth, 96, 96, PixelFormats.Pbgra32);
+			drawingContext.DrawImage(source, new Rect(new System.Windows.Point(0, 0), new Size(width, heigth)));
+			drawingContext.Close();
+			bmp.Render(drawingVisual);
+			return bmp;
+		}
+
 		internal static BitmapSource PaintStrokes(BitmapSource source, IEnumerable<BrushStroke> strokes, float width)
 		{
-			Bitmap bitmap;
-			using (var outStream = new MemoryStream())
-			{
-				BitmapEncoder enc = new BmpBitmapEncoder();
-				enc.Frames.Add(BitmapFrame.Create(source));
-				enc.Save(outStream);
-				bitmap = new Bitmap(outStream);
-			}
-
-			var g = Graphics.FromImage(bitmap);
-			g.Clear(Color.White);
-
+			var geometries = new DrawingGroup();
+			var radius = 1;
 			foreach (var stroke in strokes.OrderByDescending(s => s.Objects.Count))
 			{
 				var center = Utils.GetAverageData(stroke.Objects, Layers.Original);
-				var color = GetColorFromArgb(center);
+				var brush = new SolidColorBrush(GetColorFromArgb(center));
+				var pen = new Pen(brush, width);
 
-				var brush = new SolidBrush(color);
-				var pen = new Pen(color)
+				var points = stroke.Objects.Select(point => new System.Windows.Point((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
+
+				var lastPoint = new EllipseGeometry(points.Last(), radius, radius);
+				geometries.Children.Add(new GeometryDrawing(brush, pen, lastPoint));
+				if (points.Length > 1)
 				{
-					Width = width
-				};
-
-				var pointsF = stroke.Objects.Select(point => new PointF((float)point.Centroid.Position.X, (float)point.Centroid.Position.Y)).ToArray();
-
-				g.FillEllipse(brush, pointsF.First().X, pointsF.First().Y, pen.Width, pen.Width);
-
-				if (pointsF.Length > 1)
-				{
-					g.FillEllipse(brush, pointsF.Last().X, pointsF.Last().Y, pen.Width, pen.Width);
-					g.DrawLines(pen, pointsF);
+					for (int i = 0; i < points.Length - 1; i++)
+					{
+						var line = new LineGeometry(points[i], points[i + 1]);
+						var head = new EllipseGeometry(points[i], radius, radius);
+						var tail = new EllipseGeometry(points[i + 1], radius, radius);
+						geometries.Children.Add(new GeometryDrawing(brush, pen, head));
+						geometries.Children.Add(new GeometryDrawing(brush, pen, tail));
+						geometries.Children.Add(new GeometryDrawing(brush, pen, line));
+					}
 				}
 			}
-
-			g.Dispose();
-
-			return System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(
-				bitmap.GetHbitmap(),
-				IntPtr.Zero,
-				Int32Rect.Empty,
-				BitmapSizeOptions.FromEmptyOptions());
+			return ToBitmapSource(new DrawingImage(geometries), source.PixelWidth, source.PixelHeight);
 		}
 
 		private static Color GetColorFromArgb(IReadOnlyList<float> data)

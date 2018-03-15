@@ -117,11 +117,11 @@ namespace SmearsMaker.Tracers.Logic
 			var secondPoint = new System.Windows.Point(maxx.X, maxy.Y);
 
 			var count = 0;
-			for (int i = (int)firstPoint.X + (int)diameter / 2; i < (int)secondPoint.X; i += (int)diameter)
+			for (double i = firstPoint.X + diameter / 2; i < secondPoint.X; i += diameter)
 			{
-				var offset = count % 2 == 0 ? (int) diameter : (int)diameter / 2;
+				var offset = count % 2 == 0 ?  diameter : diameter / 2;
 
-				for (int j = (int)firstPoint.Y + offset; j < (int)secondPoint.Y; j += (int)diameter)
+				for (double j = firstPoint.Y + offset; j < secondPoint.Y; j += diameter)
 				{
 					samplesData.Add(new System.Windows.Point(i, j));
 				}
