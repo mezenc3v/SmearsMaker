@@ -74,12 +74,13 @@ namespace SmearsMaker.Tracers.Helpers
 			{
 				var center = Utils.GetAverageData(stroke.Objects, Layers.Original);
 				var brush = new SolidColorBrush(GetColorFromArgb(center));
-				var pen = new Pen(brush, width);
+				var linePen = new Pen(brush, width);
+				var circlePen = new Pen(brush, width - 1);
 
 				var points = stroke.Objects.Select(point => new System.Windows.Point((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
 
 				var lastPoint = new EllipseGeometry(points.Last(), radius, radius);
-				geometries.Children.Add(new GeometryDrawing(brush, pen, lastPoint));
+				geometries.Children.Add(new GeometryDrawing(brush, circlePen, lastPoint));
 				if (points.Length > 1)
 				{
 					for (int i = 0; i < points.Length - 1; i++)
@@ -87,9 +88,9 @@ namespace SmearsMaker.Tracers.Helpers
 						var line = new LineGeometry(points[i], points[i + 1]);
 						var head = new EllipseGeometry(points[i], radius, radius);
 						var tail = new EllipseGeometry(points[i + 1], radius, radius);
-						geometries.Children.Add(new GeometryDrawing(brush, pen, head));
-						geometries.Children.Add(new GeometryDrawing(brush, pen, tail));
-						geometries.Children.Add(new GeometryDrawing(brush, pen, line));
+						geometries.Children.Add(new GeometryDrawing(brush, circlePen, head));
+						geometries.Children.Add(new GeometryDrawing(brush, circlePen, tail));
+						geometries.Children.Add(new GeometryDrawing(brush, linePen, line));
 					}
 				}
 			}

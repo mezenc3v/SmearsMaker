@@ -90,7 +90,7 @@ namespace SmearsMaker.Tracers.Logic
 			p.Pixels.AddPixel(Layers.Original, new Pixel(averageData));
 			return p;
 		}
-
+		
 		protected int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
 		{
 			var index = 0;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
@@ -79,7 +80,11 @@ namespace SmearsMaker.Wpf
 		{
 			try
 			{
-				if (_image == null || _tracer == null) return;
+				if (_image == null) return;
+				if (_tracer == null && Tracers.Any())
+				{
+					SetAlgorithm(Tracers.First());
+				}
 				await _tracer.Execute();
 
 				_images = new List<ImageView>();
