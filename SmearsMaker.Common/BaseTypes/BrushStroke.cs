@@ -14,6 +14,8 @@ namespace SmearsMaker.Common.BaseTypes
 
 		public abstract int Length { get; }
 
+		public abstract double GetDistance(BrushStroke stroke);
+
 		protected BrushStroke()
 		{
 			Objects = new List<Segment>();

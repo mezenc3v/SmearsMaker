@@ -46,6 +46,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extentions\BrushStrokeExtension.cs" />
+    <Compile Include="Extentions\SegmentExtentions.cs" />
     <Compile Include="GradientTracers\GtImageSettings.cs" />
     <Compile Include="GradientTracers\GTracer.cs" />
     <Compile Include="GradientTracers\HexagonGTracer.cs" />

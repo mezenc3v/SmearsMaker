@@ -5,6 +5,6 @@ namespace SmearsMaker.Tracers
 {
 	public interface IBsm
 	{
-		List<BrushStroke> Execute(List<Segment> objs, double width, float tolerance);
+		List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond);
 	}
 }

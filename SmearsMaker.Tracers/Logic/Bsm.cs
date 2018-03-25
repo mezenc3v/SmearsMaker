@@ -17,7 +17,7 @@ namespace SmearsMaker.Tracers.Logic
 		{
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs, double width, float tolerance)
+		public List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond)
 		{
 			_maxLemgth = width;
 

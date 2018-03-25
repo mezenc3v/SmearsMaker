@@ -14,7 +14,7 @@ namespace SmearsMaker.Tracers.Logic
 		{
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs, double width, float tolerance)
+		public List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond)
 		{
 			_maxDistance = width;
 			var pairs = Pairing(objs);
@@ -35,7 +35,7 @@ namespace SmearsMaker.Tracers.Logic
 					{
 						var index = NearestPart(sequences, sequences[i]);
 
-						if (Distance(sequences[i], sequences[index]) < _maxDistance)
+						if (sequences[i].GetDistance(sequences[index]) < _maxDistance)
 						{
 							distanceCheck = true;
 							var combinedSequence = Combine(sequences[i], sequences[index]);
@@ -295,32 +295,6 @@ namespace SmearsMaker.Tracers.Logic
 			}
 
 			return brushStrokes;
-		}
-
-		private static double Distance(BrushStroke first, BrushStroke second)
-		{
-			var hh = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
-			var ht = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var tt = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var th = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
-			var minDistance = hh;
-
-			if (ht < minDistance)
-			{
-				minDistance = ht;
-			}
-
-			if (tt < minDistance)
-			{
-				minDistance = tt;
-			}
-
-			if (th < minDistance)
-			{
-				minDistance = th;
-			}
-
-			return minDistance;
 		}
 	}
 }

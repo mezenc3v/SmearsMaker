@@ -28,6 +28,17 @@ namespace SmearsMaker.Tracers.Model
 			}
 		}
 
+		public override double GetDistance(BrushStroke stroke)
+		{
+			return new List<double>
+			{
+				Utils.SqrtDistance(Head, stroke.Head),
+				Utils.SqrtDistance(Head, stroke.Tail),
+				Utils.SqrtDistance(Tail, stroke.Tail),
+				Utils.SqrtDistance(Tail, stroke.Head)
+			}.Min();
+		}
+
 		public override Pixel AverageData
 		{
 			get

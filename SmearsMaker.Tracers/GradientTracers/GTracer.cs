@@ -60,7 +60,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Utils.UpdateCenter(Layers.Gradient, _superPixels);
 				sw.Restart();
 				Progress.NewProgress("Создание мазков");
-				_strokes = Bsm.Execute(_superPixels, BsmLength, (float)GtSettings.Tolerance.Value);
+				_strokes = Bsm.Execute(_superPixels, BsmLength, (float)GtSettings.Tolerance.Value, (float)GtSettings.Tolerance2.Value);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes} мазков");
 				Log.Trace("Обработка изображения завершена");

@@ -14,6 +14,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 		public ImageSetting WidthSmearUI { get; }
 		public ImageSetting WidthSmear { get; }
 		public ImageSetting Tolerance { get; }
+		public ImageSetting Tolerance2 { get; }
 		#endregion
 
 		public GtImageSettings(int width, int height)
@@ -40,13 +41,19 @@ namespace SmearsMaker.Tracers.GradientTracers
 			};
 			WidthSmearUI = new ImageSetting
 			{
-				Value = width * height / 5000 + 1,
+				Value = width * height / 10000 + 1,
 				Name = "Ширина мазка"
 			};
 			Tolerance = new ImageSetting
 			{
 				Value = 10,
 				Name = "Погрешность в rgb"
+			};
+
+			Tolerance2 = new ImageSetting
+			{
+				Value = 13,
+				Name = "Погрешность в rgb для коротких мазков"
 			};
 
 			Settings = new List<ImageSetting>
@@ -56,7 +63,8 @@ namespace SmearsMaker.Tracers.GradientTracers
 				WidthPlt,
 				WidthSmearUI,
 				WidthSmear,
-				Tolerance
+				Tolerance,
+				Tolerance2
 			};
 		}
 	}
