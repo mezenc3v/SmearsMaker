@@ -6,7 +6,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 {
 	public sealed class SquadGTracer : GTracer
 	{
-		public SquadGTracer(BitmapSource image, IProgress progress) : base(image, progress, new SuperpixelSplitter(), new GradientBsm())
+		public SquadGTracer(BitmapSource image, IProgress progress) : base(image, progress, new SuperpixelSplitter(progress), new GradientBsm(progress))
 		{
 		}
 

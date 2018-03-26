@@ -6,6 +6,8 @@ using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
+using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.Helpers

@@ -47,9 +47,6 @@
   <ItemGroup>
     <Compile Include="IProgress.cs" />
     <Compile Include="Layers.cs" />
-    <Compile Include="BaseTypes\BrushStroke.cs" />
-    <Compile Include="BaseTypes\Cluster.cs" />
-    <Compile Include="BaseTypes\Segment.cs" />
     <Compile Include="BaseTypes\Pixel.cs" />
     <Compile Include="BaseTypes\PixelCollection.cs" />
     <Compile Include="BaseTypes\Point.cs" />

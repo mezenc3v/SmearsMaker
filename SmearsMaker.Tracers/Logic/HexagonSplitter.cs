@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Logic
@@ -13,10 +14,10 @@ namespace SmearsMaker.Tracers.Logic
 		private int _length;
 		private double _inscribedRadius;
 		private double _circumscribedRadius;
-
-		public HexagonSplitter()
+		private IProgress _progress;
+		public HexagonSplitter(IProgress progress)
 		{
-			
+			_progress = progress;
 		}
 
 		public List<Segment> Splitting(Segment segment, int length)
@@ -27,14 +28,16 @@ namespace SmearsMaker.Tracers.Logic
 
 			//spliting complex segment into superPixels
 			var data = segment.Data;
-			var superPixelsList = new List<Segment>();
 
 			var samples = PlacementCenters(_inscribedRadius, segment);
-			var superPixels = samples.Select(centroid =>
+			var superPixels = samples.Select(row =>
 			{
-				var p = new Point(centroid.X, centroid.Y);
-				p.Pixels.AddPixel(Layers.Original, segment.Centroid.Pixels[Layers.Original]);
-				return new Segment(p);
+				return row.Select(center =>
+				{
+					var p = new Point(center.X, center.Y);
+					p.Pixels.AddPixel(Layers.Original, segment.Centroid.Pixels[Layers.Original]);
+					return new Segment(p);
+				}).ToList();
 			}).ToList();
 			//Search for winners and distribution of data
 			Parallel.ForEach(data, unit =>
@@ -42,21 +45,25 @@ namespace SmearsMaker.Tracers.Logic
 				var winner = NearestCentroid(unit, superPixels);
 				lock (superPixels)
 				{
-					superPixels[winner].Data.Add(unit);
+					winner.Data.Add(unit);
 				}
 			});
-			//Deleting empty cells and cells with small data count
-			foreach (var superPixel in superPixels)
+
+			var result = new List<Segment>();
+			foreach (var row in superPixels)
 			{
-				if (superPixel.Data.Count > 0)
+				foreach (var segment1 in row)
 				{
-					var newCentroid = GetCentroid(superPixel);
-					superPixel.Centroid = newCentroid;
-					superPixelsList.Add(superPixel);
+					if (segment1.Data.Count > 0)
+					{
+						var newCentroid = GetCentroid(segment1);
+						segment1.Centroid = newCentroid;
+						result.Add(segment1);
+					}
 				}
 			}
 
-			return superPixelsList;
+			return result;
 		}
 
 		protected Point GetCentroid(Segment superPixel)
@@ -81,7 +88,7 @@ namespace SmearsMaker.Tracers.Logic
 			x /= points.Count;
 			y /= points.Count;
 			for (int i = 0; i <
-			                averageData.Length; i++)
+							averageData.Length; i++)
 			{
 				averageData[i] /= points.Count;
 			}
@@ -90,87 +97,101 @@ namespace SmearsMaker.Tracers.Logic
 			p.Pixels.AddPixel(Layers.Original, new Pixel(averageData));
 			return p;
 		}
-		
-		protected int NearestCentroid(Point pixel, IReadOnlyList<Segment> superPixels)
+
+		protected Segment NearestCentroid(Point pixel, List<List<Segment>> superPixels)
 		{
-			var index = 0;
-			var min = Utils.SqrtDistance(superPixels[0].Centroid.Position, pixel.Position);
-			for (int i = 0; i < superPixels.Count; i++)
+			var nearest = superPixels[0][0];
+			var min = Utils.SqrtDistance(superPixels[0][0].Centroid.Position, pixel.Position);
+			var minIndex = 0;
+
+			foreach (var row in superPixels)
 			{
-				var distance = Utils.SqrtDistance(superPixels[i].Centroid.Position, pixel.Position);
-				if (min > distance)
+				var minY = Math.Abs(row[0].Centroid.Position.Y - pixel.Position.Y);
+
+				if (minIndex < 0)
 				{
-					min = distance;
-					index = i;
+					minIndex = 0;
+				}
+				for (var i = minIndex; i < row.Count; i++)
+				{
+					var seg = row[i];
+					var dy = Math.Abs(seg.Centroid.Position.Y - pixel.Position.Y);
+					if (dy <= minY)
+					{
+						minY = dy;
+						minIndex = i - 1;
+					}
+					else
+					{
+						break;
+					}
+
+					var distance = Utils.SqrtDistance(seg.Centroid.Position, pixel.Position);
+					if (min > distance)
+					{
+						min = distance;
+						nearest = seg;
+					}
 				}
 			}
-			return index;
+			return nearest;
 		}
 
-		protected IEnumerable<System.Windows.Point> PlacementCenters(double diameter, Segment segment)
+		protected IEnumerable<List<System.Windows.Point>> PlacementCenters(double diameter, Segment segment)
 		{
-			var samplesData = new List<System.Windows.Point>();
-
 			var (minx, miny, maxx, maxy) = GetExtremums(segment);
 
-			var firstPoint = new System.Windows.Point(minx.X, miny.Y);
-			var secondPoint = new System.Windows.Point(maxx.X, maxy.Y);
+			var samplesData = new List<List<System.Windows.Point>>();
 
 			var count = 0;
-			for (double i = firstPoint.X + diameter / 2; i < secondPoint.X; i += diameter)
+			for (double i = minx + diameter / 2; i < maxx; i += diameter)
 			{
-				var offset = count % 2 == 0 ?  diameter : diameter / 2;
-
-				for (double j = firstPoint.Y + offset; j < secondPoint.Y; j += diameter)
+				var offset = count % 2 == 0 ? diameter : diameter / 2;
+				var row = new List<System.Windows.Point>();
+				for (double j = miny + offset; j < maxy; j += diameter)
 				{
-					samplesData.Add(new System.Windows.Point(i, j));
+					row.Add(new System.Windows.Point(i, j));
 				}
+				samplesData.Add(row);
 				count++;
 			}
 
 			return samplesData;
 		}
 
-		private static (System.Windows.Point minx, System.Windows.Point miny, System.Windows.Point maxx, System.Windows.Point maxy) GetExtremums(Segment segment)
+		private static (double minx, double miny, double maxx, double maxy) GetExtremums(Segment segment)
 		{
 			var points = segment.Data;
 
 			//coordinates for compute vector
 
-			var minX = points[0].Position.X;
-			var minY = points[0].Position.Y;
-			var maxX = minX;
-			var maxY = minY;
-			var MinX = new System.Windows.Point(points[0].Position.X, points[0].Position.Y);
-			var MaxX = new System.Windows.Point(points[0].Position.X, points[0].Position.Y);
-			var MinY = new System.Windows.Point(points[0].Position.X, points[0].Position.Y);
-			var MaxY = new System.Windows.Point(points[0].Position.X, points[0].Position.Y);
+			double minX = points[0].Position.X;
+			double minY = points[0].Position.Y;
+			double maxX = 0;
+			double maxY = 0;
+
 			foreach (var data in points)
 			{
 				//find min and max coordinates in segment
 				if (data.Position.X < minX)
 				{
 					minX = data.Position.X;
-					MinX = new System.Windows.Point(data.Position.X, data.Position.Y);
 				}
 				if (data.Position.Y < minY)
 				{
 					minY = data.Position.Y;
-					MinY = new System.Windows.Point(data.Position.X, data.Position.Y);
 				}
 				if (data.Position.X > maxX)
 				{
 					maxX = data.Position.X;
-					MaxX = new System.Windows.Point(data.Position.X, data.Position.Y);
 				}
 				if (data.Position.Y > maxY)
 				{
 					maxY = data.Position.Y;
-					MaxY = new System.Windows.Point(data.Position.X, data.Position.Y);
 				}
 			}
 
-			return (MinX, MinY, MaxX, MaxY);
+			return (minX, minY, maxX, maxY);
 		}
 	}
 }

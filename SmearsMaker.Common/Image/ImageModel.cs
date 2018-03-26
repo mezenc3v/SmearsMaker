@@ -18,7 +18,7 @@ namespace SmearsMaker.Common.Image
 			Points = Points = ImageHelper.ConvertToPixels(image);
 		}
 
-		public BitmapSource ConvertToBitmapSource(List<Point> points, string layer)
+		public BitmapSource ConvertToBitmapSource(ICollection<Point> points, string layer)
 		{
 			return ImageHelper.ConvertRgbToBitmap(Image, points, layer);
 		}

@@ -6,16 +6,16 @@ using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.ImageProcessing.Clustering
 {
-	public abstract class Kmeans
+	public abstract class Kmeans : IClusterizer
 	{
 		protected readonly List<Point> Points;
 		protected readonly List<Cluster> Clusters;
 		private readonly double _precision;
 		private readonly int _maxIteration;
 
-		protected Kmeans(int clustersCount, double precision, List<Point> points, int maxIteration)
+		protected Kmeans(int clustersCount, double precision, int maxIteration)
 		{
-			Points = points;
+			Points = new List<Point>();
 			Clusters = new List<Cluster>();
 			for (int i = 0; i < clustersCount; i++)
 			{
@@ -24,8 +24,9 @@ namespace SmearsMaker.ImageProcessing.Clustering
 			_precision = precision;
 			_maxIteration = maxIteration;
 		}
-		public List<Cluster> Clustering()
+		public List<Cluster> Clustering(List<Point> points)
 		{
+			Points.AddRange(points.Select(p => p.Clone()));
 			FillCentroidsWithInitialValues();
 
 			double delta;

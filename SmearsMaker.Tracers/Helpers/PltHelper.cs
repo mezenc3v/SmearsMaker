@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 
 namespace SmearsMaker.Tracers.Helpers
 {

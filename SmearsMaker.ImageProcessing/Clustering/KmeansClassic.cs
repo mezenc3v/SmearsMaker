@@ -7,7 +7,7 @@ namespace SmearsMaker.ImageProcessing.Clustering
 {
 	public sealed class KmeansClassic : Kmeans
 	{
-		public KmeansClassic(int clustersCount, double precision, List<Point> points, int maxIteration) : base(clustersCount, precision, points, maxIteration)
+		public KmeansClassic(int clustersCount, double precision, int maxIteration) : base(clustersCount, precision, maxIteration)
 		{
 		}
 
@@ -20,7 +20,7 @@ namespace SmearsMaker.ImageProcessing.Clustering
 				var centr = cluster.Centroid.Data;
 				foreach (var data in cluster.Data)
 				{
-					var point = new Point(data);
+					var point = data.Clone();
 					point.Pixels[Layers.Filtered] = new Pixel(centr);
 					clusteringPoints.Add(point);
 				}

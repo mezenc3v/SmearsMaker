@@ -6,7 +6,7 @@ using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.ImageProcessing.Filtering
 {
-	public class MedianFilter
+	public class MedianFilter : IFilter
 	{
 		private readonly int _rank;
 		private readonly int _width;
@@ -18,8 +18,9 @@ namespace SmearsMaker.ImageProcessing.Filtering
 			_height = height;
 		}
 
-		public void Filter(List<Point> points)
+		public List<Point> Filtering(List<Point> points)
 		{
+			var filteredPoints = new List<Point>();
 			Parallel.For(0, _width, (coordX) =>
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
@@ -27,9 +28,16 @@ namespace SmearsMaker.ImageProcessing.Filtering
 					var mask = GetMask(points, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
-					points[pos].Pixels[Layers.Filtered] = new Pixel(median);
+					var clonePoint = points[pos].Clone();
+					
+					lock (filteredPoints)
+					{
+						clonePoint.Pixels[Layers.Filtered] = new Pixel(median);
+						filteredPoints.Add(clonePoint);
+					}
 				}
 			});
+			return filteredPoints;
 		}
 		private List<Pixel> GetMask(IList<Point> units, int x, int y)
 		{

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Logic
@@ -10,8 +11,10 @@ namespace SmearsMaker.Tracers.Logic
 	public class SuperpixelSplitter : ISplitter
 	{
 		private int _length;
-		public SuperpixelSplitter()
+		private IProgress _progress;
+		public SuperpixelSplitter(IProgress progress)
 		{
+			_progress = progress;
 		}
 
 		public virtual List<Segment> Splitting(Segment segment, int length)

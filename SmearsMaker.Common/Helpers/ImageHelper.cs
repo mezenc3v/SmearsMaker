@@ -29,7 +29,7 @@ namespace SmearsMaker.Common.Helpers
 			return inputData;
 		}
 
-		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, List<Point> points, string name)
+		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, ICollection<Point> points, string name)
 		{
 			var stride = source.PixelWidth * DataFormatSize;
 			var size = source.PixelHeight * stride;

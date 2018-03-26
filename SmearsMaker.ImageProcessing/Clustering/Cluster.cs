@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using SmearsMaker.Common.BaseTypes;
 
-namespace SmearsMaker.Common.BaseTypes
+namespace SmearsMaker.ImageProcessing.Clustering
 {
 	public class Cluster
 	{

@@ -7,7 +7,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 {
 	public sealed class HexagonGTracer : GTracer
 	{
-		public HexagonGTracer(BitmapSource image, IProgress progress) : base(image, progress, new HexagonSplitter(), new GradientBsm())
+		public HexagonGTracer(BitmapSource image, IProgress progress) : base(image, progress, new HexagonSplitter(progress), new GradientBsm(progress))
 		{
 		}
 

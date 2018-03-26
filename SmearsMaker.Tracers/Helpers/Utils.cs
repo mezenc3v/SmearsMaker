@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Security.Cryptography;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
 using Point = System.Windows.Point;
 
 namespace SmearsMaker.Tracers.Helpers

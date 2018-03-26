@@ -4,10 +4,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
-using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.FeatureDetection;
 using SmearsMaker.ImageProcessing.Filtering;
+using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Helpers;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
@@ -18,6 +19,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 		public override List<ImageSetting> Settings => GtSettings.Settings;
 		public override List<ImageView> Views => CreateViews();
 
+		private List<Point> _filteredPoints;
 		private List<Point> _sobelPoints;
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
@@ -47,11 +49,11 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				filter.Filter(Model.Points);
+				_filteredPoints = filter.Filtering(Model.Points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Вычисление градиентов");
-				_sobelPoints = sobel.Compute(Model.Points);
+				_sobelPoints = sobel.Compute(_filteredPoints);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
 				segment.Data = _sobelPoints;
@@ -83,7 +85,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var smearsMap = ImageHelper.PaintStrokes(Model.Image, _strokes, (int)GtSettings.WidthSmearUI.Value);
 
 			Progress.NewProgress("Вычисление размытия");
-			var blurredImage = Model.ConvertToBitmapSource(Model.Points, Layers.Filtered);
+			var blurredImage = Model.ConvertToBitmapSource(_filteredPoints, Layers.Filtered);
 
 			Progress.NewProgress("Вычисление градиентов");
 			var sobelGradients = Model.ConvertToBitmapSource(_sobelPoints, Layers.Gradient);

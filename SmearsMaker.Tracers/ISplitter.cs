@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
 
 namespace SmearsMaker.Tracers
 {

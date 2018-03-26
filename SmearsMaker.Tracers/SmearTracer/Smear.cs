@@ -1,4 +1,6 @@
-﻿using SmearsMaker.Common.BaseTypes;
+﻿using SmearsMaker.ImageProcessing.Clustering;
+using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 
 namespace SmearsMaker.Tracers.SmearTracer
 {

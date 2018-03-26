@@ -11,11 +11,15 @@
 			Position = new System.Windows.Point(posX, posY);
 		}
 
-		public Point(Point point)
+		private Point(Point point)
 		{
 			Pixels = new PixelCollection(point.Pixels);
-
 			Position = point.Position;
+		}
+
+		public Point Clone()
+		{
+			return new Point(this);
 		}
 	}
 }

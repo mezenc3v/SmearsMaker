@@ -2,6 +2,8 @@
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Model

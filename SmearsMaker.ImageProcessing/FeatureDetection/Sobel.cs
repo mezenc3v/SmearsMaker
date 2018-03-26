@@ -7,7 +7,7 @@ using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.ImageProcessing.FeatureDetection
 {
-	public class Sobel
+	public class Sobel : IDetector
 	{
 		private readonly int _width;
 		private readonly int _height;
@@ -49,7 +49,7 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 						curve[i] = norm;
 					}
 
-					var p = new Point(points[pos]);
+					var p = points[pos].Clone();
 					p.Pixels[Layers.Gradient] = new Pixel(gradient);
 					p.Pixels[Layers.Curves] = new Pixel(curve);
 

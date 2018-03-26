@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
-using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
@@ -15,9 +16,11 @@ namespace SmearsMaker.Tracers.Logic
 		private readonly Random _rnd;
 		private double _maxDistance;
 		private double _tolerance;
+		private readonly IProgress _progress;
 
-		public GradientBsm()
+		public GradientBsm(IProgress progress)
 		{
+			_progress = progress;
 			_rnd = new Random();
 		}
 
@@ -27,14 +30,14 @@ namespace SmearsMaker.Tracers.Logic
 			_maxDistance = width;
 			var strokesFromGroups = new List<BrushStroke>();
 			var groups = SplitSegmentsByColor(objs);
-
+			_progress.NewProgress("Создание суперпикселей", 0, groups.Count);
 			Parallel.ForEach(groups, group =>
 			{
 				var pairs = Pairing(group);
-				var brushStrokes = pairs.Count > 1 ? Combining(pairs) : pairs;
-
+				var brushStrokes = pairs.Count > 1 ? Combining(pairs) : pairs;	
 				lock (strokesFromGroups)
 				{
+					_progress.Update(1);
 					strokesFromGroups.AddRange(brushStrokes);
 				}
 			});
@@ -49,7 +52,7 @@ namespace SmearsMaker.Tracers.Logic
 			var groupsWithAloneStrokes = SplitSegmentsByColor(strokesFromGroups);
 
 			var result = new List<BrushStroke>();
-
+			_progress.NewProgress("Группировка одиночных суперпикселей", 0, groupsWithAloneStrokes.Count);
 			foreach (var group in groupsWithAloneStrokes)
 			{
 				var sameColorStrokes = group.ToList();
@@ -86,12 +89,13 @@ namespace SmearsMaker.Tracers.Logic
 					}
 				}
 				result.AddRange(sameColorStrokes);
+				_progress.Update(1);
 			}
 
 			return result;
 		}
 
-		private IEnumerable<IEnumerable<Segment>> SplitSegmentsByColor(IEnumerable<Segment> objs)
+		private List<List<Segment>> SplitSegmentsByColor(IEnumerable<Segment> objs)
 		{
 			var groups = new List<List<Segment>>();
 			var segments = new List<Segment>();
@@ -110,7 +114,7 @@ namespace SmearsMaker.Tracers.Logic
 			return groups;
 		}
 
-		private IEnumerable<IEnumerable<BrushStroke>> SplitSegmentsByColor(IEnumerable<BrushStroke> strokes)
+		private List<List<BrushStroke>> SplitSegmentsByColor(IEnumerable<BrushStroke> strokes)
 		{
 			var groups = new List<List<BrushStroke>>();
 			var segments = new List<BrushStroke>();

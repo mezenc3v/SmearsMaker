@@ -31,8 +31,8 @@ namespace SmearsMaker.Tracers.SmearTracer
 		public override Task Execute()
 		{
 			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
-			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, Model.Points, (int)_settings.ClusterMaxIteration.Value);
-			var supPixSplitter = new SuperpixelSplitter();
+			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, (int)_settings.ClusterMaxIteration.Value);
+			var supPixSplitter = new SuperpixelSplitter(Progress);
 			var bsm = new BsmPair();
 
 			var segmentsCount = 0;
@@ -44,11 +44,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				filter.Filter(Model.Points);
+				var filteredPoints = filter.Filtering(Model.Points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Кластеризация");
-				var clusters = kmeans.Clustering();
+				var clusters = kmeans.Clustering(filteredPoints);
 				Log.Trace($"Кластеризация заняла {sw.Elapsed.Seconds} с.");
 				var defectedPixels = new List<Point>();
 				Progress.NewProgress("Обработка", 0, clusters.Sum(c => c.Data.Count));

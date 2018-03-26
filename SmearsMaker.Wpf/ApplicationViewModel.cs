@@ -89,8 +89,12 @@ namespace SmearsMaker.Wpf
 
 				_images = new List<ImageView>();
 				_images.AddRange(_tracer.Views);
+				if (_images.Count < _currentImageIndex)
+				{
+					_currentImageIndex = _images.Count - 1;
+				}
 				Label = _images[_currentImageIndex].Name;
-				CurrentImage = _images[_currentImageIndex].Source;
+				CurrentImage = _images.Last().Source;
 			}
 			catch (Exception ex)
 			{
