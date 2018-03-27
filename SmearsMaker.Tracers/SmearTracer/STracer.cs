@@ -7,10 +7,7 @@ using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
-using SmearsMaker.ImageProcessing.Clustering;
-using SmearsMaker.ImageProcessing.Filtering;
 using SmearsMaker.Tracers.Helpers;
-using SmearsMaker.Tracers.Logic;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.SmearTracer
@@ -21,19 +18,21 @@ namespace SmearsMaker.Tracers.SmearTracer
 		public override List<ImageView> Views => CreateViews();
 
 		private readonly StImageSettings _settings;
+		private readonly IServicesFactory _factory;
 		private List<Smear> _smears;
 
 		public STracer(BitmapSource image, IProgress progress) : base(image, progress)
 		{
 			_settings = new StImageSettings(Model.Width, Model.Height);
+			_factory = new SmearFactory(_settings, Model, Progress);
 		}
 
 		public override Task Execute()
 		{
-			var filter = new MedianFilter((int)_settings.FilterRank.Value, Model.Width, Model.Height);
-			var kmeans = new KmeansClassic((int)_settings.ClustersCount.Value, _settings.ClustersPrecision.Value, (int)_settings.ClusterMaxIteration.Value);
-			var supPixSplitter = new SuperpixelSplitter(Progress);
-			var bsm = new BsmPair();
+			var filter = _factory.CreateFilter();
+			var kmeans = _factory.CreateClusterizer();
+			var supPixSplitter = _factory.CreateSplitter();
+			var bsm = _factory.CreateBsm();
 
 			var segmentsCount = 0;
 			var smearsCount = 0;
@@ -62,7 +61,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 					swClusters.Reset();
 					Parallel.ForEach(segments, segment =>
 					{
-						var superPixels = supPixSplitter.Splitting(segment, (int)_settings.MinSizeSuperpixel.Value);
+						var superPixels = supPixSplitter.Splitting(segment);
 
 						Parallel.ForEach(superPixels, (supPix) =>
 						{
@@ -77,7 +76,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList(), _settings.MaxSmearDistance.Value, 0, 0);
+							var smears = bsm.Execute(superPixels.ToList());
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{

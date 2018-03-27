@@ -11,24 +11,21 @@ namespace SmearsMaker.Tracers.Logic
 {
 	public class HexagonSplitter : ISplitter
 	{
-		private int _length;
 		private double _inscribedRadius;
-		private double _circumscribedRadius;
-		private IProgress _progress;
-		public HexagonSplitter(IProgress progress)
+		private readonly double _circumscribedRadius;
+		private readonly IProgress _progress;
+		public HexagonSplitter(IProgress progress, int length)
 		{
+			_circumscribedRadius = length;
 			_progress = progress;
 		}
 
-		public List<Segment> Splitting(Segment segment, int length)
+		public List<Segment> Splitting(Segment segment)
 		{
-			_length = length;
-			_circumscribedRadius = length;
 			_inscribedRadius = Math.Sqrt(3) / 2 * _circumscribedRadius;
 
 			//spliting complex segment into superPixels
 			var data = segment.Data;
-
 			var samples = PlacementCenters(_inscribedRadius, segment);
 			var superPixels = samples.Select(row =>
 			{
@@ -40,9 +37,11 @@ namespace SmearsMaker.Tracers.Logic
 				}).ToList();
 			}).ToList();
 			//Search for winners and distribution of data
+			_progress.NewProgress("Создание суперпикселей", 0, data.Count);
 			Parallel.ForEach(data, unit =>
 			{
 				var winner = NearestCentroid(unit, superPixels);
+				_progress.Update(1);
 				lock (superPixels)
 				{
 					winner.Data.Add(unit);
@@ -137,7 +136,7 @@ namespace SmearsMaker.Tracers.Logic
 			return nearest;
 		}
 
-		protected IEnumerable<List<System.Windows.Point>> PlacementCenters(double diameter, Segment segment)
+		protected List<List<System.Windows.Point>> PlacementCenters(double diameter, Segment segment)
 		{
 			var (minx, miny, maxx, maxy) = GetExtremums(segment);
 

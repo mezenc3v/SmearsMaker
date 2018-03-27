@@ -15,8 +15,9 @@ namespace SmearsMaker.ImageProcessing.Segmenting
 			Centroid = centroid;
 		}
 
-		public Segment(Point centroid, int width, int height) : this(centroid)
+		public Segment(int width, int height) : this()
 		{
+			Centroid = new Point((double)width / 2, (double)height / 2);
 			MaxX = new System.Windows.Point(width, height);
 			MaxY = new System.Windows.Point(width, height);
 			MinX = new System.Windows.Point(0, 0);

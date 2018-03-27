@@ -10,15 +10,15 @@ namespace SmearsMaker.Tracers.Logic
 {
 	public class BsmPair : IBsm
 	{
-		private double _maxDistance;
+		private readonly double _maxDistance;
 
-		public BsmPair()
-		{
-		}
-
-		public List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond)
+		public BsmPair(double width)
 		{
 			_maxDistance = width;
+		}
+
+		public List<BrushStroke> Execute(List<Segment> objs)
+		{
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
 			return brushStrokes;

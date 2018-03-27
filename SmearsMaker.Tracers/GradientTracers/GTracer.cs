@@ -1,16 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
+using System.Threading.Tasks;
 using SmearsMaker.Common.Image;
-using SmearsMaker.ImageProcessing.FeatureDetection;
-using SmearsMaker.ImageProcessing.Filtering;
-using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using System.Collections.Generic;
 using SmearsMaker.Tracers.Helpers;
+using System.Windows.Media.Imaging;
+using SmearsMaker.ImageProcessing.Segmenting;
 using Point = SmearsMaker.Common.BaseTypes.Point;
+using SmearsMaker.ImageProcessing.SmearsFormation;
 
 namespace SmearsMaker.Tracers.GradientTracers
 {
@@ -20,30 +18,27 @@ namespace SmearsMaker.Tracers.GradientTracers
 		public override List<ImageView> Views => CreateViews();
 
 		private List<Point> _filteredPoints;
-		private List<Point> _sobelPoints;
+		private List<Point> _detectorPoints;
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
 		internal readonly GtImageSettings GtSettings;
-		internal abstract int SplitterLength { get; }
-		internal abstract double BsmLength { get; }
-		internal ISplitter Splitter;
-		internal IBsm Bsm;
+		internal IServicesFactory Factory;
 
-		protected GTracer(BitmapSource image, IProgress progress, ISplitter splitter, IBsm bsm) : base(image, progress)
+		protected GTracer(BitmapSource image, IProgress progress) : base(image, progress)
 		{
 			GtSettings = new GtImageSettings(Model.Width, Model.Height);
-			Splitter = splitter;
-			Bsm = bsm;
 		}
 
 		public override Task Execute()
 		{
-			var filter = new MedianFilter((int)GtSettings.FilterRank.Value, Model.Width, Model.Height);
-			var sobel = new Sobel(Model.Width, Model.Height);
-			var centroid = new Point((double)Model.Width / 2, (double)Model.Height / 2);	
-			var segment = new Segment(centroid, Model.Width, Model.Height);
-			
+			var detector = Factory.CreateDetector();
+			var splitter = Factory.CreateSplitter();
+			var filter = Factory.CreateFilter();
+			var bsm = Factory.CreateBsm();
+
+			var segment = new Segment(Model.Width, Model.Height);
+
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
@@ -53,16 +48,14 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Вычисление градиентов");
-				_sobelPoints = sobel.Compute(_filteredPoints);
+				_detectorPoints = detector.Compute(_filteredPoints);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
-				segment.Data = _sobelPoints;
-				Progress.NewProgress("Создание суперпикселей");
-				_superPixels = Splitter.Splitting(segment, SplitterLength);
+				segment.Data = _detectorPoints;
+				_superPixels = splitter.Splitting(segment);
 				Utils.UpdateCenter(Layers.Gradient, _superPixels);
 				sw.Restart();
-				Progress.NewProgress("Создание мазков");
-				_strokes = Bsm.Execute(_superPixels, BsmLength, (float)GtSettings.Tolerance.Value, (float)GtSettings.Tolerance2.Value);
+				_strokes = bsm.Execute(_superPixels);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes} мазков");
 				Log.Trace("Обработка изображения завершена");
@@ -88,10 +81,10 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var blurredImage = Model.ConvertToBitmapSource(_filteredPoints, Layers.Filtered);
 
 			Progress.NewProgress("Вычисление градиентов");
-			var sobelGradients = Model.ConvertToBitmapSource(_sobelPoints, Layers.Gradient);
+			var sobelGradients = Model.ConvertToBitmapSource(_detectorPoints, Layers.Gradient);
 
 			Progress.NewProgress("Вычисление границ");
-			var sobelCurves = Model.ConvertToBitmapSource(_sobelPoints, Layers.Curves);
+			var sobelCurves = Model.ConvertToBitmapSource(_detectorPoints, Layers.Curves);
 
 			Progress.NewProgress("Вычисление центров");
 			var centres = Model.ConvertToBitmapSource(_superPixels.Select(s => s.Centroid).ToList(), Layers.Original);

@@ -13,36 +13,39 @@ namespace SmearsMaker.Tracers.Logic
 {
 	public class GradientBsm : IBsm
 	{
-		private readonly Random _rnd;
-		private double _maxDistance;
 		private double _tolerance;
+		private readonly Random _rnd;
+		private readonly double _maxDistance;
+		private readonly double _toleranceSecond;
 		private readonly IProgress _progress;
 
-		public GradientBsm(IProgress progress)
+		public GradientBsm(IProgress progress, double width, float toleranceFirst, float toleranceSecond)
 		{
+			_toleranceSecond = toleranceSecond;
+			_tolerance = toleranceFirst;
+			_maxDistance = width;
 			_progress = progress;
 			_rnd = new Random();
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond)
+		public List<BrushStroke> Execute(List<Segment> objs)
 		{
-			_tolerance = toleranceFirst;
-			_maxDistance = width;
+			
 			var strokesFromGroups = new List<BrushStroke>();
 			var groups = SplitSegmentsByColor(objs);
-			_progress.NewProgress("Создание суперпикселей", 0, groups.Count);
+			_progress.NewProgress("Создание мазков", 0, groups.Count);
 			Parallel.ForEach(groups, group =>
 			{
 				var pairs = Pairing(group);
-				var brushStrokes = pairs.Count > 1 ? Combining(pairs) : pairs;	
+				var brushStrokes = pairs.Count > 1 ? Combining(pairs) : pairs;
+				_progress.Update(1);
 				lock (strokesFromGroups)
 				{
-					_progress.Update(1);
 					strokesFromGroups.AddRange(brushStrokes);
 				}
 			});
 
-			_tolerance = toleranceSecond;
+			_tolerance = _toleranceSecond;
 
 			return ConcatStrokes(strokesFromGroups);
 		}

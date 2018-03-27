@@ -51,7 +51,10 @@
     <Compile Include="GradientTracers\GtImageSettings.cs" />
     <Compile Include="GradientTracers\GTracer.cs" />
     <Compile Include="GradientTracers\HexagonGTracer.cs" />
+    <Compile Include="GradientTracers\HexagonTracerFactory.cs" />
     <Compile Include="GradientTracers\SquadGTracer.cs" />
+    <Compile Include="GradientTracers\SquadTracerFactory.cs" />
+    <Compile Include="IServicesFactory.cs" />
     <Compile Include="Logic\GradientBsm.cs" />
     <Compile Include="IBsm.cs" />
     <Compile Include="ISplitter.cs" />
@@ -68,6 +71,7 @@
     <Compile Include="Logic\Bsm.cs" />
     <Compile Include="Logic\BsmPair.cs" />
     <Compile Include="SmearTracer\SegmentSplitter.cs" />
+    <Compile Include="SmearTracer\SmearFactory.cs" />
     <Compile Include="SmearTracer\STImageSettings.cs" />
     <Compile Include="SmearTracer\STracer.cs" />
   </ItemGroup>

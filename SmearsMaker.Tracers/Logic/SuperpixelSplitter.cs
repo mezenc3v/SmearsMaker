@@ -10,20 +10,19 @@ namespace SmearsMaker.Tracers.Logic
 {
 	public class SuperpixelSplitter : ISplitter
 	{
-		private int _length;
-		private IProgress _progress;
-		public SuperpixelSplitter(IProgress progress)
+		private readonly int _length;
+		private readonly IProgress _progress;
+		public SuperpixelSplitter(IProgress progress, int length)
 		{
+			_length = length;
 			_progress = progress;
 		}
 
-		public virtual List<Segment> Splitting(Segment segment, int length)
+		public virtual List<Segment> Splitting(Segment segment)
 		{
-			_length = length;
 			//spliting complex segment into superPixels
 			var data = segment.Data;
 			var superPixelsList = new List<Segment>();
-
 			var samples = PlacementCenters(_length, segment);
 			var superPixels = samples.Select(centroid =>
 			{
@@ -32,9 +31,11 @@ namespace SmearsMaker.Tracers.Logic
 				return new Segment(p);
 			}).ToList();
 			//Search for winners and distribution of data
+			_progress.NewProgress("Создание суперпикселей", 0, data.Count);
 			Parallel.ForEach(data, unit =>
 			{
 				var winner = NearestCentroid(unit, superPixels);
+				_progress.Update(1);
 				lock (superPixels)
 				{
 					superPixels[winner].Data.Add(unit);

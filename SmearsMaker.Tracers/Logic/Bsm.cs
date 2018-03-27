@@ -11,17 +11,16 @@ namespace SmearsMaker.Tracers.Logic
 {
 	public class Bsm : IBsm
 	{
-		private double _maxLemgth;
+		private readonly double _maxLemgth;
 		private Point _finishPoint;
 
-		public Bsm()
-		{
-		}
-
-		public List<BrushStroke> Execute(List<Segment> objs, double width, float toleranceFirst, float toleranceSecond)
+		public Bsm(double width)
 		{
 			_maxLemgth = width;
+		}
 
+		public List<BrushStroke> Execute(List<Segment> objs)
+		{
 			FindPoints(objs);
 			if (objs.Count > 0)
 			{
