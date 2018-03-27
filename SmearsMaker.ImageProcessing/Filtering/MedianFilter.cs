@@ -21,7 +21,8 @@ namespace SmearsMaker.ImageProcessing.Filtering
 		public List<Point> Filtering(List<Point> points)
 		{
 			var filteredPoints = new List<Point>();
-			Parallel.For(0, _width, (coordX) =>
+
+			for (int coordX = 0; coordX < _width; coordX++)
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
@@ -29,14 +30,10 @@ namespace SmearsMaker.ImageProcessing.Filtering
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
 					var clonePoint = points[pos].Clone();
-					
-					lock (filteredPoints)
-					{
-						clonePoint.Pixels[Layers.Filtered] = new Pixel(median);
-						filteredPoints.Add(clonePoint);
-					}
+					clonePoint.Pixels[Layers.Filtered] = new Pixel(median);
+					filteredPoints.Add(clonePoint);
 				}
-			});
+			}
 			return filteredPoints;
 		}
 		private List<Pixel> GetMask(IList<Point> units, int x, int y)
