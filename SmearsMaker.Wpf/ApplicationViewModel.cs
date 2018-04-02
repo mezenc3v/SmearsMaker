@@ -94,7 +94,7 @@ namespace SmearsMaker.Wpf
 					_currentImageIndex = _images.Count - 1;
 				}
 				Label = _images[_currentImageIndex].Name;
-				CurrentImage = _images.Last().Source;
+				CurrentImage = _images[_currentImageIndex].Source;
 			}
 			catch (Exception ex)
 			{

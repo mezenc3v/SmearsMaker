@@ -17,7 +17,8 @@ namespace SmearsMaker.Common.BaseTypes
 			_pixels = new Dictionary<string, Pixel>();
 			foreach (var p in collection._pixels)
 			{
-				_pixels.Add(p.Key, p.Value);
+				var newPixel = new Pixel(p.Value.Data);
+				_pixels.Add(p.Key, newPixel);
 			}
 		}
 

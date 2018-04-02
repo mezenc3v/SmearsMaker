@@ -50,8 +50,8 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Progress.NewProgress("Вычисление градиентов");
 				_detectorPoints = detector.Compute(_filteredPoints);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
-				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
 				segment.Data = _detectorPoints;
+				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
 				_superPixels = splitter.Splitting(segment);
 				Utils.UpdateCenter(Layers.Gradient, _superPixels);
 				sw.Restart();

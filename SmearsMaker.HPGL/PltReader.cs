@@ -65,19 +65,21 @@ namespace SmearsMaker.HPGL
 						foreach (Capture capture in pointsGroup.Captures)
 						{
 							var pointArr = capture.Value.Split(',').Select(Convert.ToSingle).ToArray();
-							for(int i = 0; i < pointArr.Length - 1; i+=2)
+							for(int i = 0; i < pointArr.Length; i+=2)
 							{
 								var point = new PointF(pointArr[i], height - pointArr[i + 1]);
 								points.Add(point);
-							}						
+							}
 						}
 
-						g.FillEllipse(brush, points.First().X, points.First().Y, pen.Width, pen.Width);
+						foreach (var point in points)
+						{
+							g.FillEllipse(brush, point.X, point.Y, pen.Width, pen.Width);
+						}
 
 						if (points.Count > 1)
 						{
 							g.DrawLines(pen, points.ToArray());
-							g.FillEllipse(brush, points.Last().X, points.Last().Y, pen.Width, pen.Width);
 						}
 					}
 				}

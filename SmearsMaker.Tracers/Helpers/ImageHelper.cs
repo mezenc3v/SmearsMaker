@@ -8,6 +8,7 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.Tracers.Extentions;
 using Point = SmearsMaker.Common.BaseTypes.Point;
 
 namespace SmearsMaker.Tracers.Helpers
@@ -33,7 +34,16 @@ namespace SmearsMaker.Tracers.Helpers
 			var data = new List<Point>();
 			foreach (var obj in objects)
 			{
-				data.AddRange(obj.Data);
+				var averData = obj.GetAverageData(layer);
+				foreach (var point in obj.Data)
+				{
+					var pointCopy = point.Clone();
+					for (int i = 0; i < point.Pixels[layer].Length; i++)
+					{
+						pointCopy.Pixels[layer].Data[i] = averData[i];
+					}
+					data.Add(pointCopy);
+				}
 			}
 			return model.ConvertToBitmapSource(data, layer);
 		}
@@ -74,7 +84,7 @@ namespace SmearsMaker.Tracers.Helpers
 			var radius = 1;
 			foreach (var stroke in strokes.OrderByDescending(s => s.Objects.Count))
 			{
-				var center = Utils.GetAverageData(stroke.Objects, Layers.Original);
+				var center = Utils.GetAverageData(stroke.Objects, Layers.Filtered);
 				var brush = new SolidColorBrush(GetColorFromArgb(center));
 				var linePen = new Pen(brush, width);
 				var circlePen = new Pen(brush, width - 1);

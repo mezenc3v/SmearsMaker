@@ -51,13 +51,13 @@ namespace SmearsMaker.Tracers.Logic
 			var result = new List<Segment>();
 			foreach (var row in superPixels)
 			{
-				foreach (var segment1 in row)
+				foreach (var seg in row)
 				{
-					if (segment1.Data.Count > 0)
+					if (seg.Data.Count > 0)
 					{
-						var newCentroid = GetCentroid(segment1);
-						segment1.Centroid = newCentroid;
-						result.Add(segment1);
+						var newCentroid = GetCentroid(seg);
+						seg.Centroid = newCentroid;
+						result.Add(seg);
 					}
 				}
 			}
@@ -86,8 +86,7 @@ namespace SmearsMaker.Tracers.Logic
 
 			x /= points.Count;
 			y /= points.Count;
-			for (int i = 0; i <
-							averageData.Length; i++)
+			for (int i = 0; i < averageData.Length; i++)
 			{
 				averageData[i] /= points.Count;
 			}

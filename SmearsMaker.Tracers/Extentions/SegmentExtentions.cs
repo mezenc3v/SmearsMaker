@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
 
 namespace SmearsMaker.Tracers.Extentions
@@ -18,6 +20,27 @@ namespace SmearsMaker.Tracers.Extentions
 			var data = obj.Centroid.Pixels[layer].Data[0];
 			var result = objs.OrderBy(p => Math.Abs(data - p.Centroid.Pixels[layer].Data[0]));
 			return result.First();
+		}
+
+		public static float[] GetAverageData(this Segment seg, string layer)
+		{
+			var length = seg.Data.First().Pixels[layer].Length;
+			var averData = new float[length];
+
+			foreach (var point in seg.Data)
+			{
+				for (int i = 0; i < length; i++)
+				{
+					averData[i] += point.Pixels[layer].Data[i];
+				}
+			}
+
+			for (int i = 0; i < length; i++)
+			{
+				averData[i] /= seg.Data.Count;
+			}
+
+			return averData;
 		}
 	}
 }

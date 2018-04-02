@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
+using SmearsMaker.Tracers.Extentions;
 using Point = System.Windows.Point;
 
 namespace SmearsMaker.Tracers.Helpers
@@ -13,7 +14,7 @@ namespace SmearsMaker.Tracers.Helpers
 		{
 			foreach (var superPixel in superPixels)
 			{
-				var averData = GetAverageData(superPixel, layer);
+				var averData = superPixel.GetAverageData(layer);
 				superPixel.Centroid.Pixels[layer] = new Pixel(averData);
 				var center = new Point();
 				foreach (var point in superPixel.Data)
@@ -39,12 +40,11 @@ namespace SmearsMaker.Tracers.Helpers
 
 		internal static void AddCenter(string layer, Segment segment)
 		{
-			var averData = GetAverageData(segment, layer);
-			segment.Data.ForEach(d =>
+			if (segment.Data.Count > 0)
 			{
-				d.Pixels.AddPixel(layer, new Pixel(averData));
-			});
-			segment.Centroid.Pixels.AddPixel(layer, new Pixel(averData));
+				var averData = segment.GetAverageData(layer);
+				segment.Centroid.Pixels.AddPixel(layer, new Pixel(averData));
+			}
 		}
 
 		internal static float[] GetAverageData(IReadOnlyCollection<Segment> segments, string layer)
@@ -68,11 +68,6 @@ namespace SmearsMaker.Tracers.Helpers
 			}
 
 			return averData;
-		}
-
-		private static float[] GetAverageData(Segment segment, string layer)
-		{
-			return GetAverageData(new List<Segment> { segment }, layer);
 		}
 
 		internal static List<float> GetGandomData(uint length)

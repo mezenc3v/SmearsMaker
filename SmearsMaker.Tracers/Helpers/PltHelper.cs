@@ -21,36 +21,32 @@ namespace SmearsMaker.Tracers.Helpers
 			var plt = new StringBuilder().Append($"IN;SP{index};");
 			//add pen pltWidth
 			plt.Append($"PW{smearWidth},{index};");
-			//group strokes by color
-			var bsGroups = strokes.GroupBy(s => s.AverageData.GrayScale);
-
-			foreach (var bsGroup in bsGroups.OrderBy(group => group.Key))
+			
+			foreach (var stroke in strokes.OrderBy(c => c.AverageData.GrayScale).ThenBy(b => b.Objects.Count))
 			{
-				var average = bsGroup.First().AverageData.Data;
+				var average = stroke.AverageData.Data;
 				//add pen color
 				plt.Append($"PC{index},{(uint)average[2]},{(uint)average[1]},{(uint)average[0]};");
-				foreach (var stroke in bsGroup.OrderBy(b => b.Objects.Count))
+
+				//add strokes
+				plt.Append($"PU{(uint)(stroke.Head.X * delta)},{(uint)(pltHeight - stroke.Head.Y * delta)};");
+				plt.Append("PD");
+
+				for (int i = 1; i < stroke.Objects.Count - 1; i++)
 				{
-					//add strokes
-					plt.Append($"PU{(uint)(stroke.Head.X * delta)},{(uint)(pltHeight - stroke.Head.Y * delta)};");
-					plt.Append("PD");
+					var point = stroke.Objects[i].Centroid.Position;
+					plt.Append($"{(uint)(point.X * delta)},{(uint)(pltHeight - point.Y * delta)},");
+				}
 
-					for (int i = 1; i < stroke.Objects.Count - 1; i++)
-					{
-						var point = stroke.Objects[i].Centroid.Position;
-						plt.Append($"{(uint)(point.X * delta)},{(uint)(pltHeight - point.Y * delta)},");
-					}
-
-					if (stroke.Objects.Count == 1)
-					{
-						plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(pltHeight - stroke.Tail.Y * delta)},");
-						//Hack: paint shortest lines
-						plt.Append($"{(uint)(stroke.Tail.X * delta) + 1},{(uint)(pltHeight - stroke.Tail.Y * delta) + 1};");
-					}
-					else
-					{
-						plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(pltHeight - stroke.Tail.Y * delta)};");
-					}
+				if (stroke.Objects.Count == 1)
+				{
+					plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(pltHeight - stroke.Tail.Y * delta)},");
+					//Hack: paint shortest lines
+					plt.Append($"{(uint)(stroke.Tail.X * delta) + 1},{(uint)(pltHeight - stroke.Tail.Y * delta) + 1};");
+				}
+				else
+				{
+					plt.Append($"{(uint)(stroke.Tail.X * delta)},{(uint)(pltHeight - stroke.Tail.Y * delta)};");
 				}
 			}
 			return plt.ToString();
