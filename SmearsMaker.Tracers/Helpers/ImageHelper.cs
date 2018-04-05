@@ -19,12 +19,13 @@ namespace SmearsMaker.Tracers.Helpers
 			var data = new PointCollection();
 			foreach (var obj in objects)
 			{
+				var points = obj.Points.Clone();
 				var rand = Utils.GetGandomData(3).ToArray();
-				obj.Points.ForEach(d =>
+				points.ForEach(d =>
 				{
 					d.Pixels[layer].Data = rand;
 				});
-				data.AddRange(obj.Points);
+				data.AddRange(points);
 			}
 			return model.ConvertToBitmapSource(data, layer);
 		}
@@ -34,15 +35,15 @@ namespace SmearsMaker.Tracers.Helpers
 			foreach (var obj in objects)
 			{
 				var averData = obj.GetAverageData(layer);
-				foreach (var point in obj.Points)
+				var points = obj.Points.Clone();
+				foreach (var point in points)
 				{
-					var pointCopy = point.Clone();
 					for (int i = 0; i < point.Pixels[layer].Length; i++)
 					{
-						pointCopy.Pixels[layer].Data[i] = averData[i];
+						point.Pixels[layer].Data[i] = averData[i];
 					}
-					data.Add(pointCopy);
 				}
+				data.AddRange(points);
 			}
 			return model.ConvertToBitmapSource(data, layer);
 		}
@@ -53,14 +54,14 @@ namespace SmearsMaker.Tracers.Helpers
 			foreach (var stroke in strokes)
 			{
 				var averageData = stroke.AverageData;
-				var objects = stroke.Objects;
-				foreach (var o in objects)
+				foreach (var obj in stroke.Objects)
 				{
-					foreach (var point in o.Points)
+					var points = obj.Points.Clone();
+					foreach (var point in points)
 					{
 						point.Pixels[layer] = averageData;
 					}
-					data.AddRange(o.Points);
+					data.AddRange(points);
 				}
 			}
 			return model.ConvertToBitmapSource(data, layer);
