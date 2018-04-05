@@ -35,7 +35,7 @@ namespace SmearsMaker.ImageProcessing.Clustering
 			{
 				UpdateMeans();
 				UpdateCentroids();
-				delta = Clusters.Sum(cluster => cluster.Centroid.Distance(cluster.LastCentroid));
+				delta = Clusters.Sum(cluster => cluster.DistanceBeetweenCentroids);
 				counter++;
 			}
 			while (delta > _precision && counter < _maxIteration);
@@ -50,8 +50,8 @@ namespace SmearsMaker.ImageProcessing.Clustering
 
 			for (int i = 0; i < Clusters.Count; i++)
 			{
-				if (Clusters[i].Data.Count != 0) continue;
-				smallData.AddRange(Clusters[i].Data);
+				if (Clusters[i].Points.Count != 0) continue;
+				smallData.AddRange(Clusters[i].Points);
 				Clusters.Remove(Clusters[i]);
 			}
 			Parallel.ForEach(smallData, d =>
@@ -59,7 +59,7 @@ namespace SmearsMaker.ImageProcessing.Clustering
 				var index = NearestCentroid(d.Pixels[Layers.Filtered]);
 				lock (smallData)
 				{
-					Clusters[index].Data.Add(d);
+					Clusters[index].Points.Add(d);
 				}
 			});
 		}
@@ -67,18 +67,18 @@ namespace SmearsMaker.ImageProcessing.Clustering
 		{
 			foreach (var cluster in Clusters)
 			{
-				cluster.Data = new List<Point>();
+				cluster.Points.Clear();
 			}
 			Parallel.ForEach(Points, d =>
 			{
 				var index = NearestCentroid(d.Pixels[Layers.Original]);
 				lock (Points)
 				{
-					Clusters[index].Data.Add(d);
+					Clusters[index].Points.Add(d);
 				}
 			});
 
-			Clusters.RemoveAll(c => c.Data.Count == 0);
+			Clusters.RemoveAll(c => c.Points.Count == 0);
 		}
 		private void UpdateCentroids()
 		{
@@ -87,7 +87,6 @@ namespace SmearsMaker.ImageProcessing.Clustering
 		protected abstract void FillCentroidsWithInitialValues();
 		protected abstract void UpdateCentroid(Cluster cluster);
 		protected abstract int NearestCentroid(Pixel pixel);
-		public abstract List<Point> GetClusteredPoints();
 		protected abstract double Distance(IReadOnlyList<double> left, IReadOnlyList<double> right);
 	}
 }

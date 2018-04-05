@@ -30,7 +30,7 @@ namespace SmearsMaker.ImageProcessing.Filtering
 					var pos = coordX * _height + coordY;
 					var median = mask.OrderByDescending(v => v.Sum).ToArray()[mask.Count / 2].Data;
 					var clonePoint = points[pos].Clone();
-					clonePoint.Pixels[Layers.Filtered] = new Pixel(median);
+					clonePoint.Pixels[Layers.Filtered] = Pixel.CreateInstance(median);
 					filteredPoints.Add(clonePoint);
 				}
 			}

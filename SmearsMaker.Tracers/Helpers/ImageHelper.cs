@@ -6,7 +6,6 @@ using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
-using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Extentions;
 using Point = SmearsMaker.Common.BaseTypes.Point;
@@ -15,27 +14,27 @@ namespace SmearsMaker.Tracers.Helpers
 {
 	internal static class ImageHelper
 	{
-		internal static BitmapSource CreateRandomImage(IEnumerable<Segment> objects, string layer, ImageModel model)
+		internal static BitmapSource CreateRandomImage(IEnumerable<BaseShape> objects, string layer, ImageModel model)
 		{
 			var data = new List<Point>();
 			foreach (var obj in objects)
 			{
 				var rand = Utils.GetGandomData(3).ToArray();
-				obj.Data.ForEach(d =>
+				obj.Points.ForEach(d =>
 				{
-					d.Pixels.AddPixel(layer, new Pixel(rand));
+					d.Pixels[layer].Data = rand;
 				});
-				data.AddRange(obj.Data);
+				data.AddRange(obj.Points);
 			}
 			return model.ConvertToBitmapSource(data, layer);
 		}
-		internal static BitmapSource CreateImage(IEnumerable<Segment> objects, string layer, ImageModel model)
+		internal static BitmapSource CreateImage(IEnumerable<BaseShape> objects, string layer, ImageModel model)
 		{
 			var data = new List<Point>();
 			foreach (var obj in objects)
 			{
 				var averData = obj.GetAverageData(layer);
-				foreach (var point in obj.Data)
+				foreach (var point in obj.Points)
 				{
 					var pointCopy = point.Clone();
 					for (int i = 0; i < point.Pixels[layer].Length; i++)
@@ -57,11 +56,11 @@ namespace SmearsMaker.Tracers.Helpers
 				var objects = stroke.Objects;
 				foreach (var o in objects)
 				{
-					foreach (var point in o.Data)
+					foreach (var point in o.Points)
 					{
 						point.Pixels[layer] = averageData;
 					}
-					data.AddRange(o.Data);
+					data.AddRange(o.Points);
 				}
 			}
 			return model.ConvertToBitmapSource(data, layer);
@@ -89,7 +88,7 @@ namespace SmearsMaker.Tracers.Helpers
 				var linePen = new Pen(brush, width);
 				var circlePen = new Pen(brush, width - 1);
 
-				var points = stroke.Objects.Select(point => new System.Windows.Point((int)point.Centroid.Position.X, (int)point.Centroid.Position.Y)).ToArray();
+				var points = stroke.Objects.Select(point => new System.Windows.Point((int)point.GetCenter().X, (int)point.GetCenter().Y)).ToArray();
 
 				var lastPoint = new EllipseGeometry(points.Last(), radius, radius);
 				geometries.Children.Add(new GeometryDrawing(brush, circlePen, lastPoint));

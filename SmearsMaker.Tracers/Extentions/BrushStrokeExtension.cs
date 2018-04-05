@@ -16,16 +16,16 @@ namespace SmearsMaker.Tracers.Extentions
 
 		public static BrushStroke FindFirstNearestByLayer(this BrushStroke obj, IEnumerable<BrushStroke> objs, string layer)
 		{
-			var gradHead = obj.Objects.First().Centroid.Pixels[layer].Data[0];
-			var gradTail = obj.Objects.Last().Centroid.Pixels[layer].Data[0];
+			var gradHead = obj.Objects.First().GetCenter(layer).Data[0];
+			var gradTail = obj.Objects.Last().GetCenter(layer).Data[0];
 			var grads = new List<float>();
 
 			return objs.OrderBy(p =>
 			{
-				grads.Add(Math.Abs(gradHead - obj.Objects.First().Centroid.Pixels[layer].Data[0]));
-				grads.Add(Math.Abs(gradTail - obj.Objects.Last().Centroid.Pixels[layer].Data[0]));
-				grads.Add(Math.Abs(gradHead - obj.Objects.Last().Centroid.Pixels[layer].Data[0]));
-				grads.Add(Math.Abs(gradTail - obj.Objects.First().Centroid.Pixels[layer].Data[0]));
+				grads.Add(Math.Abs(gradHead - obj.Objects.First().GetCenter(layer).Data[0]));
+				grads.Add(Math.Abs(gradTail - obj.Objects.Last().GetCenter(layer).Data[0]));
+				grads.Add(Math.Abs(gradHead - obj.Objects.Last().GetCenter(layer).Data[0]));
+				grads.Add(Math.Abs(gradTail - obj.Objects.First().GetCenter(layer).Data[0]));
 				return grads.Min();
 			}).First();
 		}

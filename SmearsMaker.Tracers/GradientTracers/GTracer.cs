@@ -37,7 +37,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var filter = Factory.CreateFilter();
 			var bsm = Factory.CreateBsm();
 
-			var segment = new Segment(Model.Width, Model.Height);
+			var segment = new Segment();
 
 			return Task.Run(() =>
 			{
@@ -48,16 +48,18 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Вычисление градиентов");
+				Log.Trace("Вычисление градиентов");
 				_detectorPoints = detector.Compute(_filteredPoints);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
-				segment.Data = _detectorPoints;
-				Utils.AddCenter(Layers.Original, new List<Segment> { segment });
-				_superPixels = splitter.Splitting(segment);
-				Utils.UpdateCenter(Layers.Gradient, _superPixels);
 				sw.Restart();
+				segment.Points.AddRange(_detectorPoints);
+				_superPixels = splitter.Splitting(segment);
+				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
+				sw.Restart();
+				Log.Trace("Создание мазков");
 				_strokes = bsm.Execute(_superPixels);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
-				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes} мазков");
+				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes.Count} мазков");
 				Log.Trace("Обработка изображения завершена");
 				Progress.NewProgress("Готово");
 			});
@@ -87,7 +89,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var sobelCurves = Model.ConvertToBitmapSource(_detectorPoints, Layers.Curves);
 
 			Progress.NewProgress("Вычисление центров");
-			var centres = Model.ConvertToBitmapSource(_superPixels.Select(s => s.Centroid).ToList(), Layers.Original);
+			var centres = Model.ConvertToBitmapSource(_superPixels.Select(s => s.GetCenterPoint()).ToList(), Layers.Original);
 
 			return new List<ImageView>
 			{

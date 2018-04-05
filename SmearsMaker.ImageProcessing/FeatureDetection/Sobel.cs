@@ -50,8 +50,11 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 					}
 
 					var p = points[pos].Clone();
-					p.Pixels[Layers.Gradient] = new Pixel(gradient);
-					p.Pixels[Layers.Curves] = new Pixel(curve);
+					//TODO:выпилить
+					p.Pixels.Addlayer(Layers.Gradient);
+					p.Pixels.Addlayer(Layers.Curves);
+					p.Pixels[Layers.Gradient].Data = gradient;
+					p.Pixels[Layers.Curves].Data = curve;
 
 					lock (result)
 					{
@@ -79,7 +82,7 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 					}
 					else
 					{
-						mask.Add(new Pixel(new float[size]));
+						mask.Add(Pixel.CreateInstance(new float[size]));
 					}
 				}
 			}

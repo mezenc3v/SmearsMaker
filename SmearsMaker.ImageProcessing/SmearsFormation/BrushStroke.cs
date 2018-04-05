@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.ImageProcessing.Segmenting;
 
 namespace SmearsMaker.ImageProcessing.SmearsFormation
 {
 	public abstract class BrushStroke
 	{
-		public List<Segment> Objects { get; }
-		public virtual System.Windows.Point Head => Objects.First().Centroid.Position;
-		public virtual System.Windows.Point Tail => Objects.Last().Centroid.Position;
+		public List<BaseShape> Objects { get; }
+		public virtual System.Windows.Point Head => Objects.First().GetCenter();
+		public virtual System.Windows.Point Tail => Objects.Last().GetCenter();
 		public abstract Pixel AverageData { get; }
 		
 		public abstract int Width { get; }
@@ -20,10 +19,10 @@ namespace SmearsMaker.ImageProcessing.SmearsFormation
 
 		protected BrushStroke()
 		{
-			Objects = new List<Segment>();
+			Objects = new List<BaseShape>();
 		}
 
-		protected BrushStroke(List<Segment> baseObjects)
+		protected BrushStroke(List<BaseShape> baseObjects)
 		{
 			Objects = baseObjects;
 		}

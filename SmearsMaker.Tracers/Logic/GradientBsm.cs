@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Extentions;
@@ -136,21 +137,21 @@ namespace SmearsMaker.Tracers.Logic
 			return groups;
 		}
 
-		private IList<BrushStroke> Pairing(IEnumerable<Segment> objs)
+		private IList<BrushStroke> Pairing(IEnumerable<BaseShape> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<Segment>();
+			var points = new List<BaseShape>();
 			points.AddRange(objs);
 
 			while (points.Count > 0)
 			{
-				var list = new List<Segment>();
+				var list = new List<BaseShape>();
 				var main = points[_rnd.Next(0, points.Count)];
 
 				list.Add(main);
 				points.Remove(main);
 
-				var nearestPoints = points.FindAll(p => Utils.SqrtDistance(p.Centroid.Position, main.Centroid.Position) < _maxDistance);
+				var nearestPoints = points.FindAll(p => Utils.SqrtDistance(p.GetCenter(), main.GetCenter()) < _maxDistance);
 				if (nearestPoints.Any())
 				{
 					var next = main.FindNearest(nearestPoints, Layers.Gradient);

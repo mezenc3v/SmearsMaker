@@ -10,27 +10,27 @@ namespace SmearsMaker.Tracers.SmearTracer
 {
 	public static class SegmentSplitter
 	{
-		public static List<Segment> Split(List<Point> input)
+		public static List<Segment> Split(BaseShape shape)
 		{
 			var segments = new List<Segment>();
-			var data = input.OrderBy(p => p.Position.X).ToList();
+			var data = shape.Points.OrderBy(p => p.Position.X).ToList();
 
 			while (data.Count > 0)
 			{
 				int countPrevious, countNext;
 				var segment = new Segment();
-				segment.Data.Add(data[0]);
+				segment.Points.Add(data[0]);
 				data.RemoveAt(0);
 
 				do
 				{
 					var segmentData = new List<Point>();
 					countPrevious = data.Count;
-					foreach (var pixel in data.OrderBy(p => Utils.ManhattanDistance(p.Position, segment.Data.Last().Position)))
+					foreach (var pixel in data.OrderBy(p => Utils.ManhattanDistance(p.Position, segment.Points.Last().Position)))
 					{
-						if (Contains(pixel, segment.Data))
+						if (Contains(pixel, segment.Points))
 						{
-							segment.Data.Add(pixel);
+							segment.Points.Add(pixel);
 						}
 						else
 						{
@@ -41,29 +41,6 @@ namespace SmearsMaker.Tracers.SmearTracer
 					countNext = segmentData.Count;
 				} while (countPrevious != countNext);
 
-				var dataArr = new float[segment.Data.First().Pixels[Layers.Original].Length];
-				var x = 0d;
-				var y = 0d;
-				foreach (var point in segment.Data)
-				{
-					x += point.Position.X;
-					y += point.Position.Y;
-					var currData = point.Pixels[Layers.Filtered].Data;
-					for (int i = 0; i < dataArr.Length; i++)
-					{
-						dataArr[i] += currData[i];
-					}
-				}
-
-				x /= segment.Data.Count;
-				y /= segment.Data.Count;
-
-				for (int i = 0; i < dataArr.Length; i++)
-				{
-					dataArr[i] /= segment.Data.Count;
-				}
-				segment.Centroid = new Point(x, y);
-				segment.Centroid.Pixels.AddPixel(Layers.Original, new Pixel(dataArr));
 				segments.Add(segment);
 			}
 

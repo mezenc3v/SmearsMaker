@@ -11,24 +11,6 @@ namespace SmearsMaker.ImageProcessing.Clustering
 		{
 		}
 
-		public override List<Point> GetClusteredPoints()
-		{
-			var clusteringPoints = new List<Point>();
-
-			foreach (var cluster in Clusters)
-			{
-				var centr = cluster.Centroid.Data;
-				foreach (var data in cluster.Data)
-				{
-					var point = data.Clone();
-					point.Pixels[Layers.Filtered] = new Pixel(centr);
-					clusteringPoints.Add(point);
-				}
-			}
-
-			return clusteringPoints;
-		}
-
 		protected override double Distance(IReadOnlyList<double> left, IReadOnlyList<double> right)
 		{
 			double dictance = 0;
@@ -57,14 +39,14 @@ namespace SmearsMaker.ImageProcessing.Clustering
 			{
 				var point = sortedArray[i * step / 2];
 
-				Clusters[i].Centroid = point.Pixels[Layers.Filtered];
+				Clusters[i].Centroid = point.Pixels[Layers.Filtered].Data;
 			}
 		}
 		protected override void UpdateCentroid(Cluster cluster)
 		{
 			var newCentroid = new float[cluster.Centroid.Length];
 
-			foreach (var data in cluster.Data)
+			foreach (var data in cluster.Points)
 			{
 				var dataArray = data.Pixels[Layers.Filtered].Data;
 				for (int i = 0; i < newCentroid.Length; i++)
@@ -75,11 +57,11 @@ namespace SmearsMaker.ImageProcessing.Clustering
 
 			for (int i = 0; i < newCentroid.Length; i++)
 			{
-				newCentroid[i] /= cluster.Data.Count;
+				newCentroid[i] /= cluster.Points.Count;
 			}
 
 			cluster.LastCentroid = cluster.Centroid;
-			cluster.Centroid = new Pixel(newCentroid);
+			cluster.Centroid = newCentroid;
 		}
 
 		protected override int NearestCentroid(Pixel pixel)

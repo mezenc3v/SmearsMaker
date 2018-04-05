@@ -34,7 +34,7 @@ namespace SmearsMaker.Tracers.Helpers
 
 				for (int i = 1; i < stroke.Objects.Count - 1; i++)
 				{
-					var point = stroke.Objects[i].Centroid.Position;
+					var point = stroke.Objects[i].GetCenter();
 					plt.Append($"{(uint)(point.X * delta)},{(uint)(pltHeight - point.Y * delta)},");
 				}
 

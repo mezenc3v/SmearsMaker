@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Helpers;
@@ -24,17 +25,17 @@ namespace SmearsMaker.Tracers.Logic
 			FindPoints(objs);
 			if (objs.Count > 0)
 			{
-				var size = Math.Sqrt(objs.First().Data.Count);
+				var size = Math.Sqrt(objs.First().Points.Count);
 				var brushStrokes = new List<BrushStroke>();
 				var points = new List<Segment>();
 				points.AddRange(objs);
 
 				double length = 0;
-				var list = new List<Segment>();
+				var list = new List<BaseShape>();
 
 				while (points.Count > 0)
 				{
-					var main = points.OrderBy(p => Utils.SqrtDistance(_finishPoint, p.Centroid.Position)).First();
+					var main = points.OrderBy(p => Utils.SqrtDistance(_finishPoint, p.GetCenter())).First();
 					list.Add(main);
 					points.Remove(main);
 
@@ -42,13 +43,13 @@ namespace SmearsMaker.Tracers.Logic
 					{
 						do
 						{
-							var next = points.OrderBy(p => Utils.SqrtDistance(list.Last().Centroid.Position, p.Centroid.Position)).First();
-							if (Utils.SqrtDistance(list.Last().Centroid.Position, next.Centroid.Position) / 2 < size)
+							var next = points.OrderBy(p => Utils.SqrtDistance(list.Last().GetCenter(), p.GetCenter())).First();
+							if (Utils.SqrtDistance(list.Last().GetCenter(), next.GetCenter()) / 2 < size)
 							{
-								length += Utils.SqrtDistance(list.Last().Centroid.Position, next.Centroid.Position);
+								length += Utils.SqrtDistance(list.Last().GetCenter(), next.GetCenter());
 								if (length <= _maxLemgth)
 								{
-									_finishPoint = next.Centroid.Position;
+									_finishPoint = next.GetCenter();
 									list.Add(next);
 									points.Remove(next);
 								}
@@ -64,12 +65,12 @@ namespace SmearsMaker.Tracers.Logic
 						if (length <= _maxLemgth)
 						{
 							length = 0;
-							list = new List<Segment>();
+							list = new List<BaseShape>();
 						}
 						else
 						{
 							length = 0;
-							list = new List<Segment>
+							list = new List<BaseShape>
 							{
 								brushStrokes.Last().Objects.Last()
 							};
@@ -89,17 +90,17 @@ namespace SmearsMaker.Tracers.Logic
 
 		private void FindPoints(IEnumerable<Segment> objs)
 		{
-			var finish = objs.First().MinX;
+			var finish = objs.First().Points.First().Position;
 			double maxDistance = 0;
 
 			foreach (var objOne in objs)
 			{
 				foreach (var objTwo in objs)
 				{
-					if (Utils.SqrtDistance(objOne.Centroid.Position, objTwo.Centroid.Position) > maxDistance)
+					if (Utils.SqrtDistance(objOne.GetCenter(), objTwo.GetCenter()) > maxDistance)
 					{
-						maxDistance = Utils.SqrtDistance(objOne.Centroid.Position, objTwo.Centroid.Position);
-						finish = objTwo.Centroid.Position;
+						maxDistance = Utils.SqrtDistance(objOne.GetCenter(), objTwo.GetCenter());
+						finish = objTwo.GetCenter();
 					}
 				}
 			}

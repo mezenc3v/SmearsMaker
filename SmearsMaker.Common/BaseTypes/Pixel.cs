@@ -5,9 +5,18 @@ namespace SmearsMaker.Common.BaseTypes
 {
 	public class Pixel
 	{
+		public static Pixel CreateInstance(float[] data)
+		{
+			if (data == null)
+			{
+				throw new ArgumentNullException(nameof(data));
+			}
+			return new Pixel(data);
+		}
+
 		public float Sum => Data.Sum();
 		public float Average => Data.Average();
-		public float[] Data { get; }
+		public float[] Data { get; set; }
 		public int Length => Data.Length;
 		public float GrayScale
 		{
@@ -20,11 +29,16 @@ namespace SmearsMaker.Common.BaseTypes
 				};
 			}
 		}
-		public Pixel(float[] data)
+
+		internal Pixel()
+		{
+			Data = new float[3];
+		}
+		internal Pixel(float[] data)
 		{
 			Data = (float[])data?.Clone() ?? throw new ArgumentNullException(nameof(data));
 		}
-		public Pixel(Pixel pixel)
+		internal Pixel(Pixel pixel)
 		{
 			if (pixel == null)
 			{
@@ -33,12 +47,12 @@ namespace SmearsMaker.Common.BaseTypes
 			var data = pixel.Data;
 			Data = (float[])data?.Clone();
 		}
-		public double Distance(Pixel pixel)
+		public double Distance(float[] data)
 		{
 			var dist = 0d;
 			for (int i = 0; i < Data.Length; i++)
 			{
-				dist += Distance(Data[i], pixel.Data[i]);
+				dist += Distance(Data[i], data[i]);
 			}
 
 			return dist;

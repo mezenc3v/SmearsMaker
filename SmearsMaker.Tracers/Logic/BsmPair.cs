@@ -57,10 +57,10 @@ namespace SmearsMaker.Tracers.Logic
 		{
 			var newSequence = new BrushStrokeImpl();
 
-			var a = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.First().Centroid.Position);
-			var b = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var c = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Objects.Last().Centroid.Position);
-			var d = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Objects.First().Centroid.Position);
+			var a = Utils.SqrtDistance(first.Objects.First().GetCenter(), second.Objects.First().GetCenter());
+			var b = Utils.SqrtDistance(first.Objects.Last().GetCenter(), second.Objects.Last().GetCenter());
+			var c = Utils.SqrtDistance(first.Objects.First().GetCenter(), second.Objects.Last().GetCenter());
+			var d = Utils.SqrtDistance(first.Objects.Last().GetCenter(), second.Objects.First().GetCenter());
 
 			if (a < b)
 			{
@@ -128,29 +128,29 @@ namespace SmearsMaker.Tracers.Logic
 
 		private static int NearestPart(IList<BrushStroke> sequences, BrushStroke seq)
 		{
-			var headPosition = seq.Objects.First().Centroid.Position;
-			var tailPosition = seq.Objects.Last().Centroid.Position;
+			var headPosition = seq.Objects.First().GetCenter();
+			var tailPosition = seq.Objects.Last().GetCenter();
 
 			double minDistance;
 			int index;
 
 			if (sequences.First() != seq)
 			{
-				minDistance = Utils.SqrtDistance(sequences[0].Objects.First().Centroid.Position, headPosition);
+				minDistance = Utils.SqrtDistance(sequences[0].Objects.First().GetCenter(), headPosition);
 				index = 0;
 			}
 			else
 			{
-				minDistance = Utils.SqrtDistance(sequences[1].Objects.First().Centroid.Position, headPosition);
+				minDistance = Utils.SqrtDistance(sequences[1].Objects.First().GetCenter(), headPosition);
 				index = 1;
 			}
 
 			foreach (var sequence in sequences.Where(s => s != seq))
 			{
-				var hh = Utils.SqrtDistance(sequence.Objects.First().Centroid.Position, headPosition);
-				var ht = Utils.SqrtDistance(sequence.Objects.First().Centroid.Position, tailPosition);
-				var tt = Utils.SqrtDistance(sequence.Objects.Last().Centroid.Position, tailPosition);
-				var th = Utils.SqrtDistance(sequence.Objects.Last().Centroid.Position, headPosition);
+				var hh = Utils.SqrtDistance(sequence.Objects.First().GetCenter(), headPosition);
+				var ht = Utils.SqrtDistance(sequence.Objects.First().GetCenter(), tailPosition);
+				var tt = Utils.SqrtDistance(sequence.Objects.Last().GetCenter(), tailPosition);
+				var th = Utils.SqrtDistance(sequence.Objects.Last().GetCenter(), headPosition);
 
 				if (hh > 0 && minDistance > hh)
 				{
@@ -183,12 +183,12 @@ namespace SmearsMaker.Tracers.Logic
 		private static int FindNearestSequence(IReadOnlyList<BrushStroke> sequences, Point point)
 		{
 			var index = 0;
-			var minDistance = Utils.SqrtDistance(sequences.First().Objects.First().Centroid.Position, point.Position);
+			var minDistance = Utils.SqrtDistance(sequences.First().Objects.First().GetCenter(), point.Position);
 
 			for (int i = 0; i < sequences.Count; i++)
 			{
-				var distanceHead = Utils.SqrtDistance(sequences[i].Objects.First().Centroid.Position, point.Position);
-				var distanceTail = Utils.SqrtDistance(sequences[i].Objects.Last().Centroid.Position, point.Position);
+				var distanceHead = Utils.SqrtDistance(sequences[i].Objects.First().GetCenter(), point.Position);
+				var distanceTail = Utils.SqrtDistance(sequences[i].Objects.Last().GetCenter(), point.Position);
 
 				if (minDistance > distanceHead)
 				{
@@ -206,12 +206,12 @@ namespace SmearsMaker.Tracers.Logic
 			return index;
 		}
 
-		private static BrushStroke Combine(BrushStroke first, Segment second)
+		private static BrushStroke Combine(BrushStroke first, BaseShape second)
 		{
 			var newSequence = new BrushStrokeImpl();
 
-			var distanceHead = Utils.SqrtDistance(first.Objects.First().Centroid.Position, second.Centroid.Position);
-			var distanceTail = Utils.SqrtDistance(first.Objects.Last().Centroid.Position, second.Centroid.Position);
+			var distanceHead = Utils.SqrtDistance(first.Objects.First().GetCenter(), second.GetCenter());
+			var distanceTail = Utils.SqrtDistance(first.Objects.Last().GetCenter(), second.GetCenter());
 
 			if (distanceHead > distanceTail)
 			{
@@ -233,8 +233,8 @@ namespace SmearsMaker.Tracers.Logic
 			var y = 0d;
 			foreach (var obj in objs)
 			{
-				x += obj.Centroid.Position.X;
-				y += obj.Centroid.Position.Y;
+				x += obj.GetCenter().X;
+				y += obj.GetCenter().Y;
 			}
 
 			return new System.Windows.Point(x / objs.Count, y / objs.Count);
@@ -249,21 +249,21 @@ namespace SmearsMaker.Tracers.Logic
 			{
 				var center = GetCenter(objs);
 
-				var startPoint = objs.OrderBy(p => Utils.SqrtDistance(center, p.Centroid.Position)).First();
+				var startPoint = objs.OrderBy(p => Utils.SqrtDistance(center, p.GetCenter())).First();
 
 				while (points.Count > 0)
 				{
 					if (points.Count > 1)
 					{
-						var list = new List<Segment>();
-						var main = points.OrderBy(p => Utils.SqrtDistance(startPoint.Centroid.Position, p.Centroid.Position)).Last();
+						var list = new List<BaseShape>();
+						var main = points.OrderBy(p => Utils.SqrtDistance(startPoint.GetCenter(), p.GetCenter())).Last();
 
 						list.Add(main);
 						points.Remove(main);
 
-						var next = points.OrderBy(p => Utils.SqrtDistance(main.Centroid.Position, p.Centroid.Position)).First();
+						var next = points.OrderBy(p => Utils.SqrtDistance(main.GetCenter(), p.GetCenter())).First();
 
-						if (Utils.SqrtDistance(next.Centroid.Position, main.Centroid.Position) < _maxDistance)
+						if (Utils.SqrtDistance(next.GetCenter(), main.GetCenter()) < _maxDistance)
 						{
 							list.Add(next);
 							points.Remove(next);
@@ -271,7 +271,7 @@ namespace SmearsMaker.Tracers.Logic
 						}
 						else
 						{
-							var index = FindNearestSequence(brushStrokes, list.First().Centroid);
+							var index = FindNearestSequence(brushStrokes, list.First().GetCenterPoint());
 							var newSequence = Combine(brushStrokes[index], list.First());
 
 							brushStrokes.RemoveAt(index);
@@ -280,7 +280,7 @@ namespace SmearsMaker.Tracers.Logic
 					}
 					else
 					{
-						var index = FindNearestSequence(brushStrokes, points.First().Centroid);
+						var index = FindNearestSequence(brushStrokes, points.First().GetCenterPoint());
 						var newSequence = Combine(brushStrokes[index], points.First());
 
 						brushStrokes.RemoveAt(index);

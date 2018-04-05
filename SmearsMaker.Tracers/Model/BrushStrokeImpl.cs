@@ -2,7 +2,6 @@
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Helpers;
 
@@ -13,7 +12,7 @@ namespace SmearsMaker.Tracers.Model
 		public BrushStrokeImpl()
 		{
 		}
-		public BrushStrokeImpl(List<Segment> baseObjects) : base(baseObjects)
+		public BrushStrokeImpl(List<BaseShape> baseObjects) : base(baseObjects)
 		{
 		}
 		public override int Width { get; }
@@ -24,7 +23,7 @@ namespace SmearsMaker.Tracers.Model
 				var length = 0d;
 				for (int i = 1; i < Objects.Count; i++)
 				{
-					length += Utils.SqrtDistance(Objects[i - 1].Centroid.Position, Objects[i].Centroid.Position);
+					length += Utils.SqrtDistance(Objects[i - 1].GetCenter(), Objects[i].GetCenter());
 				}
 				return (int)length;
 			}
@@ -45,14 +44,14 @@ namespace SmearsMaker.Tracers.Model
 		{
 			get
 			{
-				var centers = Objects.Select(o => o.Centroid).ToList();
-				var length = centers.First().Pixels[Layers.Original].Data.Length;
+				var centers = Objects.Select(o => o.GetCenter(Layers.Original)).ToList();
+				var length = centers.First().Data.Length;
 				var averageData = new float[length];
 				foreach (var center in centers)
 				{
 					for (int i = 0; i < length; i++)
 					{
-						averageData[i] += center.Pixels[Layers.Original].Data[i];
+						averageData[i] += center.Data[i];
 					}
 				}
 
@@ -61,7 +60,7 @@ namespace SmearsMaker.Tracers.Model
 					averageData[i] /= centers.Count;
 				}
 
-				return new Pixel(averageData);
+				return Pixel.CreateInstance(averageData);
 			}
 		}
 	}

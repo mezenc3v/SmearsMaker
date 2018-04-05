@@ -50,14 +50,14 @@ namespace SmearsMaker.Tracers.SmearTracer
 				var clusters = kmeans.Clustering(filteredPoints);
 				Log.Trace($"Кластеризация заняла {sw.Elapsed.Seconds} с.");
 				var defectedPixels = new List<Point>();
-				Progress.NewProgress("Обработка", 0, clusters.Sum(c => c.Data.Count));
+				Progress.NewProgress("Обработка", 0, clusters.Sum(c => c.Points.Count));
 				Parallel.ForEach(clusters, (cluster) =>
 				{
 					var swClusters = Stopwatch.StartNew();
-					var segments = SegmentSplitter.Split(cluster.Data);
+					var segments = SegmentSplitter.Split(cluster);
 
 					segmentsCount += segments.Count;
-					Log.Trace($"Сегментация кластера размером {cluster.Data.Count} пикселей заняла {swClusters.Elapsed.Seconds} с.");
+					Log.Trace($"Сегментация кластера размером {cluster.Points.Count} пикселей заняла {swClusters.Elapsed.Seconds} с.");
 					swClusters.Reset();
 					Parallel.ForEach(segments, segment =>
 					{
@@ -65,11 +65,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 						Parallel.ForEach(superPixels, (supPix) =>
 						{
-							if (supPix.Data.Count < _settings.MinSizeSuperpixel.Value)
+							if (supPix.Points.Count < _settings.MinSizeSuperpixel.Value)
 							{
 								lock (defectedPixels)
 								{
-									defectedPixels.AddRange(supPix.Data);
+									defectedPixels.AddRange(supPix.Points);
 								}
 							}
 						});
@@ -90,11 +90,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 								{
 									_smears.Add(newSmear);
 								}
-								Progress.Update(newSmear.BrushStroke.Objects.Sum(o => o.Data.Count));
+								Progress.Update(newSmear.BrushStroke.Objects.Sum(o => o.Points.Count));
 							}
 						}
 					});
-					Log.Trace($"Разбиение на мазки кластера размером {cluster.Data.Count} пикселей заняло {swClusters.Elapsed.Seconds} с.");
+					Log.Trace($"Разбиение на мазки кластера размером {cluster.Points.Count} пикселей заняло {swClusters.Elapsed.Seconds} с.");
 				});
 
 				if (defectedPixels.Any(point => point == null))
@@ -134,9 +134,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
 					var color = Utils.GetGandomData(3);
-					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(color.ToArray()));
+					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(color.ToArray()));
 					//obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(obj.Centroid.Pixels[Layers.Original].Data));
-					data.AddRange(obj.Data);
+					data.AddRange(obj.Points);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -150,8 +150,8 @@ namespace SmearsMaker.Tracers.SmearTracer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(smear.Cluster.Centroid.Data));
-					data.AddRange(obj.Data);
+					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(smear.Cluster.Centroid));
+					data.AddRange(obj.Points);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -165,8 +165,8 @@ namespace SmearsMaker.Tracers.SmearTracer
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
 				{
-					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(obj.Centroid.Pixels[Layers.Original].Data));
-					data.AddRange(obj.Data);
+					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(obj.GetCenter(Layers.Original).Data));
+					data.AddRange(obj.Points);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -179,11 +179,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;
-				var center = objs.OrderBy(p => p.Centroid.Pixels[Layers.Original].Sum).ToList()[objs.Count / 2].Centroid.Pixels[Layers.Original].Data;
+				var center = objs.OrderBy(p => p.GetCenter(Layers.Original).Sum).ToList()[objs.Count / 2].GetCenter(Layers.Original).Data;
 				foreach (var obj in objs)
 				{
-					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(center));
-					data.AddRange(obj.Data);
+					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(center));
+					data.AddRange(obj.Points);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -200,8 +200,8 @@ namespace SmearsMaker.Tracers.SmearTracer
 				color.Add(255);
 				foreach (var obj in objs)
 				{
-					obj.Data.ForEach(d => d.Pixels[Layers.Filtered] = new Pixel(color.ToArray()));
-					data.AddRange(obj.Data);
+					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(color.ToArray()));
+					data.AddRange(obj.Points);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);

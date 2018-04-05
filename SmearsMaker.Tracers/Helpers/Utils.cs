@@ -2,58 +2,18 @@
 using System.Linq;
 using System.Security.Cryptography;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.Tracers.Extentions;
-using Point = System.Windows.Point;
 
 namespace SmearsMaker.Tracers.Helpers
 {
 	public static partial class Utils
 	{
-		internal static void UpdateCenter(string layer, List<Segment> superPixels)
-		{
-			foreach (var superPixel in superPixels)
-			{
-				var averData = superPixel.GetAverageData(layer);
-				superPixel.Centroid.Pixels[layer] = new Pixel(averData);
-				var center = new Point();
-				foreach (var point in superPixel.Data)
-				{
-					center.X += point.Position.X;
-					center.Y += point.Position.Y;
-				}
-
-				center.X /= superPixel.Data.Count;
-				center.Y /= superPixel.Data.Count;
-
-				superPixel.Centroid.Position = center;
-			}
-		}
-
-		internal static void AddCenter(string layer, List<Segment> segments)
-		{
-			foreach (var segment in segments)
-			{
-				AddCenter(layer, segment);
-			}
-		}
-
-		internal static void AddCenter(string layer, Segment segment)
-		{
-			if (segment.Data.Count > 0)
-			{
-				var averData = segment.GetAverageData(layer);
-				segment.Centroid.Pixels.AddPixel(layer, new Pixel(averData));
-			}
-		}
-
-		internal static float[] GetAverageData(IReadOnlyCollection<Segment> segments, string layer)
+		internal static float[] GetAverageData(IReadOnlyCollection<BaseShape> segments, string layer)
 		{
 			var averData = new float[4];
 
 			foreach (var segment in segments)
 			{
-				segment.Data.ForEach(d =>
+				segment.Points.ForEach(d =>
 				{
 					for (int i = 0; i < averData.Length; i++)
 					{
@@ -61,7 +21,7 @@ namespace SmearsMaker.Tracers.Helpers
 					}
 				});
 			}
-			var count = segments.Sum(s => s.Data.Count);
+			var count = segments.Sum(s => s.Points.Count);
 			for (int i = 0; i < averData.Length; i++)
 			{
 				averData[i] /= count;
