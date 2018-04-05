@@ -24,7 +24,7 @@ namespace SmearsMaker.ImageProcessing.Clustering
 			_precision = precision;
 			_maxIteration = maxIteration;
 		}
-		public List<Cluster> Clustering(List<Point> points)
+		public List<Cluster> Clustering(PointCollection points)
 		{
 			Points.AddRange(points.Select(p => p.Clone()));
 			FillCentroidsWithInitialValues();

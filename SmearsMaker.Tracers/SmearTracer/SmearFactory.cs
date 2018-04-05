@@ -1,5 +1,4 @@
-﻿using System;
-using SmearsMaker.Common;
+﻿using SmearsMaker.Common;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Clustering;

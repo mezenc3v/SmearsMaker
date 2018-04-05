@@ -15,11 +15,25 @@ namespace SmearsMaker.Common.BaseTypes
 		private readonly ObservableCollection<Point> _points;
 		internal readonly List<string> Layers;
 
-		internal PointCollection()
+		public PointCollection()
 		{
 			_points = new ObservableCollection<Point>();
 			_points.CollectionChanged += CollectionChanged;
 			Layers = new List<string>();
+		}
+
+		internal PointCollection(PointCollection collection) : this()
+		{
+			Layers.AddRange(collection.Layers);
+			foreach (var p in collection._points)
+			{
+				_points.Add(new Point(p));
+			}
+		}
+
+		public PointCollection Clone()
+		{
+			return new PointCollection(this);
 		}
 
 		public void Addlayer(string layer)
@@ -31,6 +45,14 @@ namespace SmearsMaker.Common.BaseTypes
 			foreach (var point in _points)
 			{
 				point.AddLayer(layer);
+			}
+		}
+
+		public void AddRange(PointCollection points)
+		{
+			foreach (var point in points)
+			{
+				Add(point);
 			}
 		}
 

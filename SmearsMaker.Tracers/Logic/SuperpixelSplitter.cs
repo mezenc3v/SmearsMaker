@@ -6,7 +6,6 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;
-using SmearsMaker.Tracers.SmearTracer;
 
 namespace SmearsMaker.Tracers.Logic
 {

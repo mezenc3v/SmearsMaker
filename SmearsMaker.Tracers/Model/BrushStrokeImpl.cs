@@ -40,28 +40,27 @@ namespace SmearsMaker.Tracers.Model
 			}.Min();
 		}
 
-		public override Pixel AverageData
-		{
-			get
-			{
-				var centers = Objects.Select(o => o.GetCenter(Layers.Original)).ToList();
-				var length = centers.First().Data.Length;
-				var averageData = new float[length];
-				foreach (var center in centers)
-				{
-					for (int i = 0; i < length; i++)
-					{
-						averageData[i] += center.Data[i];
-					}
-				}
+		public override Pixel AverageData => ComputeAverageData();
 
+		private Pixel ComputeAverageData()
+		{
+			var centers = Objects.Select(o => o.GetCenter(Layers.Original)).ToList();
+			var length = centers.First().Data.Length;
+			var averageData = new float[length];
+			foreach (var center in centers)
+			{
 				for (int i = 0; i < length; i++)
 				{
-					averageData[i] /= centers.Count;
+					averageData[i] += center.Data[i];
 				}
-
-				return Pixel.CreateInstance(averageData);
 			}
+
+			for (int i = 0; i < length; i++)
+			{
+				averageData[i] /= centers.Count;
+			}
+
+			return Pixel.CreateInstance(averageData);
 		}
 	}
 }

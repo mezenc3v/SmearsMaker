@@ -6,6 +6,6 @@ namespace SmearsMaker.ImageProcessing
 {
 	public interface IClusterizer
 	{
-		List<Cluster> Clustering(List<Point> points);
+		List<Cluster> Clustering(PointCollection points);
 	}
 }

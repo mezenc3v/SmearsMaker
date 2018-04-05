@@ -128,7 +128,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private BitmapSource SuperPixels()
 		{
 			Progress.NewProgress("Вычисление суперпикселей");
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var smear in _smears)
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
@@ -145,7 +145,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private BitmapSource Clusters()
 		{
 			Progress.NewProgress("Вычисление кластеров");
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var smear in _smears)
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
@@ -160,7 +160,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private BitmapSource Segments()
 		{
 			Progress.NewProgress("Вычисление сегментов");
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var smear in _smears)
 			{
 				foreach (var obj in smear.BrushStroke.Objects)
@@ -175,7 +175,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private BitmapSource BrushStrokes()
 		{
 			Progress.NewProgress("Вычисление мазков");
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;
@@ -192,7 +192,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private BitmapSource RandomBrushStrokes()
 		{
 			Progress.NewProgress("Вычисление мазков(рандом)");
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var smear in _smears)
 			{
 				var objs = smear.BrushStroke.Objects;

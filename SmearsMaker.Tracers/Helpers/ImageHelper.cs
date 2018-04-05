@@ -8,7 +8,7 @@ using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 using SmearsMaker.Tracers.Extentions;
-using Point = SmearsMaker.Common.BaseTypes.Point;
+using PointCollection = SmearsMaker.Common.BaseTypes.PointCollection;
 
 namespace SmearsMaker.Tracers.Helpers
 {
@@ -16,7 +16,7 @@ namespace SmearsMaker.Tracers.Helpers
 	{
 		internal static BitmapSource CreateRandomImage(IEnumerable<BaseShape> objects, string layer, ImageModel model)
 		{
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var obj in objects)
 			{
 				var rand = Utils.GetGandomData(3).ToArray();
@@ -30,7 +30,7 @@ namespace SmearsMaker.Tracers.Helpers
 		}
 		internal static BitmapSource CreateImage(IEnumerable<BaseShape> objects, string layer, ImageModel model)
 		{
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var obj in objects)
 			{
 				var averData = obj.GetAverageData(layer);
@@ -49,7 +49,7 @@ namespace SmearsMaker.Tracers.Helpers
 
 		internal static BitmapSource CreateImageFromStrokes(IEnumerable<BrushStroke> strokes, string layer, ImageModel model)
 		{
-			var data = new List<Point>();
+			var data = new PointCollection();
 			foreach (var stroke in strokes)
 			{
 				var averageData = stroke.AverageData;

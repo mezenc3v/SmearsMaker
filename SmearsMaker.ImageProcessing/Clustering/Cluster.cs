@@ -7,10 +7,6 @@ namespace SmearsMaker.ImageProcessing.Clustering
 		public float[] Centroid;
 		public float[] LastCentroid;
 
-		public Cluster()
-		{
-		}
-
 		public double DistanceBeetweenCentroids => GetDistance();
 
 		private double GetDistance()

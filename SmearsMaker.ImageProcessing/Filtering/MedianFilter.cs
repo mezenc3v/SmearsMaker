@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 
@@ -18,9 +17,9 @@ namespace SmearsMaker.ImageProcessing.Filtering
 			_height = height;
 		}
 
-		public List<Point> Filtering(List<Point> points)
+		public PointCollection Filtering(PointCollection points)
 		{
-			var filteredPoints = new List<Point>();
+			var filteredPoints = new PointCollection();
 
 			for (int coordX = 0; coordX < _width; coordX++)
 			{
@@ -36,7 +35,7 @@ namespace SmearsMaker.ImageProcessing.Filtering
 			}
 			return filteredPoints;
 		}
-		private List<Pixel> GetMask(IList<Point> units, int x, int y)
+		private List<Pixel> GetMask(PointCollection units, int x, int y)
 		{
 			var mask = new List<Pixel>();
 

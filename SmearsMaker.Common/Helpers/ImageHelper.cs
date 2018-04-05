@@ -8,9 +8,9 @@ namespace SmearsMaker.Common.Helpers
 	{
 		private const int DataFormatSize = 4;
 
-		internal static List<Point> ConvertToPixels(BitmapSource source)
+		internal static PointCollection ConvertToPixels(BitmapSource source)
 		{
-			var inputData = new List<Point>();
+			var inputData = new PointCollection();
 			var stride = source.PixelWidth * DataFormatSize;
 			var size = source.PixelHeight * stride;
 			var data = new byte[size];
@@ -29,7 +29,7 @@ namespace SmearsMaker.Common.Helpers
 			return inputData;
 		}
 
-		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, ICollection<Point> points, string name)
+		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, PointCollection points, string name)
 		{
 			var stride = source.PixelWidth * DataFormatSize;
 			var size = source.PixelHeight * stride;

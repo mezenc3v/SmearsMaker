@@ -26,6 +26,11 @@ namespace SmearsMaker.Common.BaseTypes
 			return _centerPoint.Value;
 		}
 
+		public Point GetCenterPoint()
+		{
+			return _center ?? (_center = ComputeCenterPoint());
+		}
+
 		public Pixel GetCenter(string layer)
 		{
 			return GetCenterPoint().Pixels[layer];
@@ -65,11 +70,6 @@ namespace SmearsMaker.Common.BaseTypes
 			}
 
 			return new Pixel(dataArr);
-		}
-
-		public Point GetCenterPoint()
-		{
-			return _center ?? ComputeCenterPoint();
 		}
 
 		private Point ComputeCenterPoint()

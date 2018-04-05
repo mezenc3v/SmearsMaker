@@ -10,7 +10,7 @@ namespace SmearsMaker.Common.Image
 	{
 		public int Width => Image.PixelWidth;
 		public int Height => Image.PixelHeight;
-		public List<Point> Points { get; }
+		public PointCollection Points { get; }
 		public BitmapSource Image { get; }
 		public ImageModel(BitmapSource image)
 		{
@@ -18,7 +18,7 @@ namespace SmearsMaker.Common.Image
 			Points = Points = ImageHelper.ConvertToPixels(image);
 		}
 
-		public BitmapSource ConvertToBitmapSource(ICollection<Point> points, string layer)
+		public BitmapSource ConvertToBitmapSource(PointCollection points, string layer)
 		{
 			return ImageHelper.ConvertRgbToBitmap(Image, points, layer);
 		}

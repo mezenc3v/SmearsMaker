@@ -17,16 +17,18 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 			_height = height;
 		}
 
-		public List<Point> Compute(List<Point> points)
+		public PointCollection Compute(PointCollection points)
 		{
-			var result = new List<Point>();
-			var arrLength = points.First().Pixels[Layers.Original].Length;
+			var result = points.Clone();
+			result.Addlayer(Layers.Gradient);
+			result.Addlayer(Layers.Curves);
+			var arrLength = result.First().Pixels[Layers.Original].Length;
 
 			Parallel.For(0, _width, (coordX) =>
 			{
 				for (int coordY = 0; coordY < _height; coordY++)
 				{
-					var mask = GetMask(points, coordX, coordY);
+					var mask = GetMask(result, coordX, coordY);
 					var pos = coordX * _height + coordY;
 					var gradient = new float[arrLength];
 					var curve = new float[arrLength];
@@ -49,16 +51,10 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 						curve[i] = norm;
 					}
 
-					var p = points[pos].Clone();
-					//TODO:выпилить
-					p.Pixels.Addlayer(Layers.Gradient);
-					p.Pixels.Addlayer(Layers.Curves);
-					p.Pixels[Layers.Gradient].Data = gradient;
-					p.Pixels[Layers.Curves].Data = curve;
-
 					lock (result)
 					{
-						result.Add(p);
+						result[pos].Pixels[Layers.Gradient].Data = gradient;
+						result[pos].Pixels[Layers.Curves].Data = curve;
 					}
 				}
 			});
@@ -66,7 +62,7 @@ namespace SmearsMaker.ImageProcessing.FeatureDetection
 			return result;
 		}
 
-		private List<Pixel> GetMask(IList<Point> units, int x, int y)
+		private List<Pixel> GetMask(PointCollection units, int x, int y)
 		{
 			var mask = new List<Pixel>();
 			var size = units.First().Pixels[Layers.Original].Length;

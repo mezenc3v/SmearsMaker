@@ -6,8 +6,8 @@ using SmearsMaker.Common.Image;
 using System.Collections.Generic;
 using SmearsMaker.Tracers.Helpers;
 using System.Windows.Media.Imaging;
+using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
-using Point = SmearsMaker.Common.BaseTypes.Point;
 using SmearsMaker.ImageProcessing.SmearsFormation;
 
 namespace SmearsMaker.Tracers.GradientTracers
@@ -17,8 +17,8 @@ namespace SmearsMaker.Tracers.GradientTracers
 		public override List<ImageSetting> Settings => GtSettings.Settings;
 		public override List<ImageView> Views => CreateViews();
 
-		private List<Point> _filteredPoints;
-		private List<Point> _detectorPoints;
+		private PointCollection _filteredPoints;
+		private PointCollection _detectorPoints;
 		private List<Segment> _superPixels;
 		private List<BrushStroke> _strokes;
 
@@ -89,7 +89,9 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var sobelCurves = Model.ConvertToBitmapSource(_detectorPoints, Layers.Curves);
 
 			Progress.NewProgress("Вычисление центров");
-			var centres = Model.ConvertToBitmapSource(_superPixels.Select(s => s.GetCenterPoint()).ToList(), Layers.Original);
+			var newCollection = new PointCollection();
+			newCollection.AddRange(_superPixels.Select(s => s.GetCenterPoint()).ToList());
+			var centres = Model.ConvertToBitmapSource(newCollection, Layers.Original);
 
 			return new List<ImageView>
 			{

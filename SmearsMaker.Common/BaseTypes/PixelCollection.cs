@@ -25,8 +25,7 @@ namespace SmearsMaker.Common.BaseTypes
 			}
 		}
 
-		//TODO: Закрыть доступ
-		public void Addlayer(string layer)
+		internal void Addlayer(string layer)
 		{
 			_pixels.Add(layer, new Pixel());
 		}

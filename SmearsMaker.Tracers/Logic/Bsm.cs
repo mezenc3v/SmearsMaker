@@ -88,7 +88,7 @@ namespace SmearsMaker.Tracers.Logic
 			return new List<BrushStroke>();
 		}
 
-		private void FindPoints(IEnumerable<Segment> objs)
+		private void FindPoints(IReadOnlyCollection<BaseShape> objs)
 		{
 			var finish = objs.First().Points.First().Position;
 			double maxDistance = 0;

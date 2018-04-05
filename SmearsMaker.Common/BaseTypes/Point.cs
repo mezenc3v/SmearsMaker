@@ -15,7 +15,7 @@
 		{
 		}
 
-		private Point(Point point)
+		internal Point(Point point)
 		{
 			Pixels = new PixelCollection(point.Pixels);
 			Position = point.Position;
