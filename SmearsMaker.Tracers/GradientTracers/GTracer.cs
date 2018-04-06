@@ -38,13 +38,13 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var bsm = Factory.CreateBsm();
 
 			var segment = new Segment();
-
+			var points = Model.Points;
 			return Task.Run(() =>
 			{
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				_filteredPoints = filter.Filtering(Model.Points);
+				_filteredPoints = filter.Filtering(points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Вычисление градиентов");

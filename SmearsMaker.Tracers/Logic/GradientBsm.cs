@@ -61,7 +61,7 @@ namespace SmearsMaker.Tracers.Logic
 			{
 				var sameColorStrokes = group.ToList();
 				var aloneStrokes = sameColorStrokes.Where(stroke => stroke.Objects.Count == 1).ToList();
-				sameColorStrokes.RemoveAll(stroke => stroke.Objects.Count == 1);
+				//sameColorStrokes.RemoveAll(stroke => stroke.Objects.Count == 1);
 
 				foreach (var aloneStroke in aloneStrokes)
 				{

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Windows.Media.Imaging;
+﻿using System.Windows.Media.Imaging;
 using SmearsMaker.Common.BaseTypes;
 
 namespace SmearsMaker.Common.Helpers

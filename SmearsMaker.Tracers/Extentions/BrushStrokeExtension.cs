@@ -38,18 +38,22 @@ namespace SmearsMaker.Tracers.Extentions
 
 			double minDistance;
 
-			if (sequences.First() != seq)
+			if (sequences.First().Id != seq.Id)
 			{
 				minDistance = Utils.SqrtDistance(sequences[0].Head, head);
 				result.Add(sequences.First());
 			}
-			else
+			else if (sequences.Count > 1)
 			{
 				minDistance = Utils.SqrtDistance(sequences[1].Head, head);
 				result.Add(sequences[1]);
 			}
+			else
+			{
+				return new List<BrushStroke>();
+			}
 
-			foreach (var sequence in sequences.Where(s => s != seq))
+			foreach (var sequence in sequences.Where(s => s.Id != seq.Id))
 			{
 				new List<double>{
 					Utils.SqrtDistance(sequence.Head, head),
