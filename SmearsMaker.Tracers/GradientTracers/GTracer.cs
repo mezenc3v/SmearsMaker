@@ -73,7 +73,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			Progress.NewProgress("Вычисление градиентов суперпикселей");
 			var spixelsGrad = ImageHelper.CreateImage(_superPixels, Layers.Gradient, Model);
 
-			Progress.NewProgress("Вычисление мазков");		
+			Progress.NewProgress("Вычисление мазков");
 			var smears = ImageHelper.CreateImageFromStrokes(_strokes, Layers.Filtered, Model);
 
 			Progress.NewProgress("Вычисление мазков (линии)");
@@ -110,6 +110,15 @@ namespace SmearsMaker.Tracers.GradientTracers
 		public override string GetPlt()
 		{
 			return PltHelper.GetPlt(_strokes, GtSettings.HeightPlt.Value, GtSettings.WidthPlt.Value, GtSettings.WidthSmear.Value, Model.Height, Model.Width);
+		}
+
+		public override void Dispose()
+		{
+			_filteredPoints?.Clear();
+			_detectorPoints?.Clear();
+			_superPixels?.Clear();
+			_strokes?.Clear();
+			base.Dispose();
 		}
 	}
 }

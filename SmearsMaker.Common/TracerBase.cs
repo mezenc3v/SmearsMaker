@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using NLog;
@@ -6,7 +7,7 @@ using SmearsMaker.Common.Image;
 
 namespace SmearsMaker.Common
 {
-	public abstract class TracerBase : ITracer
+	public abstract class TracerBase : ITracer, IDisposable
 	{
 		public IProgress Progress { get; }
 
@@ -26,6 +27,10 @@ namespace SmearsMaker.Common
 
 		public abstract string GetPlt();
 
-		
+
+		public virtual void Dispose()
+		{
+			Model?.Dispose();
+		}
 	}
 }

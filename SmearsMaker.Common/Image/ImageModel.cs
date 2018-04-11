@@ -5,7 +5,7 @@ using SmearsMaker.Common.Helpers;
 
 namespace SmearsMaker.Common.Image
 {
-	public class ImageModel
+	public class ImageModel : IDisposable
 	{
 		public int Width => Image.PixelWidth;
 		public int Height => Image.PixelHeight;
@@ -24,6 +24,11 @@ namespace SmearsMaker.Common.Image
 		public BitmapSource ConvertToBitmapSource(PointCollection points, string layer)
 		{
 			return ImageHelper.ConvertRgbToBitmap(Image, points, layer);
+		}
+
+		public void Dispose()
+		{
+			_points?.Clear();
 		}
 	}
 }

@@ -48,7 +48,7 @@ namespace SmearsMaker.Wpf
 
 		private string _label;
 		private ImageSource _currentImage;
-		private List<ImageView> _images;
+		private readonly List<ImageView> _images;
 		private static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 		private int _currentImageIndex;
 		private ITracer _tracer;
@@ -70,6 +70,7 @@ namespace SmearsMaker.Wpf
 		public void SetAlgorithm(Type tracer)
 		{
 			if (_image == null || tracer == null) return;
+			_tracer?.Dispose();
 			_tracer = Activator.CreateInstance(tracer, _image, new Progress()) as ITracer;
 			
 			_tracer.Progress.UpdateProgress += UpdateProgress;
@@ -85,9 +86,8 @@ namespace SmearsMaker.Wpf
 				{
 					SetAlgorithm(Tracers.First());
 				}
+				_images.Clear();
 				await _tracer.Execute();
-
-				_images = new List<ImageView>();
 				_images.AddRange(_tracer.Views);
 				if (_images.Count < _currentImageIndex)
 				{
