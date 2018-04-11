@@ -1,26 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using Color = System.Drawing.Color;
-using Pen = System.Drawing.Pen;
 
 namespace SmearsMaker.HPGL
 {
 	public class PltReader
 	{
+		private readonly Painter _painter;
 		private static readonly string _pattern = @"PW(?<Width>\d*),\d*;(PC\d*,(?<Color>(\d*,*)*);(PU[\d,]*;(PD[\d,]*);*)*)*";
 		private static readonly string _smearPattern = @"PC\d*,(?<Color>(\d*,*)*);PU(?<Start>[\d,]*);PD(?<Points>[\d,]*);";
 		private static readonly string _positionsPattern = @"(PD|PU)((?<Position>\d*,\d*)(,|;))*";
 
 		public PltReader()
 		{
-
+			_painter = new Painter();
 		}
 
 		public BitmapSource Read(string path)
@@ -35,52 +32,38 @@ namespace SmearsMaker.HPGL
 
 			var (width, height) = GetDimensions(file);
 
-			var bitmap = PltHelper.CreateBitmap(width, height);
-			var g = Graphics.FromImage(bitmap);
-			g.Clear(Color.White);
-
+			var widthOfSmears = new List<int>();
 			foreach (Match match in matches)
 			{
 				try
 				{
 					var smearwidth = Convert.ToInt32(match.Groups["Width"].Value);
+					widthOfSmears.Add(smearwidth);
 					var pens = Regex.Matches(match.Value, _smearPattern);
-
 					foreach (Match smearPen in pens)
 					{
 						var colorArr = smearPen.Groups["Color"].Value.Split(',');
-						var color = colorArr.Select(p => Convert.ToByte(p)).ToArray();
-						var pen = new Pen(Color.FromArgb(color[0], color[1], color[2]), smearwidth);
-						var brush = new SolidBrush(Color.FromArgb(color[0], color[1], color[2]));
+						var colorData = colorArr.Select(p => Convert.ToByte(p)).ToArray();
 
-						var points = new List<PointF>();
+						_painter.SetPens(colorData, smearwidth);
 
+						var points = new List<Point>();
 						var startArr = smearPen.Groups["Start"].Value.Split(',');
 						var startPointArr = startArr.Select(Convert.ToSingle).ToArray();
-						var startPoint = new PointF(startPointArr[0], height - startPointArr[1]);
+						var startPoint = new Point(startPointArr[0], height - startPointArr[1]);
 						points.Add(startPoint);
-
 						var pointsGroup = smearPen.Groups["Points"];
 
 						foreach (Capture capture in pointsGroup.Captures)
 						{
 							var pointArr = capture.Value.Split(',').Select(Convert.ToSingle).ToArray();
-							for(int i = 0; i < pointArr.Length; i+=2)
+							for (int i = 0; i < pointArr.Length; i += 2)
 							{
-								var point = new PointF(pointArr[i], height - pointArr[i + 1]);
+								var point = new Point(pointArr[i], height - pointArr[i + 1]);
 								points.Add(point);
 							}
 						}
-
-						foreach (var point in points)
-						{
-							g.FillEllipse(brush, point.X, point.Y, pen.Width, pen.Width);
-						}
-
-						if (points.Count > 1)
-						{
-							g.DrawLines(pen, points.ToArray());
-						}
+						_painter.AddPoints(points);
 					}
 				}
 				catch (Exception ex)
@@ -89,19 +72,16 @@ namespace SmearsMaker.HPGL
 				}
 			}
 
-			g.Dispose();
-
-			return Imaging.CreateBitmapSourceFromHBitmap(
-				bitmap.GetHbitmap(),
-				IntPtr.Zero,
-				Int32Rect.Empty,
-				BitmapSizeOptions.FromEmptyOptions());
+			int averageWidth = (int)widthOfSmears.Average();
+			return PltHelper.ToBitmapSource(_painter.Image, height / averageWidth * 10, width / averageWidth * 10);
 		}
 
 		private static (int width, int height) GetDimensions(string file)
 		{
-			int width = 0;
-			int height = 0;
+			int maxWidth = 0;
+			int maxHeight = 0;
+			int minWidth = int.MaxValue;
+			int minHeight = int.MaxValue;
 
 			foreach (Match position in Regex.Matches(file, _positionsPattern))
 			{
@@ -109,18 +89,27 @@ namespace SmearsMaker.HPGL
 				{
 					var posArr = capture.Value.Split(',').Select(p => Convert.ToInt32(p)).ToArray();
 
-					if (posArr[0] > width)
+					if (posArr[0] > maxWidth)
 					{
-						width = posArr[0];
+						maxWidth = posArr[0];
 					}
-					if (posArr[1] > height)
+					if (posArr[1] > maxHeight)
 					{
-						height = posArr[1];
+						maxHeight = posArr[1];
+					}
+
+					if (posArr[0] < minWidth)
+					{
+						minWidth = posArr[0];
+					}
+					if (posArr[1] < minHeight)
+					{
+						minHeight = posArr[1];
 					}
 				}
 			}
 
-			return (width, height);
+			return (maxWidth - minWidth, maxHeight - minHeight);
 		}
 	}
 }
