@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Extentions

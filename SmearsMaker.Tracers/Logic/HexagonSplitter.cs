@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;
@@ -34,9 +35,9 @@ namespace SmearsMaker.Tracers.Logic
 			Parallel.ForEach(data, unit =>
 			{
 				var winner = NearestCentroid(unit, samples);
-				_progress.Update(1);
 				lock (samples)
 				{
+					_progress.Update(1);
 					winner.Points.Add(unit);
 				}
 			});

@@ -21,9 +21,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 			_settings = settings;
 		}
 
-		public IBsm CreateBsm()
+		public IStrokesBuilder CreateBsm()
 		{
-			return new BsmPair(_settings.MaxSmearDistance.Value);
+			return new PairStrokesBuilder(_settings.MaxSmearDistance.Value);
 		}
 
 		public ISplitter CreateSplitter()

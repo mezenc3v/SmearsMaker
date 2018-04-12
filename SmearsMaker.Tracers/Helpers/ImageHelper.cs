@@ -6,7 +6,7 @@ using System.Windows.Media.Imaging;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.Common.Image;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Extentions;
 using PointCollection = SmearsMaker.Common.BaseTypes.PointCollection;
 

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 
-namespace SmearsMaker.Tracers
+namespace SmearsMaker.ImageProcessing
 {
-	public interface IBsm
+	public interface IStrokesBuilder
 	{
 		List<BrushStroke> Execute(List<Segment> objs);
 	}

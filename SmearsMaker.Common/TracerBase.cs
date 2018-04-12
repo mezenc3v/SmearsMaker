@@ -7,7 +7,7 @@ using SmearsMaker.Common.Image;
 
 namespace SmearsMaker.Common
 {
-	public abstract class TracerBase : ITracer, IDisposable
+	public abstract class TracerBase : ITracer
 	{
 		public IProgress Progress { get; }
 

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;

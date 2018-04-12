@@ -1,6 +1,6 @@
 ﻿using SmearsMaker.ImageProcessing.Clustering;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 
 namespace SmearsMaker.Tracers.SmearTracer
 {

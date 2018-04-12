@@ -2,7 +2,7 @@
 using System.Linq;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 
 namespace SmearsMaker.Tracers.Model

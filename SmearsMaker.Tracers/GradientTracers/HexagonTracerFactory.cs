@@ -21,9 +21,9 @@ namespace SmearsMaker.Tracers.GradientTracers
 			_settings = settings;
 		}
 
-		public IBsm CreateBsm()
+		public IStrokesBuilder CreateBsm()
 		{
-			return new GradientBsm(_progress, _settings.WidthSmear.Value * Math.Sqrt(3) / 2 + 3, (float)_settings.Tolerance.Value, (float)_settings.Tolerance2.Value);
+			return new GradientStrokesBuilder(_progress, _settings.WidthSmear.Value * Math.Sqrt(3) / 2 + 3, (float)_settings.Tolerance.Value, (float)_settings.Tolerance2.Value);
 		}
 
 		public ISplitter CreateSplitter()

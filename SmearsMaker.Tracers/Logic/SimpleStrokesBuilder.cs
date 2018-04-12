@@ -2,20 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 using Point = System.Windows.Point;
 
 namespace SmearsMaker.Tracers.Logic
 {
-	public class Bsm : IBsm
+	public class SimpleStrokesBuilder : IStrokesBuilder
 	{
 		private readonly double _maxLemgth;
 		private Point _finishPoint;
 
-		public Bsm(double width)
+		public SimpleStrokesBuilder(double width)
 		{
 			_maxLemgth = width;
 		}

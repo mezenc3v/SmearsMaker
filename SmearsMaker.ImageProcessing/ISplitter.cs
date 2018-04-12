@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using SmearsMaker.ImageProcessing.Segmenting;
 
-namespace SmearsMaker.Tracers
+namespace SmearsMaker.ImageProcessing
 {
 	public interface ISplitter
 	{

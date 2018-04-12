@@ -8,7 +8,7 @@ using SmearsMaker.Tracers.Helpers;
 using System.Windows.Media.Imaging;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 
 namespace SmearsMaker.Tracers.GradientTracers
 {

@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
 namespace SmearsMaker.Tracers.Logic
 {
-	public class BsmPair : IBsm
+	public class PairStrokesBuilder : IStrokesBuilder
 	{
 		private readonly double _maxDistance;
 
-		public BsmPair(double width)
+		public PairStrokesBuilder(double width)
 		{
 			_maxDistance = width;
 		}

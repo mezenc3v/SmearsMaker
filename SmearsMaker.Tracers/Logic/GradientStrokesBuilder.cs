@@ -4,15 +4,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
+using SmearsMaker.ImageProcessing;
 using SmearsMaker.ImageProcessing.Segmenting;
-using SmearsMaker.ImageProcessing.SmearsFormation;
+using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
 
 namespace SmearsMaker.Tracers.Logic
 {
-	public class GradientBsm : IBsm
+	public class GradientStrokesBuilder : IStrokesBuilder
 	{
 		private double _tolerance;
 		private readonly Random _rnd;
@@ -20,7 +21,7 @@ namespace SmearsMaker.Tracers.Logic
 		private readonly double _toleranceSecond;
 		private readonly IProgress _progress;
 
-		public GradientBsm(IProgress progress, double width, float toleranceFirst, float toleranceSecond)
+		public GradientStrokesBuilder(IProgress progress, double width, float toleranceFirst, float toleranceSecond)
 		{
 			_toleranceSecond = toleranceSecond;
 			_tolerance = toleranceFirst;
@@ -39,9 +40,10 @@ namespace SmearsMaker.Tracers.Logic
 			{
 				var pairs = Pairing(group);
 				var brushStrokes = pairs.Count > 1 ? Combining(pairs) : pairs;
-				_progress.Update(1);
+				
 				lock (strokesFromGroups)
 				{
+					_progress.Update(1);
 					strokesFromGroups.AddRange(brushStrokes);
 				}
 			});

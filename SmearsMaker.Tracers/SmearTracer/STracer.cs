@@ -217,5 +217,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 		{
 			return PltHelper.GetPlt(_smears.Select(s=>s.BrushStroke).ToList(), _settings.HeightPlt.Value, _settings.WidthPlt.Value, _settings.WidthSmear.Value, Model.Height, Model.Width);
 		}
+
+		public override void Dispose()
+		{
+			_smears?.Clear();
+			base.Dispose();
+		}
 	}
 }
