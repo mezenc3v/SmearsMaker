@@ -21,7 +21,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 		private readonly IServicesFactory _factory;
 		private List<Smear> _smears;
 
-		public STracer(BitmapSource image, IProgress progress) : base(image, progress)
+		public STracer(BitmapSource image) : base(image)
 		{
 			_settings = new StImageSettings(Model.Width, Model.Height);
 			_factory = new SmearFactory(_settings, Model, Progress);
@@ -32,7 +32,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 			var filter = _factory.CreateFilter();
 			var kmeans = _factory.CreateClusterizer();
 			var supPixSplitter = _factory.CreateSplitter();
-			var bsm = _factory.CreateBsm();
+			var bsm = _factory.CreateStrokesBuilder();
 
 			var segmentsCount = 0;
 			var smearsCount = 0;

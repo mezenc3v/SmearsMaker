@@ -71,7 +71,7 @@ namespace SmearsMaker.Wpf
 		{
 			if (_image == null || tracer == null) return;
 			_tracer?.Dispose();
-			_tracer = Activator.CreateInstance(tracer, _image, new Progress()) as ITracer;
+			_tracer = Activator.CreateInstance(tracer, _image) as ITracer;
 			
 			_tracer.Progress.UpdateProgress += UpdateProgress;
 			Settings = _tracer.Settings;

@@ -58,7 +58,7 @@
     <Compile Include="Image\ImageSetting.cs" />
     <Compile Include="Image\ImageView.cs" />
     <Compile Include="ITracer.cs" />
-    <Compile Include="Progress.cs" />
+    <Compile Include="ProgressImpl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TracerBase.cs" />
   </ItemGroup>

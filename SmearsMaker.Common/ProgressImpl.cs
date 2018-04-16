@@ -2,7 +2,7 @@
 
 namespace SmearsMaker.Common
 {
-	public class Progress : IProgress
+	internal class ProgressImpl : IProgress
 	{
 		public event EventHandler<ProgressBarEventArgs> UpdateProgress;
 

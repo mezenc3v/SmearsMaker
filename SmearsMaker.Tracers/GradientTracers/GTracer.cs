@@ -25,7 +25,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 		internal readonly GtImageSettings GtSettings;
 		internal IServicesFactory Factory;
 
-		protected GTracer(BitmapSource image, IProgress progress) : base(image, progress)
+		protected GTracer(BitmapSource image) : base(image)
 		{
 			GtSettings = new GtImageSettings(Model.Width, Model.Height);
 		}
@@ -35,7 +35,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			var detector = Factory.CreateDetector();
 			var splitter = Factory.CreateSplitter();
 			var filter = Factory.CreateFilter();
-			var bsm = Factory.CreateBsm();
+			var bsm = Factory.CreateStrokesBuilder();
 
 			var segment = new Segment();
 			var points = Model.Points;

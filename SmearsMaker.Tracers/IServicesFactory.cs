@@ -4,7 +4,7 @@ namespace SmearsMaker.Tracers
 {
 	public interface IServicesFactory
 	{
-		IStrokesBuilder CreateBsm();
+		IStrokesBuilder CreateStrokesBuilder();
 		ISplitter CreateSplitter();
 		IClusterizer CreateClusterizer();
 		IFilter CreateFilter();

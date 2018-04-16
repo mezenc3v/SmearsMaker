@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using NLog;
@@ -17,10 +16,10 @@ namespace SmearsMaker.Common
 
 		protected static readonly ILogger Log = LogManager.GetCurrentClassLogger();
 
-		protected TracerBase(BitmapSource image, IProgress progress)
+		protected TracerBase(BitmapSource image)
 		{
 			Model = new ImageModel(image);
-			Progress = progress;
+			Progress = new ProgressImpl();
 		}
 
 		public abstract Task Execute();
