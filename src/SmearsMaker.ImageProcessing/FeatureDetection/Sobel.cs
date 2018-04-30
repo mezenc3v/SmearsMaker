@@ -1,0 +1,88 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using SmearsMaker.Common;
+using SmearsMaker.Common.BaseTypes;
+
+namespace SmearsMaker.ImageProcessing.FeatureDetection
+{
+	public class Sobel : IDetector
+	{
+		private readonly int _width;
+		private readonly int _height;
+		public Sobel(int width, int height)
+		{
+			_width = width;
+			_height = height;
+		}
+
+		public PointCollection Compute(PointCollection points)
+		{
+			var result = points.Clone();
+			result.Addlayer(Layers.Gradient);
+			result.Addlayer(Layers.Curves);
+			var arrLength = result.First().Pixels[Layers.Original].Length;
+
+			Parallel.For(0, _width, (coordX) =>
+			{
+				for (int coordY = 0; coordY < _height; coordY++)
+				{
+					var mask = GetMask(result, coordX, coordY);
+					var pos = coordX * _height + coordY;
+					var gradient = new float[arrLength];
+					var curve = new float[arrLength];
+					var gx = (int)((mask[6].GrayScale + mask[7].GrayScale * 2 + mask[8].GrayScale) - (mask[0].GrayScale + mask[1].GrayScale * 2 + mask[2].GrayScale));
+					var gy = (mask[2].GrayScale + mask[5].GrayScale * 2 + mask[8].GrayScale) - (mask[0].GrayScale + mask[3].GrayScale * 2 + mask[6].GrayScale);
+					var norm = (float)Math.Sqrt(gx * gx + gy * gy);
+					var tetta = (float)(Math.Atan(gy / gx) * 180 / Math.PI);
+					if (gx < 0)
+					{
+						tetta += 180;
+					}
+					else if (gx == 0)
+					{
+						tetta = 0;
+					}
+
+					for (int i = 0; i < gradient.Length - 1; i++)
+					{
+						gradient[i] = tetta;
+						curve[i] = norm;
+					}
+
+					lock (result)
+					{
+						result[pos].Pixels[Layers.Gradient].Data = gradient;
+						result[pos].Pixels[Layers.Curves].Data = curve;
+					}
+				}
+			});
+
+			return result;
+		}
+
+		private List<Pixel> GetMask(PointCollection units, int x, int y)
+		{
+			var mask = new List<Pixel>();
+			var size = units.First().Pixels[Layers.Original].Length;
+
+			for (int coordMaskX = x - 1; coordMaskX <= x + 1; coordMaskX++)
+			{
+				for (int coordMaskY = y - 1; coordMaskY <= y + 1; coordMaskY++)
+				{
+					var idx = coordMaskX * _height + coordMaskY;
+					if (idx < _height * _width && coordMaskX >= 0 && coordMaskY >= 0)
+					{
+						mask.Add(units[idx].Pixels[Layers.Filtered]);
+					}
+					else
+					{
+						mask.Add(Pixel.CreateInstance(new float[size]));
+					}
+				}
+			}
+			return mask;
+		}
+	}
+}

@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Wpf", "SmearsMaker.Wpf\SmearsMaker.Wpf.csproj", "{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Common", "src\SmearsMaker.Common\SmearsMaker.Common.csproj", "{9425D82A-B2E0-4718-A7AA-7A8177B87696}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Common", "SmearsMaker.Common\SmearsMaker.Common.csproj", "{9425D82A-B2E0-4718-A7AA-7A8177B87696}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "src\SmearsMaker.HPGL\SmearsMaker.HPGL.csproj", "{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.HPGL", "SmearsMaker.HPGL\SmearsMaker.HPGL.csproj", "{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.ImageProcessing", "src\SmearsMaker.ImageProcessing\SmearsMaker.ImageProcessing.csproj", "{47B17174-8236-404B-9D59-BE97B9D8A5B8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.ImageProcessing", "SmearsMaker.ImageProcessing\SmearsMaker.ImageProcessing.csproj", "{47B17174-8236-404B-9D59-BE97B9D8A5B8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Tracers", "src\SmearsMaker.Tracers\SmearsMaker.Tracers.csproj", "{28937452-0D9B-459F-BB87-E27A89255081}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Tracers", "SmearsMaker.Tracers\SmearsMaker.Tracers.csproj", "{28937452-0D9B-459F-BB87-E27A89255081}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmearsMaker.Wpf", "src\SmearsMaker.Wpf\SmearsMaker.Wpf.csproj", "{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,10 +19,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9425D82A-B2E0-4718-A7AA-7A8177B87696}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -39,6 +35,10 @@ Global
 		{28937452-0D9B-459F-BB87-E27A89255081}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28937452-0D9B-459F-BB87-E27A89255081}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28937452-0D9B-459F-BB87-E27A89255081}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A30B1A6-A723-4BE6-B003-FDC0BC062B9C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
