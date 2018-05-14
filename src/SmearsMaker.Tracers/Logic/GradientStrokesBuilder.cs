@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using SmearsMaker.Common;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing;
-using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Extentions;
 using SmearsMaker.Tracers.Helpers;
@@ -30,7 +29,7 @@ namespace SmearsMaker.Tracers.Logic
 			_rnd = new Random();
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<BaseShape> objs)
 		{
 			
 			var strokesFromGroups = new List<BrushStroke>();
@@ -101,17 +100,17 @@ namespace SmearsMaker.Tracers.Logic
 			return result;
 		}
 
-		private List<List<Segment>> SplitSegmentsByColor(IEnumerable<Segment> objs)
+		private List<List<BaseShape>> SplitSegmentsByColor(IEnumerable<BaseShape> objs)
 		{
-			var groups = new List<List<Segment>>();
-			var segments = new List<Segment>();
+			var groups = new List<List<BaseShape>>();
+			var segments = new List<BaseShape>();
 			segments.AddRange(objs);
 
 			while (segments.Count > 0)
 			{
 				var segment = segments[_rnd.Next(0, segments.Count)];
 				var searchableSegments = segments.FindAll(s => s.IsSameColor(segment, _tolerance, Layers.Gradient));
-				var group = new List<Segment>();
+				var group = new List<BaseShape>();
 				group.AddRange(searchableSegments);
 				segments.RemoveAll(p => searchableSegments.Contains(p));
 				segments.Remove(segment);

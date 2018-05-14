@@ -20,7 +20,7 @@ namespace SmearsMaker.Tracers.Logic
 			_progress = progress;
 		}
 
-		public virtual List<Segment> Splitting(Segment segment)
+		public virtual List<Segment> Splitting(BaseShape segment)
 		{
 			segment.Points.Addlayer(Layers.SuperPixels);
 			//spliting complex segment into superPixels
@@ -52,7 +52,7 @@ namespace SmearsMaker.Tracers.Logic
 			return segments;
 		}
 
-		protected Dictionary<System.Windows.Point, Segment> PlacementCenters(double diameter, Segment segment)
+		protected Dictionary<System.Windows.Point, Segment> PlacementCenters(double diameter, BaseShape segment)
 		{
 			var samplesData = new Dictionary<System.Windows.Point, Segment>();
 

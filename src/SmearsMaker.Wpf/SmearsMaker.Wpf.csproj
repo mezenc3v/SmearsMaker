@@ -65,7 +65,7 @@
     </ApplicationDefinition>
     <Compile Include="ApplicationViewModel.cs" />
     <Compile Include="Command.cs" />
-    <Compile Include="Helper.cs" />
+    <Compile Include="FileHelper.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

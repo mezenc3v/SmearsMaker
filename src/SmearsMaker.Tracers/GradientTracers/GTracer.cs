@@ -57,7 +57,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Log.Trace("Создание мазков");
-				_strokes = bsm.Execute(_superPixels);
+				_strokes = bsm.Execute(_superPixels.ToList<BaseShape>());
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes.Count} мазков");
 				Log.Trace("Обработка изображения завершена");

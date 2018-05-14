@@ -63,7 +63,7 @@ namespace SmearsMaker.Wpf
 			_images = new List<ImageView>();
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
-			Tracers = Helper.LoadLibraries();
+			Tracers = FileHelper.LoadLibraries();
 			_readerImpl = new PltReaderImpl();
 		}
 
@@ -110,7 +110,7 @@ namespace SmearsMaker.Wpf
 			try
 			{
 				var plt = _tracer.CreatePlt();
-				Helper.SavePlt(plt);
+				FileHelper.SavePlt(plt);
 			}
 			catch (Exception ex)
 			{
@@ -138,7 +138,7 @@ namespace SmearsMaker.Wpf
 
 		public void OpenPlt()
 		{
-			var name = Helper.OpenPlt();
+			var name = FileHelper.OpenPlt();
 			if (name != null)
 			{
 				CurrentImage = _readerImpl.ReadPlt(name);
@@ -152,7 +152,7 @@ namespace SmearsMaker.Wpf
 
 		private void OpenFile()
 		{
-			var imageUri = Helper.OpenImage();
+			var imageUri = FileHelper.OpenImage();
 			if (imageUri == null) return;
 			_image = new BitmapImage(imageUri);
 			CurrentImage = _image;
@@ -166,11 +166,11 @@ namespace SmearsMaker.Wpf
 
 		private void SaveImagesInFolder()
 		{
-			var path = Helper.GetFolder();
+			var path = FileHelper.GetFolder();
 
 			foreach (var image in _images)
 			{
-				Helper.SaveBitmapSource(path, image.Name, image.Source);
+				FileHelper.SaveBitmapSource(path, image.Name, image.Source);
 			}
 		}
 

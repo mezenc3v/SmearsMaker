@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing;
-using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
@@ -21,14 +20,14 @@ namespace SmearsMaker.Tracers.Logic
 			_maxLemgth = width;
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<BaseShape> objs)
 		{
 			FindPoints(objs);
 			if (objs.Count > 0)
 			{
 				var size = Math.Sqrt(objs.First().Points.Count);
 				var brushStrokes = new List<BrushStroke>();
-				var points = new List<Segment>();
+				var points = new List<BaseShape>();
 				points.AddRange(objs);
 
 				double length = 0;

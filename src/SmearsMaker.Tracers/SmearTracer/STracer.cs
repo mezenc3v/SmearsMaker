@@ -76,7 +76,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList());
+							var smears = bsm.Execute(superPixels.ToList<BaseShape>());
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{

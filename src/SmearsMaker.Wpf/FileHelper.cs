@@ -11,7 +11,7 @@ using SmearsMaker.Common;
 
 namespace SmearsMaker.Wpf
 {
-	public static class Helper
+	public static class FileHelper
 	{
 		internal static List<Type> LoadLibraries()
 		{

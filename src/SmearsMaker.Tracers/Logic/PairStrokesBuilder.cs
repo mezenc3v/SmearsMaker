@@ -2,7 +2,6 @@
 using System.Linq;
 using SmearsMaker.Common.BaseTypes;
 using SmearsMaker.ImageProcessing;
-using SmearsMaker.ImageProcessing.Segmenting;
 using SmearsMaker.ImageProcessing.StrokesFormation;
 using SmearsMaker.Tracers.Helpers;
 using SmearsMaker.Tracers.Model;
@@ -18,7 +17,7 @@ namespace SmearsMaker.Tracers.Logic
 			_maxDistance = width;
 		}
 
-		public List<BrushStroke> Execute(List<Segment> objs)
+		public List<BrushStroke> Execute(List<BaseShape> objs)
 		{
 			var pairs = Pairing(objs);
 			var brushStrokes = Combining(pairs);
@@ -228,7 +227,7 @@ namespace SmearsMaker.Tracers.Logic
 			return newSequence;
 		}
 
-		private static System.Windows.Point GetCenter(IReadOnlyCollection<Segment> objs)
+		private static System.Windows.Point GetCenter(IReadOnlyCollection<BaseShape> objs)
 		{
 			var x = 0d;
 			var y = 0d;
@@ -240,10 +239,10 @@ namespace SmearsMaker.Tracers.Logic
 
 			return new System.Windows.Point(x / objs.Count, y / objs.Count);
 		}
-		private List<BrushStroke> Pairing(IReadOnlyCollection<Segment> objs)
+		private List<BrushStroke> Pairing(IReadOnlyCollection<BaseShape> objs)
 		{
 			var brushStrokes = new List<BrushStroke>();
-			var points = new List<Segment>();
+			var points = new List<BaseShape>();
 			points.AddRange(objs);
 
 			if (objs.Count > 1)
@@ -286,7 +285,7 @@ namespace SmearsMaker.Tracers.Logic
 
 						brushStrokes.RemoveAt(index);
 						brushStrokes.Add(newSequence);
-						points = new List<Segment>();
+						points = new List<BaseShape>();
 					}
 				}
 			}

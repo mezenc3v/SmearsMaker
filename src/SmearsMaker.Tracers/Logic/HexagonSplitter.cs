@@ -22,7 +22,7 @@ namespace SmearsMaker.Tracers.Logic
 			_progress = progress;
 		}
 
-		public List<Segment> Splitting(Segment segment)
+		public List<Segment> Splitting(BaseShape segment)
 		{
 			segment.Points.Addlayer(Layers.SuperPixels);
 			_inscribedRadius = Math.Sqrt(3) / 2 * _circumscribedRadius;
@@ -98,7 +98,7 @@ namespace SmearsMaker.Tracers.Logic
 			return nearest;
 		}
 
-		protected List<List<(System.Windows.Point, Segment)>> PlacementCenters(double diameter, Segment segment)
+		protected List<List<(System.Windows.Point, Segment)>> PlacementCenters(double diameter, BaseShape segment)
 		{
 			var (minx, miny, maxx, maxy) = segment.GetExtremums();
 
