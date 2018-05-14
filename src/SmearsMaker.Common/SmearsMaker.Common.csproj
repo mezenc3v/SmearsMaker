@@ -76,5 +76,11 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SmearsMaker.HPGL\SmearsMaker.HPGL.csproj">
+      <Project>{F56C57BB-3D59-436B-BC1E-B40B2C7B9DB5}</Project>
+      <Name>SmearsMaker.HPGL</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

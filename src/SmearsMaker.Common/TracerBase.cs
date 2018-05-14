@@ -24,8 +24,7 @@ namespace SmearsMaker.Common
 
 		public abstract Task Execute();
 
-		public abstract string GetPlt();
-
+		public abstract string CreatePlt();
 
 		public virtual void Dispose()
 		{

@@ -107,7 +107,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 			};
 		}
 
-		public override string GetPlt()
+		public override string CreatePlt()
 		{
 			return PltHelper.GetPlt(_strokes, GtSettings.HeightPlt.Value, GtSettings.WidthPlt.Value, GtSettings.WidthSmear.Value, Model.Height, Model.Width);
 		}

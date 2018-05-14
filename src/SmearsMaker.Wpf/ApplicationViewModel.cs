@@ -53,7 +53,7 @@ namespace SmearsMaker.Wpf
 		private int _currentImageIndex;
 		private ITracer _tracer;
 		private BitmapImage _image;
-		private readonly PltReader _reader;
+		private readonly PltReaderImpl _readerImpl;
 
 		public ApplicationViewModel()
 		{
@@ -64,7 +64,7 @@ namespace SmearsMaker.Wpf
 			_currentImageIndex = 0;
 			Label = "Выберите изображение";
 			Tracers = Helper.LoadLibraries();
-			_reader = new PltReader();
+			_readerImpl = new PltReaderImpl();
 		}
 
 		public void SetAlgorithm(Type tracer)
@@ -109,7 +109,7 @@ namespace SmearsMaker.Wpf
 
 			try
 			{
-				var plt = _tracer.GetPlt();
+				var plt = _tracer.CreatePlt();
 				Helper.SavePlt(plt);
 			}
 			catch (Exception ex)
@@ -141,7 +141,7 @@ namespace SmearsMaker.Wpf
 			var name = Helper.OpenPlt();
 			if (name != null)
 			{
-				CurrentImage = _reader.Read(name);
+				CurrentImage = _readerImpl.ReadPlt(name);
 			}
 		}
 

@@ -213,7 +213,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 			return ImageHelper.PaintStrokes(Model.Image, _smears.Select(s => s.BrushStroke), ((int)_settings.MinSizeSuperpixel.Value) / 20 + 1);
 		}
 
-		public override string GetPlt()
+		public override string CreatePlt()
 		{
 			return PltHelper.GetPlt(_smears.Select(s=>s.BrushStroke).ToList(), _settings.HeightPlt.Value, _settings.WidthPlt.Value, _settings.WidthSmear.Value, Model.Height, Model.Width);
 		}
