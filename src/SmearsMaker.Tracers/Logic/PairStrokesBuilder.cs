@@ -17,9 +17,10 @@ namespace SmearsMaker.Tracers.Logic
 			_maxDistance = width;
 		}
 
-		public List<BrushStroke> Execute(List<BaseShape> objs)
+		public List<BrushStroke> Execute(IEnumerable<BaseShape> objs)
 		{
-			var pairs = Pairing(objs);
+			var objsList = objs.ToList();
+			var pairs = Pairing(objsList);
 			var brushStrokes = Combining(pairs);
 			return brushStrokes;
 		}

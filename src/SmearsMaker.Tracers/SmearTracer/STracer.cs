@@ -33,7 +33,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 			var kmeans = _factory.CreateClusterizer();
 			var supPixSplitter = _factory.CreateSplitter();
 			var bsm = _factory.CreateStrokesBuilder();
-
+			var points = Model.Points;
 			var segmentsCount = 0;
 			var smearsCount = 0;
 
@@ -43,7 +43,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 				Log.Trace("Начало обработки изображения");
 				Progress.NewProgress("Фильтрация");
 				var sw = Stopwatch.StartNew();
-				var filteredPoints = filter.Filtering(Model.Points);
+				var filteredPoints = filter.Filtering(points);
 				Log.Trace($"Фильтрация заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Progress.NewProgress("Кластеризация");
@@ -76,7 +76,7 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 						if (superPixels.Count > 0)
 						{
-							var smears = bsm.Execute(superPixels.ToList<BaseShape>());
+							var smears = bsm.Execute(superPixels);
 							smearsCount += smears.Count;
 							foreach (var smear in smears)
 							{
@@ -113,6 +113,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 
 		private List<ImageView> CreateViews()
 		{
+			Progress.NewProgress("Вычисление погрешности");
+			var diffImage = Model.GetDifference(BrushStrokesPlt(), Layers.Original);
+
 			return new List<ImageView>
 			{
 				new ImageView(Model.Image, "Оригинал"),
@@ -121,7 +124,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 				new ImageView(Segments(), "Сегменты"),
 				new ImageView(BrushStrokes(), "Мазки"),
 				new ImageView(RandomBrushStrokes(), "Мазки(рандом)"),
-				new ImageView(BrushStrokesLines(), "Мазки(линии)")
+				new ImageView(BrushStrokesLines(), "Мазки(линии)"),
+				new ImageView(BrushStrokesPlt(), "Мазки"),
+				new ImageView(diffImage, "Погрешность")
 			};
 		}
 
@@ -182,8 +187,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 				var center = objs.OrderBy(p => p.GetCenter(Layers.Original).Sum).ToList()[objs.Count / 2].GetCenter(Layers.Original).Data;
 				foreach (var obj in objs)
 				{
-					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(center));
-					data.AddRange(obj.Points);
+					var pointsClone = obj.Points.Clone();
+					pointsClone.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(center));
+					data.AddRange(pointsClone);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -200,8 +206,9 @@ namespace SmearsMaker.Tracers.SmearTracer
 				color.Add(255);
 				foreach (var obj in objs)
 				{
-					obj.Points.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(color.ToArray()));
-					data.AddRange(obj.Points);
+					var pointsClone = obj.Points.Clone();
+					pointsClone.ForEach(d => d.Pixels[Layers.Filtered] = Pixel.CreateInstance(color.ToArray()));
+					data.AddRange(pointsClone);
 				}
 			}
 			return Model.ConvertToBitmapSource(data, Layers.Filtered);
@@ -211,6 +218,11 @@ namespace SmearsMaker.Tracers.SmearTracer
 		{
 			Progress.NewProgress("Вычисление мазков (линии)");
 			return ImageHelper.PaintStrokes(Model.Image, _smears.Select(s => s.BrushStroke), ((int)_settings.MinSizeSuperpixel.Value) / 20 + 1);
+		}
+		private BitmapSource BrushStrokesPlt()
+		{
+			Progress.NewProgress("Вычисление мазков");
+			return ImageHelper.PaintStrokes(Model.Image, _smears.Select(s => s.BrushStroke), (float)_settings.WidthSmear.Value);
 		}
 
 		public override string CreatePlt()

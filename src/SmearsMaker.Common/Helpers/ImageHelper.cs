@@ -28,7 +28,7 @@ namespace SmearsMaker.Common.Helpers
 			return inputData;
 		}
 
-		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, PointCollection points, string name)
+		internal static BitmapSource ConvertRgbToBitmap(BitmapSource source, PointCollection points, string layer)
 		{
 			var stride = source.PixelWidth * DataFormatSize;
 			var size = source.PixelHeight * stride;
@@ -37,7 +37,7 @@ namespace SmearsMaker.Common.Helpers
 			foreach (var pixel in points)
 			{
 				var indexPixel = (int)(pixel.Position.Y * stride + DataFormatSize * pixel.Position.X);
-				var dataArray = pixel.Pixels[name].Data;
+				var dataArray = pixel.Pixels[layer].Data;
 				for (int i = 0; i < dataArray.Length; i++)
 				{
 					data[indexPixel + i] = (byte)dataArray[i];

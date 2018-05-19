@@ -57,7 +57,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				sw.Restart();
 				Log.Trace("Создание мазков");
-				_strokes = bsm.Execute(_superPixels.ToList<BaseShape>());
+				_strokes = bsm.Execute(_superPixels);
 				Log.Trace($"Операция заняла {sw.Elapsed.Seconds} с.");
 				Log.Trace($"Сформировано {_superPixels.Count} суперпикселей, {_strokes.Count} мазков");
 				Log.Trace("Обработка изображения завершена");
@@ -93,6 +93,9 @@ namespace SmearsMaker.Tracers.GradientTracers
 			newCollection.AddRange(_superPixels.Select(s => s.GetCenterPoint()).ToList());
 			var centres = Model.ConvertToBitmapSource(newCollection, Layers.Original);
 
+			Progress.NewProgress("Вычисление погрешности");
+			var diffImage = Model.GetDifference(smearsMap, Layers.Original);
+
 			return new List<ImageView>
 			{
 				new ImageView(Model.Image, "Оригинал"),
@@ -104,6 +107,7 @@ namespace SmearsMaker.Tracers.GradientTracers
 				new ImageView(spixels, "Суперпиксели"),
 				new ImageView(smearsMap, "Мазки (Линии)"),
 				new ImageView(smears, "Мазки"),
+				new ImageView(diffImage, "Погрешность")
 			};
 		}
 

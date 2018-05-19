@@ -6,6 +6,6 @@ namespace SmearsMaker.ImageProcessing
 {
 	public interface IStrokesBuilder
 	{
-		List<BrushStroke> Execute(List<BaseShape> objs);
+		List<BrushStroke> Execute(IEnumerable<BaseShape> objs);
 	}
 }

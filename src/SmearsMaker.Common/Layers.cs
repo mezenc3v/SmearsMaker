@@ -7,5 +7,6 @@
 		public static string SuperPixels = "SuperPixels";
 		public static string Gradient = "Gradient";
 		public static string Curves = "Curves";
+		public static string BrushStrokes = "BrushStrokes";
 	}
 }

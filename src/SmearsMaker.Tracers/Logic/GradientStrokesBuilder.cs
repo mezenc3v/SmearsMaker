@@ -29,7 +29,7 @@ namespace SmearsMaker.Tracers.Logic
 			_rnd = new Random();
 		}
 
-		public List<BrushStroke> Execute(List<BaseShape> objs)
+		public List<BrushStroke> Execute(IEnumerable<BaseShape> objs)
 		{
 			
 			var strokesFromGroups = new List<BrushStroke>();

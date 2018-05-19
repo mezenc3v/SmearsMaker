@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using SmearsMaker.Common.Helpers;
 
 namespace SmearsMaker.Common.BaseTypes
@@ -36,6 +37,19 @@ namespace SmearsMaker.Common.BaseTypes
 			return new PointCollection(this);
 		}
 
+		public void AddLayers(IEnumerable<string> layers)
+		{
+			if (layers == null)
+			{
+				throw new NullReferenceException(nameof(layers));
+			}
+
+			foreach (var layer in layers)
+			{
+				Addlayer(layer);
+			}
+		}
+
 		public void Addlayer(string layer)
 		{
 			if (Layers.Contains(layer))
@@ -50,10 +64,7 @@ namespace SmearsMaker.Common.BaseTypes
 
 		public void AddRange(PointCollection points)
 		{
-			foreach (var point in points)
-			{
-				Add(point);
-			}
+			AddRange(points.ToList());
 		}
 
 		public void AddRange(List<Point> points)

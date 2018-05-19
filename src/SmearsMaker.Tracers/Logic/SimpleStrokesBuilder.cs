@@ -20,10 +20,14 @@ namespace SmearsMaker.Tracers.Logic
 			_maxLemgth = width;
 		}
 
-		public List<BrushStroke> Execute(List<BaseShape> objs)
+		public List<BrushStroke> Execute(IEnumerable<BaseShape> objs)
 		{
-			FindPoints(objs);
-			if (objs.Count > 0)
+			if (objs == null)
+				throw new NullReferenceException(nameof(objs));
+
+			var objsList = objs.ToList();
+			FindPoints(objsList);
+			if (objsList.Count > 0)
 			{
 				var size = Math.Sqrt(objs.First().Points.Count);
 				var brushStrokes = new List<BrushStroke>();
@@ -88,7 +92,7 @@ namespace SmearsMaker.Tracers.Logic
 			return new List<BrushStroke>();
 		}
 
-		private void FindPoints(IReadOnlyCollection<BaseShape> objs)
+		private void FindPoints(IEnumerable<BaseShape> objs)
 		{
 			var finish = objs.First().Points.First().Position;
 			double maxDistance = 0;

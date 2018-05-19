@@ -6,7 +6,7 @@ namespace SmearsMaker.HPGL
 {
 	internal static class PltHelper
 	{
-		internal static BitmapSource ToBitmapSource(DrawingImage source, int width, int heigth)
+		internal static BitmapSource ToBitmapSource(DrawingImage source, int heigth, int width)
 		{
 			var drawingVisual = new DrawingVisual();
 			var drawingContext = drawingVisual.RenderOpen();
